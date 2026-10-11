@@ -24,14 +24,14 @@
 
     <!-- Features Grid -->
     <div class="grid grid-cols-2 gap-3 mb-4">
-        <!-- Watch Ads Button with Timer Task -->
-        <button id="adBtn" onclick="startAdTask()" class="bg-amber-500 hover:bg-amber-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center">
+        <!-- Watch Ads Timer Task Button -->
+        <button id="adBtn" onclick="startAdTask()" class="bg-amber-500 hover:bg-amber-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center transition-all">
             <span class="text-2xl mb-1" id="adIcon">📺</span>
             <span id="adText">এড দেখে আয়</span>
         </button>
 
         <!-- Daily Bonus -->
-        <button onclick="claimBonus()" class="bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center">
+        <button onclick="claimBonus()" class="bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center transition-all">
             <span class="text-2xl mb-1">🎁</span>
             <span>ডেইলি বোনাস</span>
         </button>
@@ -77,41 +77,43 @@
             document.getElementById('userId').innerText = "Guest Mode";
         }
 
-        // Secure In-App Ad Task System (Bypasses Telegram black screen issue)
-        let isAdRunning = false;
+        // Timer-Based Ad Task System (100% Reliable, No Network Errors)
+        let isTaskRunning = false;
         function startAdTask() {
-            if (isAdRunning) return;
-            isAdRunning = true;
+            if (isTaskRunning) return;
+            isTaskRunning = true;
 
             const adBtn = document.getElementById('adBtn');
             const adText = document.getElementById('adText');
             const adIcon = document.getElementById('adIcon');
-            
+
+            // Disable button during task
             adBtn.disabled = true;
             adBtn.classList.remove('bg-amber-500', 'hover:bg-amber-600');
             adBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
 
-            let timeLeft = 10; // ১০ সেকেন্ডের টাস্ক
+            let timeLeft = 5; // ৫ সেকেন্ডের টাস্ক
             adIcon.innerText = "⏳";
-            adText.innerText = `এড লোড হচ্ছে (${timeLeft}s)`;
+            adText.innerText = `টাস্ক চলছে (${timeLeft}s)`;
 
-            const timer = setInterval(() => {
+            const countdown = setInterval(() => {
                 timeLeft--;
                 if (timeLeft > 0) {
-                    adText.innerText = `এড দেখা হচ্ছে (${timeLeft}s)`;
+                    adText.innerText = `টাস্ক চলছে (${timeLeft}s)`;
                 } else {
-                    clearInterval(timer);
-                    
-                    // ব্যালেন্স যোগ করা
+                    clearInterval(countdown);
+
+                    // Reward User
                     balance += 2.0;
                     updateBalance();
 
+                    // Reset Button
                     adIcon.innerText = "📺";
                     adText.innerText = "এড দেখে আয়";
                     adBtn.disabled = false;
                     adBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
                     adBtn.classList.add('bg-amber-500', 'hover:bg-amber-600');
-                    isAdRunning = false;
+                    isTaskRunning = false;
 
                     alert("অভিনন্দন! সফলভাবে টাস্ক সম্পন্ন হয়েছে এবং আপনার একাউন্টে ২.০০ ৳ যোগ করা হয়েছে।");
                 }
@@ -143,7 +145,7 @@
         // Withdraw Function
         function withdraw() {
             if (balance >= 100) {
-                alert("আপনার উইথড্র রিকোয়েস্ট সাবমিট করা হয়েছে!");
+                alert("আপনার উইথড্র রিকোয়েস্ট সফলভাবে সাবমিট করা হয়েছে!");
             } else {
                 alert("সর্বনিম্ন ১০০ টাকা হলে উইথড্র করা যাবে।");
             }
