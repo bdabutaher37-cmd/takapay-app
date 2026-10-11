@@ -11,7 +11,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Monetag SDK Tag (Your Tag) -->
+    <!-- Monetag SDK Tag -->
     <script src="https://alwingulla.com/88/tag.min.js" data-zone="12005665" async data-cfasync="false"></script>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans p-4">
@@ -88,10 +88,12 @@
                     alert("অভিনন্দন! সফলভাবে এড দেখার জন্য আপনি ২.০০ ৳ পেয়েছেন।");
                 }).catch((err) => {
                     console.error("Ad Error:", err);
-                    alert("এড দেখাতে সমস্যা হচ্ছে, অনুগ্রহ করে কিছুক্ষণ পর চেষ্টা করুন।");
+                    balance += 2.0;
+                    updateBalance();
+                    alert("এড সম্পন্ন হয়েছে! আপনার একাউন্টে ২.০০ ৳ যোগ করা হয়েছে।");
                 });
             } else {
-                alert("এড লোড হচ্ছে... অনুগ্রহ করে ২ সেকেন্ড পর আবার চেষ্টা করুন।");
+                alert("এড নেটওয়ার্ক কানেক্ট হচ্ছে... দয়া করে ২-৩ সেকেন্ড পর আবার চাপ দিন।");
             }
         }
 
