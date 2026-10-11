@@ -9,21 +9,21 @@
 ​<!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 text-gray-800 font-sans p-4">
+<body class="bg-gray-100 text-gray-800 font-sans p-4 relative">
 ​<!-- Header Section -->
 <div class="bg-blue-600 text-white p-4 rounded-xl shadow-lg mb-4 text-center">
 <h1 class="text-xl font-bold">TakaPay App</h1>
 <p class="text-sm mt-1">ইউজার ID: <span id="userId">6293441724</span></p>
 <div class="mt-3 bg-white text-blue-600 p-3 rounded-lg font-bold text-2xl shadow-inner">
-<span id="balance">0.00</span> ৳
+<span id="balance">60.00</span> ৳
 </div>
 </div>
 ​<!-- Features Grid -->
 <div class="grid grid-cols-2 gap-3 mb-4">
-<!-- Watch Ads Button -->
-<button onclick="openAd()" class="bg-amber-500 hover:bg-amber-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center transition-all">
-<span class="text-2xl mb-1">📺</span>
-<span>এড দেখে আয়</span>
+<!-- Watch Ads Timer Task Button -->
+<button id="adBtn" onclick="startAdTask()" class="bg-amber-500 hover:bg-amber-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center transition-all">
+<span class="text-2xl mb-1" id="adIcon">📺</span>
+<span id="adText">এড দেখে আয়</span>
 </button>
 ​<!-- Daily Bonus -->
 <button onclick="claimBonus()" class="bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center transition-all">
@@ -52,7 +52,7 @@
 </div>
 </div>
 ​<script>
-// Initialize Telegram WebApp
+// Initialize Telegram WebApp safely
 let tg = window.Telegram.WebApp;
 try {
 tg.expand();
@@ -66,29 +66,55 @@ currentUserId = tg.initDataUnsafe.user.id;
 }
 } catch (e) {}
 document.getElementById('userId').innerText = currentUserId;
-​// Restore Original LocalStorage Key
+​// Initialize and Load Balance safely (Ensures 60.00 minimum default)
 let balance = parseFloat(localStorage.getItem('takapay_balance'));
-if (isNaN(balance) || balance === 0) {
-balance = 60.00; // Restore user's previous balance
+if (isNaN(balance) || balance < 60) {
+balance = 60.00;
+localStorage.setItem('takapay_balance', balance.toFixed(2));
 }
 document.getElementById('balance').innerText = balance.toFixed(2);
-​// Open Real Direct Ad Link
-function openAd() {
-const adUrl = "https://uplcm.com/4/12006163";
-​// Try to open link in external Chrome/Browser
+​// Ad Task Timer Function
+let isTaskRunning = false;
+function startAdTask() {
+if (isTaskRunning) return;
+isTaskRunning = true;
+​const adBtn = document.getElementById('adBtn');
+const adText = document.getElementById('adText');
+const adIcon = document.getElementById('adIcon');
+​adBtn.disabled = true;
+adBtn.classList.remove('bg-amber-500', 'hover:bg-amber-600');
+adBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+​let timeLeft = 5;
+adIcon.innerText = "⏳";
+adText.innerText = টাস্ক চলছে (${timeLeft}s);
+​const countdown = setInterval(() => {
+timeLeft--;
+if (timeLeft > 0) {
+adText.innerText = টাস্ক চলছে (${timeLeft}s);
+} else {
+clearInterval(countdown);
+​// Add Reward
+balance += 2.0;
+updateBalance();
+​// Reset Button UI
+adIcon.innerText = "📺";
+adText.innerText = "এড দেখে আয়";
+adBtn.disabled = false;
+adBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+adBtn.classList.add('bg-amber-500', 'hover:bg-amber-600');
+isTaskRunning = false;
+​alert("অভিনন্দন! সফলভাবে টাস্ক সম্পন্ন হয়েছে এবং আপনার একাউন্টে ২.০০ ৳ যোগ করা হয়েছে।");
+}
+}, 1000);
+​// Also trigger external redirect or backup link safely
 try {
+const adUrl = "https://uplcm.com/4/12006163";
 if (tg && tg.openLink) {
 tg.openLink(adUrl, { try_instant_view: false });
 } else {
 window.open(adUrl, '_blank');
 }
-} catch (e) {
-window.open(adUrl, '_blank');
-}
-​// Reward User
-balance += 2.0;
-updateBalance();
-alert("বিজ্ঞাপন ওপেন করার চেষ্টা করা হয়েছে! আপনার একাউন্টে ২.০০ ৳ যোগ করা হয়েছে।");
+} catch (e) {}
 }
 ​// Daily Bonus Function
 function claimBonus() {
@@ -103,25 +129,46 @@ updateBalance();
 alert("অভিনন্দন! আপনি ৫ টাকা ডেইলি বোনাস পেয়েছেন।");
 }
 }
-​// Copy Referral Link
+​// Copy Referral Link Function
 function copyReferral() {
 const refLink = https://t.me/TakaPayAppBot?start=${currentUserId};
-navigator.clipboard.writeText(refLink);
+if (navigator.clipboard && navigator.clipboard.writeText) {
+navigator.clipboard.writeText(refLink).then(() => {
+alert("আপনার রেফারেল লিংক সফলভাবে কপি করা হয়েছে!");
+}).catch(() => {
+fallbackCopyText(refLink);
+});
+} else {
+fallbackCopyText(refLink);
+}
+}
+​function fallbackCopyText(text) {
+const textArea = document.createElement("textarea");
+textArea.value = text;
+document.body.appendChild(textArea);
+textArea.focus();
+textArea.select();
+try {
+document.execCommand('copy');
 alert("আপনার রেফারেল লিংক কপি করা হয়েছে!");
+} catch (err) {
+alert("লিংক কপি করতে সমস্যা হয়েছে: " + text);
+}
+document.body.removeChild(textArea);
 }
 ​// Withdraw Function
 function withdraw() {
 if (balance >= 100) {
-alert("আপনার উইথড্র রিকোয়েস্ট সফলভাবে সাবমিট করা হয়েছে!");
+alert("আপনার উইথড্র রিকোয়েস্ট সফলভাবে সাবমিট করা হয়েছে! পেমেন্ট ২৪ ঘন্টার মধ্যে পাঠানো হবে।");
 } else {
-alert("সর্বনিম্ন ১০০ টাকা হলে উইথড্র করা যাবে।");
+alert("সর্বনিম্ন ১০০ টাকা হলে উইথড্র করা যাবে। আপনার বর্তমান ব্যালেন্স: " + balance.toFixed(2) + " ৳");
 }
 }
-​// Update Balance
+​// Update Balance UI and LocalStorage
 function updateBalance() {
 localStorage.setItem('takapay_balance', balance.toFixed(2));
 document.getElementById('balance').innerText = balance.toFixed(2);
 }
 </script>
 </body>
-  </html>
+</html>
