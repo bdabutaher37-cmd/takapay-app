@@ -20,7 +20,7 @@
 </div>
 ​<!-- Features Grid -->
 <div class="grid grid-cols-2 gap-3 mb-4">
-<!-- Watch Ads Button with External Browser Link & Reward -->
+<!-- Watch Ads Button -->
 <button onclick="openAd()" class="bg-amber-500 hover:bg-amber-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center transition-all">
 <span class="text-2xl mb-1">📺</span>
 <span>এড দেখে আয়</span>
@@ -52,49 +52,62 @@
 </div>
 </div>
 ​<script>
-const tg = window.Telegram.WebApp;
+// Initialize Telegram WebApp safely
+let tg = window.Telegram.WebApp;
+try {
 tg.expand();
 tg.ready();
+} catch (e) {
+console.log("Telegram WebApp not detected");
+}
 ​// Load Balance correctly from LocalStorage
-let balance = parseFloat(localStorage.getItem('balance')) || 0;
+let balance = parseFloat(localStorage.getItem('takapay_balance')) || 0;
 document.getElementById('balance').innerText = balance.toFixed(2);
 ​// Load Telegram User ID properly
+let userIdText = "Guest Mode";
+try {
 const user = tg.initDataUnsafe?.user;
 if (user && user.id) {
-document.getElementById('userId').innerText = user.id;
-} else {
-document.getElementById('userId').innerText = "Guest Mode";
+userIdText = user.id;
 }
-​// Open Monetag Ad in External Browser and Add Reward safely
+} catch (e) {
+userIdText = "Web User";
+}
+document.getElementById('userId').innerText = userIdText;
+​// Open Ad Function (Opens external link and rewards user)
 function openAd() {
 const adUrl = "https://uplcm.com/4/12006163";
-​// Force opening in external browser using Telegram WebApp SDK or standard window.open
+​// Open link in external browser via Telegram SDK or window.open
+try {
 if (tg && tg.openLink) {
 tg.openLink(adUrl);
 } else {
 window.open(adUrl, '_blank');
 }
-​// Reward user instantly for visiting the ad link
+} catch (e) {
+window.open(adUrl, '_blank');
+}
+​// Add reward
 balance += 2.0;
 updateBalance();
 ​alert("বিজ্ঞাপন ভিজিট করার জন্য ধন্যবাদ! আপনার একাউন্টে ২.০০ ৳ যোগ করা হয়েছে।");
 }
 ​// Daily Bonus Function
 function claimBonus() {
-const lastClaim = localStorage.getItem('lastClaimDate');
+const lastClaim = localStorage.getItem('takapay_lastClaim');
 const today = new Date().toDateString();
 ​if (lastClaim === today) {
 alert("আপনি আজকের ডেইলি বোনাস ইতোমধ্যে নিয়ে নিয়েছেন!");
 } else {
 balance += 5.0;
-localStorage.setItem('lastClaimDate', today);
+localStorage.setItem('takapay_lastClaim', today);
 updateBalance();
 alert("অভিনন্দন! আপনি ৫ টাকা ডেইলি বোনাস পেয়েছেন।");
 }
 }
 ​// Copy Referral Link
 function copyReferral() {
-const refLink = https://t.me/TakaPayAppBot?start=${user ? user.id : 'ref'};
+const refLink = https://t.me/TakaPayAppBot?start=${userIdText};
 navigator.clipboard.writeText(refLink);
 alert("আপনার রেফারেল লিংক কপি করা হয়েছে!");
 }
@@ -108,7 +121,7 @@ alert("সর্বনিম্ন ১০০ টাকা হলে উইথড
 }
 ​// Update Balance UI and LocalStorage
 function updateBalance() {
-localStorage.setItem('balance', balance.toFixed(2));
+localStorage.setItem('takapay_balance', balance.toFixed(2));
 document.getElementById('balance').innerText = balance.toFixed(2);
 }
 </script>
