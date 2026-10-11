@@ -24,11 +24,11 @@
 
     <!-- Features Grid -->
     <div class="grid grid-cols-2 gap-3 mb-4">
-        <!-- Watch Ads: সরাসরি টেলিগ্রাম এসডিকে ওপেন লিংক ব্যবহার করা হয়েছে যাতে ক্রোম বা এক্সটার্নাল ব্রাউজারে খোলে -->
-        <a href="javascript:void(0);" onclick="openAdLink()" class="bg-amber-500 hover:bg-amber-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center text-center no-underline cursor-pointer">
-            <span class="text-2xl mb-1">📺</span>
-            <span>এড দেখে আয়</span>
-        </a>
+        <!-- Watch Ads Button with Timer Task -->
+        <button id="adBtn" onclick="startAdTask()" class="bg-amber-500 hover:bg-amber-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center">
+            <span class="text-2xl mb-1" id="adIcon">📺</span>
+            <span id="adText">এড দেখে আয়</span>
+        </button>
 
         <!-- Daily Bonus -->
         <button onclick="claimBonus()" class="bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center">
@@ -77,20 +77,45 @@
             document.getElementById('userId').innerText = "Guest Mode";
         }
 
-        // Direct Link Open with Telegram WebApp Native Method
-        function openAdLink() {
-            const adUrl = "https://uplcm.com/4/12006163";
+        // Secure In-App Ad Task System (Bypasses Telegram black screen issue)
+        let isAdRunning = false;
+        function startAdTask() {
+            if (isAdRunning) return;
+            isAdRunning = true;
 
-            // এটি টেলিগ্রামকে বাধ্য করবে ফোনের ডিফল্ট ব্রাউজারে লিংক ওপেন করতে
-            if (tg && tg.openLink) {
-                tg.openLink(adUrl);
-            } else {
-                window.open(adUrl, '_blank');
-            }
+            const adBtn = document.getElementById('adBtn');
+            const adText = document.getElementById('adText');
+            const adIcon = document.getElementById('adIcon');
+            
+            adBtn.disabled = true;
+            adBtn.classList.remove('bg-amber-500', 'hover:bg-amber-600');
+            adBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
 
-            // ব্যালেন্স যোগ করা
-            balance += 2.0;
-            updateBalance();
+            let timeLeft = 10; // ১০ সেকেন্ডের টাস্ক
+            adIcon.innerText = "⏳";
+            adText.innerText = `এড লোড হচ্ছে (${timeLeft}s)`;
+
+            const timer = setInterval(() => {
+                timeLeft--;
+                if (timeLeft > 0) {
+                    adText.innerText = `এড দেখা হচ্ছে (${timeLeft}s)`;
+                } else {
+                    clearInterval(timer);
+                    
+                    // ব্যালেন্স যোগ করা
+                    balance += 2.0;
+                    updateBalance();
+
+                    adIcon.innerText = "📺";
+                    adText.innerText = "এড দেখে আয়";
+                    adBtn.disabled = false;
+                    adBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                    adBtn.classList.add('bg-amber-500', 'hover:bg-amber-600');
+                    isAdRunning = false;
+
+                    alert("অভিনন্দন! সফলভাবে টাস্ক সম্পন্ন হয়েছে এবং আপনার একাউন্টে ২.০০ ৳ যোগ করা হয়েছে।");
+                }
+            }, 1000);
         }
 
         // Daily Bonus Function
