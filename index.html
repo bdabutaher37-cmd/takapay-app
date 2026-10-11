@@ -24,11 +24,11 @@
 
     <!-- Features Grid -->
     <div class="grid grid-cols-2 gap-3 mb-4">
-        <!-- Watch Ads (Monetag Direct Link) -->
-        <a href="https://uplcm.com/4/12006057" target="_blank" onclick="rewardUser()" class="bg-amber-500 hover:bg-amber-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center text-center no-underline">
+        <!-- Watch Ads Button -->
+        <button onclick="watchAd()" class="bg-amber-500 hover:bg-amber-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center">
             <span class="text-2xl mb-1">📺</span>
             <span>এড দেখে আয়</span>
-        </a>
+        </button>
 
         <!-- Daily Bonus -->
         <button onclick="claimBonus()" class="bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center">
@@ -63,6 +63,7 @@
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.ready();
 
         // Load Balance
         let balance = parseFloat(localStorage.getItem('balance')) || 0;
@@ -76,10 +77,23 @@
             document.getElementById('userId').innerText = "Guest Mode";
         }
 
-        // Reward User on Ad Click
-        function rewardUser() {
+        // Watch Ad Function (Opens Direct Link in External Browser via Telegram SDK)
+        function watchAd() {
+            const adUrl = "https://uplcm.com/4/12006057";
+
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
+                window.Telegram.WebApp.openLink(adUrl);
+            } else {
+                window.open(adUrl, '_blank');
+            }
+
+            // Reward User
             balance += 2.0;
             updateBalance();
+            
+            setTimeout(() => {
+                alert("সফলভাবে এড দেখা সম্পন্ন হয়েছে! আপনার একাউন্টে ২.০০ ৳ যোগ করা হয়েছে।");
+            }, 500);
         }
 
         // Daily Bonus Function
