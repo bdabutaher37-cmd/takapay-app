@@ -1,221 +1,109 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TakaPay Mini App</title>
-    
-    <!-- Telegram WebApp SDK -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TakaPay - Earn Money</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- AdsGram SDK -->
+  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 </head>
-<body class="bg-gray-100 text-gray-800 font-sans p-4 relative min-h-screen pb-10">
+<body class="bg-slate-900 text-white min-h-screen flex flex-col justify-between p-4 font-sans">
 
-    <!-- Header Section -->
-    <div class="bg-blue-600 text-white p-4 rounded-xl shadow-lg mb-4 text-center">
-        <h1 class="text-xl font-bold">TakaPay App</h1>
-        <p class="text-sm mt-1">ইউজার ID: <span id="userId">Loading...</span></p>
-        <div class="mt-3 bg-white text-blue-600 p-3 rounded-lg font-bold text-2xl shadow-inner">
-            <span id="balance">60.00</span> ৳
-        </div>
+  <!-- Main Container -->
+  <div class="max-w-md mx-auto w-full space-y-6">
+    
+    <!-- Header / Balance Section -->
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 text-center shadow-lg">
+      <h1 class="text-xl font-bold text-slate-400">আপনার বর্তমান ব্যালেন্স</h1>
+      <div class="text-4xl font-extrabold text-amber-400 mt-2">
+        <span id="userBalance">0</span> <span class="text-lg text-slate-300">টাকা</span>
+      </div>
     </div>
 
-    <!-- Features Grid -->
-    <div class="grid grid-cols-2 gap-3 mb-4">
-        <!-- Watch Ads Timer Task Button -->
-        <button id="adBtn" onclick="startAdTask()" class="bg-amber-500 hover:bg-amber-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center transition-all active:scale-95">
-            <span class="text-2xl mb-1" id="adIcon">📺</span>
-            <span id="adText">এড দেখে আয়</span>
-        </button>
-
-        <!-- Daily Bonus -->
-        <button onclick="claimBonus()" class="bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center transition-all active:scale-95">
-            <span class="text-2xl mb-1">🎁</span>
-            <span>ডেইলি বোনাস</span>
-        </button>
+    <!-- Ads Task Section -->
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 space-y-4 shadow-lg">
+      <h2 class="text-lg font-semibold text-slate-200">বিজ্ঞাপন দেখে আয় করুন</h2>
+      <p class="text-sm text-slate-400">প্রতিটি ভিডিও বিজ্ঞাপন দেখার জন্য পাবেন ৫০ পয়সা (০.৫০ টাকা)।</p>
+      
+      <button id="watchAdBtn" onclick="showRewardAd()" class="w-full bg-emerald-500 hover:bg-emerald-600 active:scale-95 transition-all text-slate-950 font-bold py-3 rounded-xl shadow-md flex items-center justify-center gap-2">
+        <span>🎬</span> অ্যাড দেখুন ও আয় করুন
+      </button>
     </div>
 
-    <!-- Action Sections -->
-    <div class="space-y-3">
-        <!-- VIP Plans -->
-        <div class="bg-white p-4 rounded-xl shadow border">
-            <h2 class="font-bold text-lg text-gray-700 mb-2">💎 প্ল্যান কিনে আয়</h2>
-            <p class="text-sm text-gray-500 mb-3">VIP প্ল্যান কিনে প্রতিদিন নিশ্চিত আয় করুন।</p>
-            <button onclick="showCustomModal('প্ল্যান অপশন শীঘ্রই আসছে!')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-medium transition-all">প্ল্যান দেখুন</button>
-        </div>
-
-        <!-- Refer & Earn -->
-        <div class="bg-white p-4 rounded-xl shadow border">
-            <h2 class="font-bold text-lg text-gray-700 mb-2">👥 রেফার করুন</h2>
-            <p class="text-sm text-gray-500 mb-3">বন্ধুদের রেফার করে প্রতি রেফারে ১০ টাকা আয় করুন।</p>
-            <button onclick="copyReferral()" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-medium transition-all">রেফারেল লিংক কপি করুন</button>
-        </div>
-
-        <!-- Withdraw -->
-        <div class="bg-white p-4 rounded-xl shadow border">
-            <h2 class="font-bold text-lg text-gray-700 mb-2">💳 টাকা তুলুন (Withdraw)</h2>
-            <p class="text-sm text-gray-500 mb-3">বিকাশ / নগদ এর মাধ্যমে পেমেন্ট নিন।</p>
-            <button onclick="withdraw()" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition-all">উইথড্র রিকোয়েস্ট</button>
-        </div>
+    <!-- Referral Section -->
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 space-y-3 shadow-lg">
+      <h2 class="text-lg font-semibold text-slate-200">রেফার করে আয়</h2>
+      <p class="text-sm text-slate-400">বন্ধুদের সাথে শেয়ার করুন এবং বোনাস পান!</p>
+      <button onclick="shareReferral()" class="w-full bg-sky-500 hover:bg-sky-600 active:scale-95 transition-all text-slate-950 font-bold py-3 rounded-xl shadow-md flex items-center justify-center gap-2">
+        <span>🚀</span> রেফার লিংক কপি করুন
+      </button>
     </div>
 
-    <!-- Custom Modal for Alerts (No alert() used) -->
-    <div id="customModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl text-center transform transition-all">
-            <h3 id="modalTitle" class="text-lg font-bold text-gray-800 mb-2">TakaPay Bot</h3>
-            <p id="modalMessage" class="text-gray-600 text-sm mb-5">ম্যাসেজ এখানে থাকবে...</p>
-            <button onclick="closeModal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-semibold shadow">ঠিক আছে</button>
-        </div>
-    </div>
+  </div>
 
-    <script>
-        // Initialize Telegram WebApp safely
-        let tg = window.Telegram.WebApp;
-        try {
-            tg.expand();
-            tg.ready();
-        } catch (e) {}
+  <!-- Footer -->
+  <div class="text-center text-xs text-slate-500 my-4">
+    TakaPay Telegram Mini App &copy; 2026
+  </div>
 
-        // Set User ID safely
-        let currentUserId = "6293441724";
-        try {
-            if (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
-                currentUserId = tg.initDataUnsafe.user.id;
-            }
-        } catch (e) {}
-        document.getElementById('userId').innerText = currentUserId;
+  <!-- JavaScript Logic -->
+  <script>
+    // Telegram WebApp Initialization
+    const tg = window.Telegram.WebApp;
+    tg.expand();
 
-        // Initialize and Load Balance safely (Ensures minimum 60.00 default)
-        let balance = parseFloat(localStorage.getItem('takapay_balance'));
-        if (isNaN(balance) || balance < 60) {
-            balance = 60.00;
-            localStorage.setItem('takapay_balance', balance.toFixed(2));
-        }
-        document.getElementById('balance').innerText = balance.toFixed(2);
+    // User Balance State
+    let balance = parseFloat(localStorage.getItem('takaPayBalance')) || 0.00;
+    document.getElementById('userBalance').innerText = balance.toFixed(2);
 
-        // Custom Modal Functions
-        function showCustomModal(message, title = "TakaPay Bot") {
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalMessage').innerText = message;
-            document.getElementById('customModal').classList.remove('hidden');
-        }
+    // AdsGram Integration Setup (Block ID: 53351)
+    const AdController = window.Adsgram.init({ blockId: "53351" });
 
-        function closeModal() {
-            document.getElementById('customModal').classList.add('hidden');
-        }
+    // Function to Show Ads
+    function showRewardAd() {
+      const btn = document.getElementById('watchAdBtn');
+      btn.disabled = true;
+      btn.innerText = "অ্যাড লোড হচ্ছে...";
 
-        // Ad Task Timer Function
-        let isTaskRunning = false;
-        function startAdTask() {
-            if (isTaskRunning) return;
-            isTaskRunning = true;
+      AdController.show().then((result) => {
+        // User finished watching the ad
+        balance += 0.50; // Reward amount
+        localStorage.setItem('takaPayBalance', balance.toFixed(2));
+        document.getElementById('userBalance').innerText = balance.toFixed(2);
 
-            const adBtn = document.getElementById('adBtn');
-            const adText = document.getElementById('adText');
-            const adIcon = document.getElementById('adIcon');
+        tg.showAlert("অভিনন্দন! আপনি ০.৫০ টাকা রিওয়ার্ড পেয়েছেন।");
+        resetButton();
+      }).catch((result) => {
+        // Ad error or user closed the ad early
+        tg.showAlert("বিজ্ঞাপন সম্পূর্ণ না দেখলে রিওয়ার্ড পাওয়া যাবে না। আবার চেষ্টা করুন।");
+        resetButton();
+      });
+    }
 
-            adBtn.disabled = true;
-            adBtn.classList.remove('bg-amber-500', 'hover:bg-amber-600');
-            adBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+    // Reset Button State
+    function resetButton() {
+      const btn = document.getElementById('watchAdBtn');
+      btn.disabled = false;
+      btn.innerHTML = '<span>🎬</span> অ্যাড দেখুন ও আয় করুন';
+    }
 
-            let timeLeft = 5;
-            adIcon.innerText = "⏳";
-            adText.innerText = `টাস্ক চলছে (${timeLeft}s)`;
+    // Referral Share Logic
+    function shareReferral() {
+      const user = tg.initDataUnsafe?.user;
+      const userId = user ? user.id : '12345';
+      const refLink = `https://t.me/TakaPayAppBot/takapay?startapp=ref_${userId}`;
 
-            const countdown = setInterval(() => {
-                timeLeft--;
-                if (timeLeft > 0) {
-                    adText.innerText = `টাস্ক চলছে (${timeLeft}s)`;
-                } else {
-                    clearInterval(countdown);
-
-                    // Add Reward
-                    balance += 2.0;
-                    updateBalance();
-
-                    // Reset Button UI
-                    adIcon.innerText = "📺";
-                    adText.innerText = "এড দেখে আয়";
-                    adBtn.disabled = false;
-                    adBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
-                    adBtn.classList.add('bg-amber-500', 'hover:bg-amber-600');
-                    isTaskRunning = false;
-
-                    showCustomModal("অভিনন্দন! সফলভাবে টাস্ক সম্পন্ন হয়েছে এবং আপনার একাউন্টে ২.০০ ৳ যোগ করা হয়েছে।");
-                }
-            }, 1000);
-
-            // Open backup link or external window safely
-            try {
-                const adUrl = "https://uplcm.com/4/12006163";
-                if (tg && tg.openLink) {
-                    tg.openLink(adUrl, { try_instant_view: false });
-                } else {
-                    window.open(adUrl, '_blank');
-                }
-            } catch (e) {}
-        }
-
-        // Daily Bonus Function
-        function claimBonus() {
-            const lastClaim = localStorage.getItem('takapay_lastClaim');
-            const today = new Date().toDateString();
-
-            if (lastClaim === today) {
-                showCustomModal("আপনি আজকের ডেইলি বোনাস ইতোমধ্যে নিয়ে নিয়েছেন!");
-            } else {
-                balance += 5.0;
-                localStorage.setItem('takapay_lastClaim', today);
-                updateBalance();
-                showCustomModal("অভিনন্দন! আপনি ৫ টাকা ডেইলি বোনাস পেয়েছেন।");
-            }
-        }
-
-        // Copy Referral Link Function
-        function copyReferral() {
-            const refLink = `https://t.me/TakaPayAppBot?start=${currentUserId}`;
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(refLink).then(() => {
-                    showCustomModal("আপনার রেফারেল লিংক সফলভাবে কপি করা হয়েছে!");
-                }).catch(() => {
-                    fallbackCopyText(refLink);
-                });
-            } else {
-                fallbackCopyText(refLink);
-            }
-        }
-
-        function fallbackCopyText(text) {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                showCustomModal("আপনার রেফারেল লিংক কপি করা হয়েছে!");
-            } catch (err) {
-                showCustomModal("লিংক কপি করতে সমস্যা হয়েছে: " + text);
-            }
-            document.body.removeChild(textArea);
-        }
-
-        // Withdraw Function
-        function withdraw() {
-            if (balance >= 100) {
-                showCustomModal("আপনার উইথড্র রিকোয়েস্ট সফলভাবে সাবমিট করা হয়েছে! পেমেন্ট ২৪ ঘন্টার মধ্যে পাঠানো হবে।");
-            } else {
-                showCustomModal("সর্বনিম্ন ১০০ টাকা হলে উইথড্র করা যাবে। আপনার বর্তমান ব্যালেন্স: " + balance.toFixed(2) + " ৳");
-            }
-        }
-
-        // Update Balance UI and LocalStorage
-        function updateBalance() {
-            localStorage.setItem('takapay_balance', balance.toFixed(2));
-            document.getElementById('balance').innerText = balance.toFixed(2);
-        }
-    </script>
+      navigator.clipboard.writeText(refLink).then(() => {
+        tg.showAlert("রেফারেল লিংক কপি হয়েছে!\n" + refLink);
+      }).catch(() => {
+        tg.showAlert("লিংক কপি করতে সমস্যা হয়েছে।");
+      });
+    }
+  </script>
 </body>
 </html>
