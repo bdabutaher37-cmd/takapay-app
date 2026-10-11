@@ -24,11 +24,11 @@
 
     <!-- Features Grid -->
     <div class="grid grid-cols-2 gap-3 mb-4">
-        <!-- Watch Ads -->
-        <button onclick="watchAd()" class="bg-amber-500 hover:bg-amber-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center">
+        <!-- Watch Ads (Direct HTML Link to prevent loading freeze) -->
+        <a href="https://www.highratecpm.com/YOUR_DIRECT_LINK" target="_blank" onclick="rewardUser()" class="bg-amber-500 hover:bg-amber-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center text-center no-underline">
             <span class="text-2xl mb-1">📺</span>
             <span>এড দেখে আয়</span>
-        </button>
+        </a>
 
         <!-- Daily Bonus -->
         <button onclick="claimBonus()" class="bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center">
@@ -76,25 +76,10 @@
             document.getElementById('userId').innerText = "Guest Mode";
         }
 
-        // Watch Ad Function (Direct Link via Telegram WebApp openLink)
-        function watchAd() {
-            // আপনার Monetag ড্যাশবোর্ড থেকে পাওয়া Direct Link এখানে দিন (উদাহরণস্বরূপ: https://www.highratecpm.com/xxxxxx)
-            const adUrl = "https://www.highratecpm.com/YOUR_DIRECT_LINK"; 
-
-            // টেলিগ্রামের নেটিভ ওপেন লিংক ফাংশন ব্যবহার করে এক্সটার্নাল ব্রাউজারে এড ওপেন করা
-            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
-                window.Telegram.WebApp.openLink(adUrl);
-            } else {
-                window.open(adUrl, '_blank');
-            }
-
-            // ইউজারের ব্যালেন্স যোগ করা
+        // Reward User on Ad Click
+        function rewardUser() {
             balance += 2.0;
             updateBalance();
-            
-            setTimeout(() => {
-                alert("সফলভাবে এড ভিজিট করা হয়েছে! আপনার একাউন্টে ২.০০ ৳ যোগ করা হয়েছে।");
-            }, 500);
         }
 
         // Daily Bonus Function
