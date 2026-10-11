@@ -24,11 +24,11 @@
 
     <!-- Features Grid -->
     <div class="grid grid-cols-2 gap-3 mb-4">
-        <!-- Watch Ads (New Monetag Direct Link) -->
-        <a href="https://uplcm.com/4/12006163" target="_blank" onclick="rewardUser()" class="bg-amber-500 hover:bg-amber-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center text-center no-underline">
+        <!-- Watch Ads Button -->
+        <button onclick="watchAd()" class="bg-amber-500 hover:bg-amber-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center">
             <span class="text-2xl mb-1">📺</span>
             <span>এড দেখে আয়</span>
-        </a>
+        </button>
 
         <!-- Daily Bonus -->
         <button onclick="claimBonus()" class="bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center">
@@ -77,10 +77,26 @@
             document.getElementById('userId').innerText = "Guest Mode";
         }
 
-        // Reward User on Ad Click
-        function rewardUser() {
+        // Watch Ad Function (Safe trigger to prevent network crash)
+        function watchAd() {
+            const adUrl = "https://uplcm.com/4/12006163";
+
+            // ব্যাকগ্রাউন্ডে লিংক ওপেন করার চেষ্টা করবে
+            try {
+                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
+                    window.Telegram.WebApp.openLink(adUrl);
+                } else {
+                    window.open(adUrl, '_blank');
+                }
+            } catch (e) {
+                console.log("Ad link error bypassed");
+            }
+
+            // ইউজারের ব্যালেন্স ইনস্ট্যান্ট আপডেট হবে
             balance += 2.0;
             updateBalance();
+            
+            alert("সফলভাবে এড টাস্ক সম্পন্ন হয়েছে! আপনার একাউন্টে ২.০০ ৳ যোগ করা হয়েছে।");
         }
 
         // Daily Bonus Function
