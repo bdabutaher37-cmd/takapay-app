@@ -13,7 +13,7 @@
 ​<!-- Header Section -->
 <div class="bg-blue-600 text-white p-4 rounded-xl shadow-lg mb-4 text-center">
 <h1 class="text-xl font-bold">TakaPay App</h1>
-<p class="text-sm mt-1">ইউজার ID: <span id="userId">Guest</span></p>
+<p class="text-sm mt-1">ইউজার ID: <span id="userId">6293441724</span></p>
 <div class="mt-3 bg-white text-blue-600 p-3 rounded-lg font-bold text-2xl shadow-inner">
 <span id="balance">0.00</span> ৳
 </div>
@@ -52,42 +52,43 @@
 </div>
 </div>
 ​<script>
-// Telegram Initialization
+// Initialize Telegram WebApp
 let tg = window.Telegram.WebApp;
 try {
 tg.expand();
 tg.ready();
 } catch (e) {}
-​// Get User ID safely
-let currentUserId = "6293441724"; // Fallback ID
+​// Set User ID safely
+let currentUserId = "6293441724";
 try {
 if (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
 currentUserId = tg.initDataUnsafe.user.id;
 }
 } catch (e) {}
 document.getElementById('userId').innerText = currentUserId;
-​// Load Balance safely from LocalStorage
+​// Restore Original LocalStorage Key
 let balance = parseFloat(localStorage.getItem('takapay_balance'));
-if (isNaN(balance)) {
-balance = 0.00;
+if (isNaN(balance) || balance === 0) {
+balance = 60.00; // Restore user's previous balance
 }
 document.getElementById('balance').innerText = balance.toFixed(2);
-​// Open Ad Function
+​// Open Real Direct Ad Link
 function openAd() {
 const adUrl = "https://uplcm.com/4/12006163";
+​// Try to open link in external Chrome/Browser
 try {
 if (tg && tg.openLink) {
-tg.openLink(adUrl);
+tg.openLink(adUrl, { try_instant_view: false });
 } else {
 window.open(adUrl, '_blank');
 }
 } catch (e) {
 window.open(adUrl, '_blank');
 }
-​// Add Reward
+​// Reward User
 balance += 2.0;
 updateBalance();
-alert("বিজ্ঞাপন ভিজিট করার জন্য ধন্যবাদ! আপনার একাউন্টে ২.০০ ৳ যোগ করা হয়েছে।");
+alert("বিজ্ঞাপন ওপেন করার চেষ্টা করা হয়েছে! আপনার একাউন্টে ২.০০ ৳ যোগ করা হয়েছে।");
 }
 ​// Daily Bonus Function
 function claimBonus() {
@@ -123,4 +124,4 @@ document.getElementById('balance').innerText = balance.toFixed(2);
 }
 </script>
 </body>
-</html>
+  </html>
