@@ -66,7 +66,7 @@ currentUserId = tg.initDataUnsafe.user.id;
 }
 } catch (e) {}
 document.getElementById('userId').innerText = currentUserId;
-​// Initialize and Load Balance safely (Ensures 60.00 minimum default)
+​// Initialize and Load Balance safely (Ensures minimum 60.00 default)
 let balance = parseFloat(localStorage.getItem('takapay_balance'));
 if (isNaN(balance) || balance < 60) {
 balance = 60.00;
@@ -106,7 +106,7 @@ isTaskRunning = false;
 ​alert("অভিনন্দন! সফলভাবে টাস্ক সম্পন্ন হয়েছে এবং আপনার একাউন্টে ২.০০ ৳ যোগ করা হয়েছে।");
 }
 }, 1000);
-​// Also trigger external redirect or backup link safely
+​// Open backup link or external window safely
 try {
 const adUrl = "https://uplcm.com/4/12006163";
 if (tg && tg.openLink) {
