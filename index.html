@@ -1,173 +1,116 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TakaPay Mini App</title>
-    
-    <!-- Telegram WebApp SDK -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TakaPay Mini App</title>
+​<!-- Telegram WebApp SDK -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+​<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 text-gray-800 font-sans p-4 relative">
-
-    <!-- Header Section -->
-    <div class="bg-blue-600 text-white p-4 rounded-xl shadow-lg mb-4 text-center">
-        <h1 class="text-xl font-bold">TakaPay App</h1>
-        <p class="text-sm mt-1">ইউজার ID: <span id="userId">Loading...</span></p>
-        <div class="mt-3 bg-white text-blue-600 p-3 rounded-lg font-bold text-2xl shadow-inner">
-            <span id="balance">0.00</span> ৳
-        </div>
-    </div>
-
-    <!-- Features Grid -->
-    <div class="grid grid-cols-2 gap-3 mb-4">
-        <!-- Watch Ads Timer Task Button -->
-        <button id="adBtn" onclick="startAdTask()" class="bg-amber-500 hover:bg-amber-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center transition-all">
-            <span class="text-2xl mb-1" id="adIcon">📺</span>
-            <span id="adText">এড দেখে আয়</span>
-        </button>
-
-        <!-- Daily Bonus -->
-        <button onclick="claimBonus()" class="bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center transition-all">
-            <span class="text-2xl mb-1">🎁</span>
-            <span>ডেইলি বোনাস</span>
-        </button>
-    </div>
-
-    <!-- Action Sections -->
-    <div class="space-y-3">
-        <!-- VIP Plans -->
-        <div class="bg-white p-4 rounded-xl shadow border">
-            <h2 class="font-bold text-lg text-gray-700 mb-2">💎 প্ল্যান কিনে আয়</h2>
-            <p class="text-sm text-gray-500 mb-3">VIP প্ল্যান কিনে প্রতিদিন নিশ্চিত আয় করুন।</p>
-            <button onclick="alert('প্ল্যান অপশন শীঘ্রই আসছে!')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-medium">প্ল্যান দেখুন</button>
-        </div>
-
-        <!-- Refer & Earn -->
-        <div class="bg-white p-4 rounded-xl shadow border">
-            <h2 class="font-bold text-lg text-gray-700 mb-2">👥 রেফার করুন</h2>
-            <button onclick="copyReferral()" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-medium">রেফারেল লিংক কপি করুন</button>
-        </div>
-
-        <!-- Withdraw -->
-        <div class="bg-white p-4 rounded-xl shadow border">
-            <h2 class="font-bold text-lg text-gray-700 mb-2">💳 টাকা তুলুন (Withdraw)</h2>
-            <p class="text-sm text-gray-500 mb-3">বিকাশ / নগদ এর মাধ্যমে পেমেন্ট নিন।</p>
-            <button onclick="withdraw()" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium">উইথড্র রিকোয়েস্ট</button>
-        </div>
-    </div>
-
-    <!-- Real Ad Popup Modal (Hidden by default) -->
-    <div id="adModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-white w-full max-w-sm rounded-2xl p-5 text-center shadow-2xl relative">
-            <div class="absolute top-3 right-3 bg-gray-200 text-gray-700 font-bold px-3 py-1 rounded-full text-sm" id="timerDisplay">5s</div>
-            <h3 class="text-lg font-bold text-gray-800 mb-2">📢 বিজ্ঞাপন লোড হচ্ছে...</h3>
-            <p class="text-xs text-gray-500 mb-4">অনুগ্রহ করে বিজ্ঞাপনটি সম্পূর্ণ দেখুন</p>
-            
-            <!-- Ad Banner Box (Simulating Real Ad) -->
-            <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6 rounded-xl shadow-inner mb-4 flex flex-col items-center justify-center">
-                <span class="text-4xl mb-2">🚀</span>
-                <h4 class="font-bold text-lg">Special Offer!</h4>
-                <p class="text-xs mt-1">Earn Daily Cash with TakaPay Partners</p>
-            </div>
-
-            <div class="text-sm font-semibold text-amber-600 animate-pulse">
-                টাকা যোগ হতে সময় বাকি: <span id="countNum">5</span> সেকেন্ড
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.ready();
-
-        // Load Balance
-        let balance = parseFloat(localStorage.getItem('balance')) || 0;
-        document.getElementById('balance').innerText = balance.toFixed(2);
-
-        // Load Telegram User ID
-        const user = tg.initDataUnsafe?.user;
-        if (user) {
-            document.getElementById('userId').innerText = user.id;
-        } else {
-            document.getElementById('userId').innerText = "Guest Mode";
-        }
-
-        // Ad Task with Real Modal Popup and Banner
-        let isTaskRunning = false;
-        function startAdTask() {
-            if (isTaskRunning) return;
-            isTaskRunning = true;
-
-            const modal = document.getElementById('adModal');
-            const timerDisplay = document.getElementById('timerDisplay');
-            const countNum = document.getElementById('countNum');
-
-            modal.classList.remove('hidden');
-
-            let timeLeft = 5;
-            timerDisplay.innerText = `${timeLeft}s`;
-            countNum.innerText = timeLeft;
-
-            const countdown = setInterval(() => {
-                timeLeft--;
-                if (timeLeft > 0) {
-                    timerDisplay.innerText = `${timeLeft}s`;
-                    countNum.innerText = timeLeft;
-                } else {
-                    clearInterval(countdown);
-                    modal.classList.add('hidden');
-
-                    // Reward User
-                    balance += 2.0;
-                    updateBalance();
-                    isTaskRunning = false;
-
-                    alert("অভিনন্দন! সফলভাবে অ্যাড টাস্ক সম্পন্ন হয়েছে এবং আপনার একাউন্টে ২.০০ ৳ যোগ করা হয়েছে।");
-                }
-            }, 1000);
-        }
-
-        // Daily Bonus Function
-        function claimBonus() {
-            const lastClaim = localStorage.getItem('lastClaimDate');
-            const today = new Date().toDateString();
-
-            if (lastClaim === today) {
-                alert("আপনি আজকের ডেইলি বোনাস ইতোমধ্যে নিয়ে নিয়েছেন!");
-            } else {
-                balance += 5.0;
-                localStorage.setItem('lastClaimDate', today);
-                updateBalance();
-                alert("অভিনন্দন! আপনি ৫ টাকা ডেইলি বোনাস পেয়েছেন।");
-            }
-        }
-
-        // Copy Referral Link
-        function copyReferral() {
-            const refLink = `https://t.me/TakaPayAppBot?start=${user ? user.id : 'ref'}`;
-            navigator.clipboard.writeText(refLink);
-            alert("আপনার রেফারেল লিংক কপি করা হয়েছে!");
-        }
-
-        // Withdraw Function
-        function withdraw() {
-            if (balance >= 100) {
-                alert("আপনার উইথড্র রিকোয়েস্ট সফলভাবে সাবমিট করা হয়েছে!");
-            } else {
-                alert("সর্বনিম্ন ১০০ টাকা হলে উইথড্র করা যাবে।");
-            }
-        }
-
-        // Update Balance UI and LocalStorage
-        function updateBalance() {
-            localStorage.setItem('balance', balance.toFixed(2));
-            document.getElementById('balance').innerText = balance.toFixed(2);
-        }
-    </script>
+<body class="bg-gray-100 text-gray-800 font-sans p-4">
+​<!-- Header Section -->
+<div class="bg-blue-600 text-white p-4 rounded-xl shadow-lg mb-4 text-center">
+<h1 class="text-xl font-bold">TakaPay App</h1>
+<p class="text-sm mt-1">ইউজার ID: <span id="userId">Loading...</span></p>
+<div class="mt-3 bg-white text-blue-600 p-3 rounded-lg font-bold text-2xl shadow-inner">
+<span id="balance">0.00</span> ৳
+</div>
+</div>
+​<!-- Features Grid -->
+<div class="grid grid-cols-2 gap-3 mb-4">
+<!-- Watch Ads Button with Real Link Launch -->
+<button id="adBtn" onclick="openRealAd()" class="bg-amber-500 hover:bg-amber-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center transition-all">
+<span class="text-2xl mb-1" id="adIcon">📺</span>
+<span id="adText">এড দেখে আয়</span>
+</button>
+​<!-- Daily Bonus -->
+<button onclick="claimBonus()" class="bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center transition-all">
+<span class="text-2xl mb-1">🎁</span>
+<span>ডেইলি বোনাস</span>
+</button>
+</div>
+​<!-- Action Sections -->
+<div class="space-y-3">
+<!-- VIP Plans -->
+<div class="bg-white p-4 rounded-xl shadow border">
+<h2 class="font-bold text-lg text-gray-700 mb-2">💎 প্ল্যান কিনে আয়</h2>
+<p class="text-sm text-gray-500 mb-3">VIP প্ল্যান কিনে প্রতিদিন নিশ্চিত আয় করুন।</p>
+<button onclick="alert('প্ল্যান অপশন শীঘ্রই আসছে!')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-medium">প্ল্যান দেখুন</button>
+</div>
+​<!-- Refer & Earn -->
+<div class="bg-white p-4 rounded-xl shadow border">
+<h2 class="font-bold text-lg text-gray-700 mb-2">👥 রেফার করুন</h2>
+<button onclick="copyReferral()" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-medium">রেফারেল লিংক কপি করুন</button>
+</div>
+​<!-- Withdraw -->
+<div class="bg-white p-4 rounded-xl shadow border">
+<h2 class="font-bold text-lg text-gray-700 mb-2">💳 টাকা তুলুন (Withdraw)</h2>
+<p class="text-sm text-gray-500 mb-3">বিকাশ / নগদ এর মাধ্যমে পেমেন্ট নিন।</p>
+<button onclick="withdraw()" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium">উইথড্র রিকোয়েস্ট</button>
+</div>
+</div>
+​<script>
+const tg = window.Telegram.WebApp;
+tg.expand();
+tg.ready();
+​// Load Balance
+let balance = parseFloat(localStorage.getItem('balance')) || 0;
+document.getElementById('balance').innerText = balance.toFixed(2);
+​// Load Telegram User ID
+const user = tg.initDataUnsafe?.user;
+if (user) {
+document.getElementById('userId').innerText = user.id;
+} else {
+document.getElementById('userId').innerText = "Guest Mode";
+}
+​// Open Real Ad Link in External Browser & Credit Balance Safely
+function openRealAd() {
+const adUrl = "https://uplcm.com/4/12006163";
+​// Force opening in external browser to bypass Telegram in-app black screen restriction
+if (tg && tg.openLink) {
+tg.openLink(adUrl);
+} else {
+window.open(adUrl, '_blank');
+}
+​// Instantly credit user balance so revenue tracking works with user action
+balance += 2.0;
+updateBalance();
+​alert("সফলভাবে বিজ্ঞাপন ভিজিট করা হয়েছে! আপনার একাউন্টে ২.০০ ৳ যোগ করা হয়েছে।");
+}
+​// Daily Bonus Function
+function claimBonus() {
+const lastClaim = localStorage.getItem('lastClaimDate');
+const today = new Date().toDateString();
+​if (lastClaim === today) {
+alert("আপনি আজকের ডেইলি বোনাস ইতোমধ্যে নিয়ে নিয়েছেন!");
+} else {
+balance += 5.0;
+localStorage.setItem('lastClaimDate', today);
+updateBalance();
+alert("অভিনন্দন! আপনি ৫ টাকা ডেইলি বোনাস পেয়েছেন।");
+}
+}
+​// Copy Referral Link
+function copyReferral() {
+const refLink = https://t.me/TakaPayAppBot?start=${user ? user.id : 'ref'};
+navigator.clipboard.writeText(refLink);
+alert("আপনার রেফারেল লিংক কপি করা হয়েছে!");
+}
+​// Withdraw Function
+function withdraw() {
+if (balance >= 100) {
+alert("আপনার উইথড্র রিকোয়েস্ট সফলভাবে সাবমিট করা হয়েছে!");
+} else {
+alert("সর্বনিম্ন ১০০ টাকা হলে উইথড্র করা যাবে।");
+}
+}
+​// Update Balance UI and LocalStorage
+function updateBalance() {
+localStorage.setItem('balance', balance.toFixed(2));
+document.getElementById('balance').innerText = balance.toFixed(2);
+}
+</script>
 </body>
 </html>
