@@ -20,10 +20,10 @@
 </div>
 ​<!-- Features Grid -->
 <div class="grid grid-cols-2 gap-3 mb-4">
-<!-- Watch Ads Button with Real Link Launch -->
-<button id="adBtn" onclick="openRealAd()" class="bg-amber-500 hover:bg-amber-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center transition-all">
-<span class="text-2xl mb-1" id="adIcon">📺</span>
-<span id="adText">এড দেখে আয়</span>
+<!-- Watch Ads Button with External Browser Link & Reward -->
+<button onclick="openAd()" class="bg-amber-500 hover:bg-amber-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center transition-all">
+<span class="text-2xl mb-1">📺</span>
+<span>এড দেখে আয়</span>
 </button>
 ​<!-- Daily Bonus -->
 <button onclick="claimBonus()" class="bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-xl shadow font-semibold flex flex-col items-center justify-center transition-all">
@@ -55,29 +55,29 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
 tg.ready();
-​// Load Balance
+​// Load Balance correctly from LocalStorage
 let balance = parseFloat(localStorage.getItem('balance')) || 0;
 document.getElementById('balance').innerText = balance.toFixed(2);
-​// Load Telegram User ID
+​// Load Telegram User ID properly
 const user = tg.initDataUnsafe?.user;
-if (user) {
+if (user && user.id) {
 document.getElementById('userId').innerText = user.id;
 } else {
 document.getElementById('userId').innerText = "Guest Mode";
 }
-​// Open Real Ad Link in External Browser & Credit Balance Safely
-function openRealAd() {
+​// Open Monetag Ad in External Browser and Add Reward safely
+function openAd() {
 const adUrl = "https://uplcm.com/4/12006163";
-​// Force opening in external browser to bypass Telegram in-app black screen restriction
+​// Force opening in external browser using Telegram WebApp SDK or standard window.open
 if (tg && tg.openLink) {
 tg.openLink(adUrl);
 } else {
 window.open(adUrl, '_blank');
 }
-​// Instantly credit user balance so revenue tracking works with user action
+​// Reward user instantly for visiting the ad link
 balance += 2.0;
 updateBalance();
-​alert("সফলভাবে বিজ্ঞাপন ভিজিট করা হয়েছে! আপনার একাউন্টে ২.০০ ৳ যোগ করা হয়েছে।");
+​alert("বিজ্ঞাপন ভিজিট করার জন্য ধন্যবাদ! আপনার একাউন্টে ২.০০ ৳ যোগ করা হয়েছে।");
 }
 ​// Daily Bonus Function
 function claimBonus() {
