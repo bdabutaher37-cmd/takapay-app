@@ -11,7 +11,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 text-gray-800 font-sans p-4">
+<body class="bg-gray-100 text-gray-800 font-sans p-4 relative">
 
     <!-- Header Section -->
     <div class="bg-blue-600 text-white p-4 rounded-xl shadow-lg mb-4 text-center">
@@ -60,6 +60,26 @@
         </div>
     </div>
 
+    <!-- Real Ad Popup Modal (Hidden by default) -->
+    <div id="adModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-5 text-center shadow-2xl relative">
+            <div class="absolute top-3 right-3 bg-gray-200 text-gray-700 font-bold px-3 py-1 rounded-full text-sm" id="timerDisplay">5s</div>
+            <h3 class="text-lg font-bold text-gray-800 mb-2">📢 বিজ্ঞাপন লোড হচ্ছে...</h3>
+            <p class="text-xs text-gray-500 mb-4">অনুগ্রহ করে বিজ্ঞাপনটি সম্পূর্ণ দেখুন</p>
+            
+            <!-- Ad Banner Box (Simulating Real Ad) -->
+            <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6 rounded-xl shadow-inner mb-4 flex flex-col items-center justify-center">
+                <span class="text-4xl mb-2">🚀</span>
+                <h4 class="font-bold text-lg">Special Offer!</h4>
+                <p class="text-xs mt-1">Earn Daily Cash with TakaPay Partners</p>
+            </div>
+
+            <div class="text-sm font-semibold text-amber-600 animate-pulse">
+                টাকা যোগ হতে সময় বাকি: <span id="countNum">5</span> সেকেন্ড
+            </div>
+        </div>
+    </div>
+
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
@@ -77,45 +97,37 @@
             document.getElementById('userId').innerText = "Guest Mode";
         }
 
-        // Timer-Based Ad Task System (100% Reliable, No Network Errors)
+        // Ad Task with Real Modal Popup and Banner
         let isTaskRunning = false;
         function startAdTask() {
             if (isTaskRunning) return;
             isTaskRunning = true;
 
-            const adBtn = document.getElementById('adBtn');
-            const adText = document.getElementById('adText');
-            const adIcon = document.getElementById('adIcon');
+            const modal = document.getElementById('adModal');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const countNum = document.getElementById('countNum');
 
-            // Disable button during task
-            adBtn.disabled = true;
-            adBtn.classList.remove('bg-amber-500', 'hover:bg-amber-600');
-            adBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+            modal.classList.remove('hidden');
 
-            let timeLeft = 5; // ৫ সেকেন্ডের টাস্ক
-            adIcon.innerText = "⏳";
-            adText.innerText = `টাস্ক চলছে (${timeLeft}s)`;
+            let timeLeft = 5;
+            timerDisplay.innerText = `${timeLeft}s`;
+            countNum.innerText = timeLeft;
 
             const countdown = setInterval(() => {
                 timeLeft--;
                 if (timeLeft > 0) {
-                    adText.innerText = `টাস্ক চলছে (${timeLeft}s)`;
+                    timerDisplay.innerText = `${timeLeft}s`;
+                    countNum.innerText = timeLeft;
                 } else {
                     clearInterval(countdown);
+                    modal.classList.add('hidden');
 
                     // Reward User
                     balance += 2.0;
                     updateBalance();
-
-                    // Reset Button
-                    adIcon.innerText = "📺";
-                    adText.innerText = "এড দেখে আয়";
-                    adBtn.disabled = false;
-                    adBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
-                    adBtn.classList.add('bg-amber-500', 'hover:bg-amber-600');
                     isTaskRunning = false;
 
-                    alert("অভিনন্দন! সফলভাবে টাস্ক সম্পন্ন হয়েছে এবং আপনার একাউন্টে ২.০০ ৳ যোগ করা হয়েছে।");
+                    alert("অভিনন্দন! সফলভাবে অ্যাড টাস্ক সম্পন্ন হয়েছে এবং আপনার একাউন্টে ২.০০ ৳ যোগ করা হয়েছে।");
                 }
             }, 1000);
         }
