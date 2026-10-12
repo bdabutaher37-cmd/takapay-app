@@ -15,23 +15,20 @@
         body { background-color: #0b1120; color: #ffffff; padding-bottom: 70px; }
         .container { padding: 15px; max-width: 450px; margin: 0 auto; }
         
-        /* Premium Header Design */
-        .welcome-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        /* Top Welcome Header */
+        .welcome-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #172033; padding: 15px; border-radius: 12px; border: 1px solid #1e293b; }
         .welcome-text span { font-size: 13px; color: #94a3b8; }
         .welcome-text h3 { font-size: 18px; color: #ffffff; }
-        .header-icons { display: flex; gap: 10px; }
-        .icon-btn { background: #172033; border: 1px solid #1e293b; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #f59e0b; }
-
-        /* Green Wallet Balance Card */
-        .wallet-card { background: linear-gradient(135deg, #059669, #047857); border-radius: 20px; padding: 20px; margin-bottom: 15px; box-shadow: 0 8px 20px rgba(5, 150, 105, 0.3); }
-        .wallet-title { font-size: 12px; letter-spacing: 1px; color: #d1fae5; margin-bottom: 8px; font-weight: bold; }
-        .wallet-amount { font-size: 32px; font-weight: 700; margin-bottom: 5px; }
-        .wallet-sub { font-size: 13px; color: #a7f3d0; margin-bottom: 15px; }
-        .wallet-stats { display: flex; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.2); padding-top: 12px; font-size: 12px; color: #ecfdf5; }
+        .plan-badge { background: #f59e0b; color: #000; font-weight: bold; font-size: 12px; padding: 6px 12px; border-radius: 20px; }
 
         /* Navigation Sections */
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+
+        /* Main Balance Card */
+        .balance-card { background: linear-gradient(135deg, #2563eb, #1d4ed8); border-radius: 16px; padding: 25px 15px; text-align: center; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
+        .balance-card p { font-size: 13px; color: #bfdbfe; margin-bottom: 5px; }
+        .balance-card h2 { font-size: 32px; font-weight: 700; }
 
         /* Generic Section Box */
         .card-box { background: #172033; border-radius: 14px; padding: 15px; margin-bottom: 15px; border: 1px solid #1e293b; }
@@ -68,29 +65,20 @@
 <body>
 
     <div class="container">
-        <!-- Top Welcome Header -->
+        <!-- Top Header -->
         <div class="welcome-header">
             <div class="welcome-text">
-                <span>শুভ অপরাহ্ন 👋</span>
-                <h3 id="userName">ব্যবহারকারী</h3>
+                <span id="displayUserId">আইডি: লোড হচ্ছে...</span>
+                <h3 id="userName">ইউজার</h3>
             </div>
-            <div class="header-icons">
-                <div class="icon-btn" id="userPlanBadge">⭐</div>
-            </div>
+            <div class="plan-badge" id="userPlanBadge">⭐ ফ্রি প্ল্যান</div>
         </div>
 
         <!-- 1. HOME TAB -->
         <div id="tab-home" class="tab-content active">
-            <!-- Green Wallet Card -->
-            <div class="wallet-card">
-                <div class="wallet-title">TAKAPAY BALANCE</div>
-                <div class="wallet-amount">৳ <span id="balance">0.00</span></div>
-                <div class="wallet-sub" id="displayUserId">ID: ---</div>
-                <div class="wallet-stats">
-                    <span>ফি কাটা হয়েছে: ৳ ০</span>
-                    <span>হিডেন চার্জ: ০%</span>
-                    <span>সেভিংস রেট: ৫%</span>
-                </div>
+            <div class="balance-card">
+                <p>মোট ব্যালেন্স</p>
+                <h2>৳ <span id="balance">0.00</span></h2>
             </div>
 
             <div class="card-box">
@@ -149,25 +137,33 @@
             <div class="item-card">
                 <div class="item-info">
                     <h4>সিলভার প্ল্যান (Silver)</h4>
-                    <p>মূল্য: ৳ ৫০০ | দৈনিক আয়: ৳ ৫০</p>
+                    <p>মূল্য: ৳ ৩০০ | দৈনিক আয়: ৳ ৫০</p>
                 </div>
-                <button class="btn-sm" id="btn-silver" onclick="promptBuyPlan('silver', 500)">কিনুন</button>
+                <button class="btn-sm" id="btn-silver" onclick="promptBuyPlan('silver', 300)">কিনুন</button>
             </div>
 
             <div class="item-card">
                 <div class="item-info">
                     <h4>গোল্ড প্ল্যান (Gold)</h4>
-                    <p>মূল্য: ৳ ১০০০ | দৈনিক আয়: ৳ ১২০</p>
+                    <p>মূল্য: ৳ ৫০০ | দৈনিক আয়: ৳ ১২০</p>
                 </div>
-                <button class="btn-sm" id="btn-gold" onclick="promptBuyPlan('gold', 1000)">কিনুন</button>
+                <button class="btn-sm" id="btn-gold" onclick="promptBuyPlan('gold', 500)">কিনুন</button>
             </div>
 
             <div class="item-card">
                 <div class="item-info">
                     <h4>ডায়মন্ড প্ল্যান (Diamond)</h4>
-                    <p>মূল্য: ৳ ২৫০০ | দৈনিক আয়: ৳ ৩০০</p>
+                    <p>মূল্য: ৳ ১০০০ | দৈনিক আয়: ৳ ৩০০</p>
                 </div>
-                <button class="btn-sm" id="btn-diamond" onclick="promptBuyPlan('diamond', 2500)">কিনুন</button>
+                <button class="btn-sm" id="btn-diamond" onclick="promptBuyPlan('diamond', 1000)">কিনুন</button>
+            </div>
+
+            <div class="item-card">
+                <div class="item-info">
+                    <h4>ম্যাক্স প্ল্যান (Max)</h4>
+                    <p>মূল্য: ৳ ২৫০০ | দৈনিক আয়: VIP</p>
+                </div>
+                <button class="btn-sm" id="btn-max" onclick="promptBuyPlan('max', 2500)">কিনুন</button>
             </div>
         </div>
 
@@ -218,10 +214,10 @@
         const BOT_USERNAME = "TakaPayAppBot";
         const telegramUser = tg.initDataUnsafe?.user;
         const userId = telegramUser?.id ? String(telegramUser.id) : '6293441724';
-        const userName = telegramUser?.first_name ? telegramUser.first_name : 'রহিম';
+        const userName = telegramUser?.first_name ? telegramUser.first_name : 'ইউজার';
 
         document.getElementById('userName').innerText = userName;
-        document.getElementById('displayUserId').innerText = 'ID: ' + userId;
+        document.getElementById('displayUserId').innerText = 'আইডি: ' + userId;
         document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${userId}`;
 
         let AdController = null;
@@ -248,11 +244,11 @@
         const refBy = urlParams.get('start');
 
         async function initUser() {
-            let { data: user } = await supabaseClient.from('users').select('*').eq('id', userId).single();
+            let { data: user, error } = await supabaseClient.from('users').select('*').eq('id', userId).single();
 
             if (!user) {
                 let referrer = (refBy && refBy !== userId) ? refBy : null;
-                let newUserObj = { id: userId, balance: 10.00, referred_by: referrer, plan: 'free' };
+                let newUserObj = { id: userId, balance: 0.00, referred_by: referrer, plan: 'free' };
                 await supabaseClient.from('users').insert([newUserObj]);
 
                 if (referrer) {
@@ -272,20 +268,21 @@
             currentPlan = user.plan || 'free';
             updatePlanUI(currentPlan);
             
-            // প্ল্যান অনুযায়ী প্রতি অ্যাডের রিওয়ার্ড নির্ধারণ (ফ্রি: ২ টাকা, সিলভার: ২.৫০ টাকা ইত্যাদি)
             if(currentPlan === 'silver') {
                 document.getElementById('adRewardText').innerText = "+৳ ২.৫০ / অ্যাড (প্রতিদিন ২০টি)";
             } else if(currentPlan === 'gold') {
                 document.getElementById('adRewardText').innerText = "+৳ ৬.০০ / অ্যাড (প্রতিদিন ২০টি)";
             } else if(currentPlan === 'diamond') {
                 document.getElementById('adRewardText').innerText = "+৳ ১৫.০০ / অ্যাড (প্রতিদিন ২০টি)";
+            } else if(currentPlan === 'max') {
+                document.getElementById('adRewardText').innerText = "+৳ ২৫.০০ / অ্যাড (প্রতিদিন ২০টি)";
             } else {
                 document.getElementById('adRewardText').innerText = "+৳ ২.০০ / অ্যাড (প্রতিদিন ২০টি)";
             }
         }
 
         function updatePlanUI(planName) {
-            const plans = ['free', 'silver', 'gold', 'diamond'];
+            const plans = ['free', 'silver', 'gold', 'diamond', 'max'];
             plans.forEach(p => {
                 const btn = document.getElementById('btn-' + p);
                 if(btn) {
@@ -299,8 +296,8 @@
                 }
             });
 
-            let badges = { 'free': '⭐', 'silver': '🥈', 'gold': '🥇', 'diamond': '💎' };
-            document.getElementById('userPlanBadge').innerText = badges[planName] || '⭐';
+            let badges = { 'free': '⭐ ফ্রি প্ল্যান', 'silver': '🥈 সিলভার প্ল্যান', 'gold': '🥇 গোল্ড প্ল্যান', 'diamond': '💎 ডায়মন্ড প্ল্যান', 'max': '👑 ম্যাক্স প্ল্যান' };
+            document.getElementById('userPlanBadge').innerText = badges[planName] || '⭐ ফ্রি প্ল্যান';
         }
 
         function copyRefLink() {
@@ -351,11 +348,11 @@
                 return;
             }
 
-            // প্ল্যান অনুযায়ী প্রতি অ্যাডের রিওয়ার্ড হিসাব
             let rewardPerAd = 2.00;
             if (currentPlan === 'silver') rewardPerAd = 2.50;
             else if (currentPlan === 'gold') rewardPerAd = 6.00;
             else if (currentPlan === 'diamond') rewardPerAd = 15.00;
+            else if (currentPlan === 'max') rewardPerAd = 25.00;
 
             const grantReward = async () => {
                 let { data: user } = await supabaseClient.from('users').select('balance').eq('id', userId).single();
