@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TakaPay Mini App Pro v9.0</title>
+    <title>TakaPay Mini App Pro v10.0</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Supabase JS SDK -->
@@ -30,10 +30,11 @@
         .card-box { background: rgba(15, 23, 42, 0.8); border-radius: 16px; padding: 16px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
         .section-title { font-size: 15px; font-weight: 700; margin-bottom: 10px; color: #f8fafc; }
 
-        .daily-bonus-box { background: linear-gradient(135deg, #10b981, #059669); border-radius: 16px; padding: 16px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .daily-bonus-box { background: linear-gradient(135deg, #10b981, #059669); border-radius: 16px; padding: 16px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3); }
         .daily-bonus-box h4 { font-size: 15px; color: white; margin-bottom: 2px; }
         .daily-bonus-box p { font-size: 11px; color: #d1fae5; }
         .btn-claim { background: #ffffff; color: #047857; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; }
+        .btn-claim-disabled { background: #475569 !important; color: #cbd5e1 !important; cursor: not-allowed; }
 
         .ref-box { background: #090d16; padding: 12px; border-radius: 10px; word-break: break-all; color: #38bdf8; font-size: 12px; border: 1px dashed #0284c7; margin: 10px 0; text-align: center; font-family: monospace; }
         .btn-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border: none; padding: 13px; border-radius: 10px; font-weight: 700; width: 100%; cursor: pointer; font-size: 14px; }
@@ -80,7 +81,7 @@
                 <h2>৳ <span id="balance">0.00</span></h2>
             </div>
 
-            <!-- দৈনিক ১০ টাকা বোনাস বাটন -->
+            <!-- ডেইলি বোনাস বক্স -->
             <div class="daily-bonus-box">
                 <div>
                     <h4>🎁 দৈনিক বোনাস</h4>
@@ -242,14 +243,14 @@
             if (savedDate !== todayDate) {
                 localStorage.setItem(dateKey, todayDate);
                 localStorage.setItem('takapay_ads_' + userId, '0');
-                localStorage.setItem('takapay_bonus_claimed_' + userId, 'false');
+                localStorage.setItem('takapay_bonus_' + userId, 'false');
                 adsWatchedToday = 0;
                 isBonusClaimedToday = false;
             } else {
                 let localAds = localStorage.getItem('takapay_ads_' + userId);
                 if (localAds !== null) adsWatchedToday = parseInt(localAds) || 0;
                 
-                let localBonus = localStorage.getItem('takapay_bonus_claimed_' + userId);
+                let localBonus = localStorage.getItem('takapay_bonus_' + userId);
                 if (localBonus === 'true') isBonusClaimedToday = true;
             }
 
@@ -294,7 +295,7 @@
             let bonusBtn = document.getElementById('dailyBonusBtn');
             if (isBonusClaimedToday) {
                 bonusBtn.innerText = "গৃহীত হয়েছে";
-                bonusBtn.className = "btn-claim btn-disabled";
+                bonusBtn.className = "btn-claim btn-claim-disabled";
                 bonusBtn.disabled = true;
             } else {
                 bonusBtn.innerText = "ক্লেইম করুন";
@@ -313,7 +314,7 @@
             userBalance = parseFloat((userBalance + 10.00).toFixed(2));
 
             localStorage.setItem('takapay_bal_' + userId, userBalance);
-            localStorage.setItem('takapay_bonus_claimed_' + userId, 'true');
+            localStorage.setItem('takapay_bonus_' + userId, 'true');
             updateUI();
 
             try {
@@ -387,7 +388,4 @@
         }
 
         function joinTelegramChannel() {
-            if (window.Telegram?.WebApp?.openTelegramLink) {
-                window.Telegram.WebApp.openTelegramLink(OFFICIAL_CHANNEL);
-            } else {
-                window.open(
+            if (window.Telegram?.WebApp?.openTeleg
