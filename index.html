@@ -138,7 +138,7 @@
         /* Referral Box */
         .refer-box {
             background: var(--card-bg);
-            border: 1px border-color;
+            border: 1px solid var(--border-color);
             border-radius: 14px;
             padding: 16px;
             margin-bottom: 20px;
@@ -252,7 +252,7 @@
         <div id="taskSection" class="section">
             <h3>📋 দৈনিক টাস্কসমূহ</h3>
             
-            <!-- Video Ad Task with AdsGram SDK -->
+            <!-- Video Ad Task -->
             <div class="card">
                 <div class="card-details">
                     <h4>ভিডিও বিজ্ঞাপন দেখুন</h4>
@@ -271,29 +271,29 @@
             </div>
         </div>
 
-        <!-- 3. Investment Plans Section -->
+        <!-- 3. Investment Plans Section (Updated Prices: 300, 500, 1000) -->
         <div id="planSection" class="section">
             <h3>💎 ইনভেস্টমেন্ট প্ল্যান</h3>
             <div class="card">
                 <div class="card-details">
+                    <h4>ব্রোঞ্জ প্ল্যান (Bronze)</h4>
+                    <p>মূল্য: ৳ ৩০০ | দৈনিক আয়: ৳ ৩০</p>
+                </div>
+                <button class="action-btn" onclick="buyPlan('Bronze', 300)">কিনুন</button>
+            </div>
+            <div class="card">
+                <div class="card-details">
                     <h4>সিলভার প্ল্যান (Silver)</h4>
-                    <p>মূল্য: ৳ ৫০০ | দৈনিক আয়: ৳ ৫০</p>
+                    <p>মূল্য: ৳ ৫০০ | দৈনিক আয়: ৳ ৬০</p>
                 </div>
                 <button class="action-btn" onclick="buyPlan('Silver', 500)">কিনুন</button>
             </div>
             <div class="card">
                 <div class="card-details">
                     <h4>গোল্ড প্ল্যান (Gold)</h4>
-                    <p>মূল্য: ৳ ১০০০ | দৈনিক আয়: ৳ ১২০</p>
+                    <p>মূল্য: ৳ ১০০০ | দৈনিক আয়: ৳ ১৩০</p>
                 </div>
                 <button class="action-btn" onclick="buyPlan('Gold', 1000)">কিনুন</button>
-            </div>
-            <div class="card">
-                <div class="card-details">
-                    <h4>ডায়মন্ড প্ল্যান (Diamond)</h4>
-                    <p>মূল্য: ৳ ২৫০০ | দৈনিক আয়: ৳ ৩০০</p>
-                </div>
-                <button class="action-btn" onclick="buyPlan('Diamond', 2500)">কিনুন</button>
             </div>
         </div>
 
@@ -358,10 +358,14 @@
             }
         }
 
-        // AdsGram Controller Setup (Block ID: 53355)
+        // AdsGram Controller Setup (Block ID: 53355) with Safe Fallback
         let AdController = null;
-        if (window.Adsgram) {
-            AdController = window.Adsgram.init({ blockId: "53355" });
+        try {
+            if (window.Adsgram) {
+                AdController = window.Adsgram.init({ blockId: "53355" });
+            }
+        } catch (e) {
+            console.log("AdsGram init error:", e);
         }
 
         // Local Storage State Management
@@ -393,31 +397,30 @@
             element.classList.add('active');
         }
 
-        // Real AdsGram Video Ad Watch Function
+        // Watch Ad Function with Reliable Fallback (Ensures balance is always credited)
         function watchAd() {
             if (AdController) {
                 AdController.show().then((result) => {
-                    // Ad completed successfully
                     userBalance += 2.00;
                     todayEarned += 2.00;
                     saveData();
                     updateUI();
-                    alert('অভিনন্দন! বিজ্ঞাপনটি দেখার জন্য আপনি ২.০০ টাকা পেয়েছেন।');
-                }).catch((result) => {
-                    // Ad error or skipped
-                    alert('বিজ্ঞাপনটি লোড হতে সমস্যা হয়েছে অথবা স্কিপ করা হয়েছে। আবার চেষ্টা করুন।');
+                    alert('অভিনন্দন! বিজ্ঞাপন দেখার জন্য আপনি ২.০০ টাকা পেয়েছেন।');
+                }).catch((err) => {
+                    // Fallback if live ad fails to load or skipped
+                    giveAdReward();
                 });
             } else {
-                // Fallback simulation if AdsGram not loaded
-                alert('বিজ্ঞাপন লোড হচ্ছে...');
-                setTimeout(() => {
-                    userBalance += 2.00;
-                    todayEarned += 2.00;
-                    saveData();
-                    updateUI();
-                    alert('অভিনন্দন! আপনি ২.০০ টাকা অর্জন করেছেন।');
-                }, 1500);
+                giveAdReward();
             }
+        }
+
+        function giveAdReward() {
+            userBalance += 2.00;
+            todayEarned += 2.00;
+            saveData();
+            updateUI();
+            alert('অভিনন্দন! বিজ্ঞাপন সম্পন্ন হয়েছে এবং ২.০০ টাকা যোগ হয়েছে।');
         }
 
         // Join Official Channel Logic
@@ -458,10 +461,10 @@
             alert("রেফারেল লিংক কপি করা হয়েছে!");
         }
 
-        // Buy Plan Logic
+        // Buy Plan Logic (Updated Prices)
         function buyPlan(planName, price) {
             if (userBalance < price) {
-                alert('আপনার পর্যাপ্ত ব্যালেন্স নেই! ইনভেস্ট বা অ্যাড দেখে ব্যালেন্স বাড়ান।');
+                alert('আপনার পর্যাপ্ত ব্যালেন্স নেই! টাস্ক বা অ্যাড দেখে ব্যালেন্স বাড়ান।');
                 return;
             }
             userBalance -= price;
