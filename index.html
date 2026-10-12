@@ -2,373 +2,446 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TakaPay Mini App</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TakaPay - Telegram Mini App</title>
+    <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- AdsGram SDK -->
-    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
-        body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-            color: #ffffff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --success-color: #10b981;
+            --border-color: #334155;
         }
-        .card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-bottom: 70px;
+        }
+        .container {
+            padding: 16px;
+            flex: 1;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        /* User Profile Header */
+        .profile-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .user-info h4 {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+        .user-info p {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        .plan-badge {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 6px 12px;
             border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        /* Sections */
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+        h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        /* Task & Plan Cards */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .card-details h4 {
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+        .card-details p {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+        .action-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .action-btn:hover {
+            background-color: var(--accent-hover);
+        }
+        .action-btn:disabled {
+            background-color: #64748b;
+            cursor: not-allowed;
+        }
+        /* Balance Display */
+        .balance-box {
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .balance-box h2 {
+            font-size: 14px;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+        }
+        .balance-box h1 {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        /* Form Inputs */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 6px;
+            color: #cbd5e1;
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: white;
+            font-size: 15px;
+        }
+        /* Bottom Navigation Bar */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+        .nav-item {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 12px;
+            cursor: pointer;
+            flex: 1;
+        }
+        .nav-item.active {
+            color: var(--accent-color);
+        }
+        .nav-item span {
+            margin-top: 4px;
         }
     </style>
 </head>
-<body class="pb-28">
+<body>
 
-    <!-- Header -->
-    <div class="p-4 flex justify-between items-center card mx-4 mt-4">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-sm font-bold border border-indigo-400">
-                <i class="fa-solid fa-user"></i>
+    <div class="container">
+        <!-- User Profile Header -->
+        <div class="profile-card">
+            <div class="user-info">
+                <h4>ইউজার আইডি</h4>
+                <p id="userIdDisplay">7862177842</p>
             </div>
-            <div>
-                <p class="text-[10px] text-gray-400">ইউজার আইডি</p>
-                <p id="uid" class="font-bold text-xs text-indigo-200">লোড হচ্ছে...</p>
-            </div>
+            <div class="plan-badge" id="userPlanBadge">⭐ ফ্রি প্ল্যান</div>
         </div>
-        <span class="bg-amber-500/20 text-amber-400 text-[11px] px-3 py-1 rounded-full border border-amber-500/30 font-semibold">
-            <i class="fa-solid fa-crown text-[10px] mr-1"></i> ফ্রি প্ল্যান
-        </span>
-    </div>
 
-    <!-- Main Views Container -->
-    <div class="px-4 mt-4">
-
-        <!-- HOME VIEW -->
-        <div id="homeView" class="view space-y-4">
-            <div class="card p-5 bg-gradient-to-r from-indigo-900/50 to-purple-950/50 border-indigo-500/30">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-gray-300 text-xs"><i class="fa-solid fa-wallet text-amber-400 mr-1.5"></i>আপনার মূল ব্যালেন্স</span>
-                    <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">সক্রিয়</span>
-                </div>
-                <div class="text-3xl font-extrabold text-white my-2">
-                    ৳ <span id="bal">0.00</span>
-                </div>
-                <div class="flex justify-between text-[11px] text-gray-400 pt-2 border-t border-white/10">
-                    <span>আজকের ইনকাম: ৳ <span id="todayInc">0.00</span></span>
-                    <span>অ্যাড দেখা: <span id="adCounter">0</span>/20</span>
+        <!-- 1. Home Section -->
+        <div id="homeSection" class="section active">
+            <div class="balance-box">
+                <h2>মোট ব্যালেন্স</h2>
+                <h1 id="balanceDisplay">৳ 0.00</h1>
+            </div>
+            <h3>📊 ড্যাশবোর্ড ওভারভিউ</h3>
+            <div class="card">
+                <div class="card-details">
+                    <h4>আজকের আয়</h4>
+                    <p id="todayEarnings">৳ 0.00</p>
                 </div>
             </div>
-
-            <!-- Referral Box -->
-            <div class="card p-4 bg-gradient-to-r from-purple-900/40 to-indigo-900/40 border-purple-500/30">
-                <p class="text-xs font-bold text-purple-300 mb-1"><i class="fa-solid fa-share-nodes mr-1.5"></i>রেফার করে আয় করুন</p>
-                <p class="text-[11px] text-gray-300 mb-2">প্রতি রেফারে পান ১০ টাকা বোনাস!</p>
-                <div class="flex gap-2">
-                    <input type="text" id="refLink" readonly value="https://t.me/TakaPayBot" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-3 py-2 text-[11px] text-gray-300 focus:outline-none">
-                    <button onclick="copyRef()" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition">কপি</button>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-                <div class="card p-3.5 text-center">
-                    <i class="fa-solid fa-bolt text-amber-400 text-xl mb-1"></i>
-                    <p class="text-[11px] text-gray-400">ডেইলি টাস্ক বোনাস</p>
-                    <p class="font-bold text-xs text-amber-300">৳ ৪০.০০ পর্যন্ত</p>
-                </div>
-                <div class="card p-3.5 text-center">
-                    <i class="fa-solid fa-hand-holding-dollar text-emerald-400 text-xl mb-1"></i>
-                    <p class="text-[11px] text-gray-400">মিনিমাম উইথড্র</p>
-                    <p class="font-bold text-xs text-emerald-300">৳ ৩০০.০০</p>
+            <div class="card">
+                <div class="card-details">
+                    <h4>সম্পন্ন টাস্ক</h4>
+                    <p id="completedTasksCount">০ টি</p>
                 </div>
             </div>
         </div>
 
-        <!-- TASKS VIEW -->
-        <div id="tasksView" class="view hidden space-y-4">
-            <h2 class="text-sm font-bold text-indigo-300 mb-1"><i class="fa-solid fa-list-check mr-1.5"></i>দৈনিক টাস্কসমূহ</h2>
+        <!-- 2. Tasks Section -->
+        <div id="taskSection" class="section">
+            <h3>📋 দৈনিক টাস্কসমূহ</h3>
             
-            <div class="card p-4 flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center text-base">
-                        <i class="fa-solid fa-circle-play"></i>
-                    </div>
-                    <div>
-                        <p class="font-semibold text-xs text-white">ভিডিও বিজ্ঞাপন দেখুন</p>
-                        <p class="text-[11px] text-emerald-400">+৳ ২.০০ / অ্যাড (প্রতিদিন ২০টি)</p>
-                    </div>
+            <!-- Video Ad Task -->
+            <div class="card">
+                <div class="card-details">
+                    <h4>ভিডিও বিজ্ঞাপন দেখুন</h4>
+                    <p>+৳ 2.00 / অ্যাড (প্রতিদিন ২০টি)</p>
                 </div>
-                <button id="watchAdBtn" onclick="showRewardAd()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
-                    দেখুন
-                </button>
+                <button class="action-btn" onclick="watchAd()">দেখুন</button>
             </div>
 
-            <div class="card p-4 flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center text-base">
-                        <i class="fa-solid fa-paper-plane"></i>
-                    </div>
-                    <div>
-                        <p class="font-semibold text-xs text-white">অফিশিয়াল টেলিগ্রাম চ্যানেল</p>
-                        <p class="text-[11px] text-emerald-400">+৳ ৫.০০ (একবার)</p>
-                    </div>
+            <!-- Official Channel Task -->
+            <div class="card">
+                <div class="card-details">
+                    <h4>অফিসিয়াল টেলিগ্রাম চ্যানেল</h4>
+                    <p>+৳ 5.00 (একবার)</p>
                 </div>
-                <button onclick="window.open('https://t.me/your_official_channel', '_blank')" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
-                    জয়েন
-                </button>
+                <button class="action-btn" id="channelBtn" onclick="joinOfficialChannel()">জয়েন</button>
             </div>
         </div>
 
-        <!-- PLANS VIEW -->
-        <div id="plansView" class="view hidden space-y-4">
-            <h2 class="text-sm font-bold text-indigo-300 mb-1"><i class="fa-solid fa-gem mr-1.5"></i>ভিআইপি ইনভেস্টমেন্ট প্ল্যান</h2>
-            
-            <div class="card p-3.5 bg-indigo-950/50 border-indigo-500/30 text-xs text-indigo-200">
-                <p class="font-bold text-amber-300 mb-1"><i class="fa-solid fa-mobile-screen mr-1"></i>পার্সোনাল বিকাশ/নগদ নম্বর:</p>
-                <div class="p-2 bg-slate-900/90 rounded-lg font-mono text-center text-sm font-bold text-emerald-400 tracking-wider">
-                    01318774526
+        <!-- 3. Investment Plans Section -->
+        <div id="planSection" class="section">
+            <h3>💎 ইনভেস্টমেন্ট প্ল্যান</h3>
+            <div class="card">
+                <div class="card-details">
+                    <h4>সিলভার প্ল্যান (Silver)</h4>
+                    <p>মূল্য: ৳ ৫০০ | দৈনিক আয়: ৳ ৫০</p>
                 </div>
+                <button class="action-btn" onclick="buyPlan('Silver', 500)">কিনুন</button>
             </div>
-
-            <!-- Silver Plan -->
-            <div class="card p-4 border-slate-500/40">
-                <div class="flex justify-between items-start mb-2">
-                    <div>
-                        <h3 class="font-bold text-sm text-slate-200">সিলভার প্ল্যান</h3>
-                        <p class="text-xl font-black text-white mt-0.5">৳ ৩০০</p>
-                    </div>
-                    <span class="bg-slate-500/20 text-slate-300 text-[10px] px-2 py-0.5 rounded-full border border-slate-500/30">Tier 1</span>
+            <div class="card">
+                <div class="card-details">
+                    <h4>গোল্ড প্ল্যান (Gold)</h4>
+                    <p>মূল্য: ৳ ১০০০ | দৈনিক আয়: ৳ ১২০</p>
                 </div>
-                <p class="text-[11px] text-gray-300 mb-3">দৈনিক ২০টি অ্যাড ও ৩০ দিন মেয়াদ।</p>
-                <button onclick="openModal('সিলভার প্ল্যান', 300)" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs py-2.5 rounded-xl transition">প্ল্যান কিনুন</button>
+                <button class="action-btn" onclick="buyPlan('Gold', 1000)">কিনুন</button>
             </div>
-
-            <!-- Gold Plan -->
-            <div class="card p-4 border-amber-500/40 bg-amber-500/5">
-                <div class="flex justify-between items-start mb-2">
-                    <div>
-                        <h3 class="font-bold text-sm text-amber-300">গোল্ড প্ল্যান</h3>
-                        <p class="text-xl font-black text-white mt-0.5">৳ ৫০০</p>
-                    </div>
-                    <span class="bg-amber-500/20 text-amber-300 text-[10px] px-2 py-0.5 rounded-full border border-amber-500/30">জনপ্রিয়</span>
+            <div class="card">
+                <div class="card-details">
+                    <h4>ডায়মন্ড প্ল্যান (Diamond)</h4>
+                    <p>মূল্য: ৳ ২৫০০ | দৈনিক আয়: ৳ ৩০০</p>
                 </div>
-                <p class="text-[11px] text-gray-300 mb-3">দৈনিক ২০টি অ্যাড ও ইনস্ট্যান্ট উইথড্র সুবিধা।</p>
-                <button onclick="openModal('গোল্ড প্ল্যান', 500)" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs py-2.5 rounded-xl transition">প্ল্যান কিনুন</button>
-            </div>
-
-            <!-- Diamond Plan -->
-            <div class="card p-4 border-cyan-500/40 bg-cyan-500/5">
-                <div class="flex justify-between items-start mb-2">
-                    <div>
-                        <h3 class="font-bold text-sm text-cyan-300">ডায়মন্ড প্ল্যান</h3>
-                        <p class="text-xl font-black text-white mt-0.5">৳ ১০০০</p>
-                    </div>
-                    <span class="bg-cyan-500/20 text-cyan-300 text-[10px] px-2 py-0.5 rounded-full border border-cyan-500/30">ভিআইপি</span>
-                </div>
-                <p class="text-[11px] text-gray-300 mb-3">দৈনিক ২০টি অ্যাড ও ২৪/৭ সাপোর্ট।</p>
-                <button onclick="openModal('ডায়মন্ড প্ল্যান', 1000)" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs py-2.5 rounded-xl transition">প্ল্যান কিনুন</button>
+                <button class="action-btn" onclick="buyPlan('Diamond', 2500)">কিনুন</button>
             </div>
         </div>
 
-        <!-- WITHDRAW VIEW -->
-        <div id="withdrawView" class="view hidden space-y-4">
-            <h2 class="text-sm font-bold text-indigo-300 mb-1"><i class="fa-solid fa-wallet mr-1.5"></i>টাকা তুলুন</h2>
-            <div class="card p-4 space-y-3">
-                <div>
-                    <label class="block text-[11px] text-gray-400 mb-1">পেমেন্ট মেথড</label>
-                    <select id="wMethod" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
-                        <option value="bkash">বিকাশ (bKash)</option>
-                        <option value="nagad">নগদ (Nagad)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-[11px] text-gray-400 mb-1">অ্যাকাউন্ট নম্বর</label>
-                    <input id="wNum" type="number" placeholder="017XXXXXXXX" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-[11px] text-gray-400 mb-1">পরিমাণ (সর্বনিম্ন ৩০০ টাকা)</label>
-                    <input id="wAmt" type="number" placeholder="300" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
-                </div>
-                <button onclick="withdraw()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl text-xs font-bold transition">
-                    উইথড্র রিকুয়েস্ট পাঠান
-                </button>
+        <!-- 4. Withdraw Section -->
+        <div id="withdrawSection" class="section">
+            <h3>💳 পেমেন্ট উইথড্র</h3>
+            <div class="balance-box" style="padding: 16px; margin-bottom: 15px;">
+                <h2 style="font-size: 12px;">উইথড্র করার যোগ্য অ্যামাউন্ট</h2>
+                <h1 style="font-size: 24px;" id="withdrawBalance">৳ 0.00</h1>
             </div>
-        </div>
-
-    </div>
-
-    <!-- Recharge Payment Modal -->
-    <div id="paymentModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="card bg-slate-900 border-indigo-500/40 p-5 w-full max-w-sm space-y-3">
-            <div class="flex justify-between items-center border-b border-white/10 pb-2">
-                <h3 class="font-bold text-amber-300 text-xs"><span id="modalPlanName"></span> রিচার্জ</h3>
-                <button onclick="closeModal()" class="text-gray-400 text-base">&times;</button>
+            <div class="form-group">
+                <label>পেমেন্ট মেথড</label>
+                <select class="form-control" id="paymentMethod">
+                    <option value="bKash">বিকাশ (bKash)</option>
+                    <option value="Nagad">নগদ (Nagad)</option>
+                    <option value="Binance">বাইনান্স (Binance USDT)</option>
+                </select>
             </div>
-            <p class="text-[11px] text-gray-300">
-                এই নম্বরে টাকা পাঠান: <b class="text-emerald-400 font-mono">01318774526</b> (<span id="modalPrice"></span> টাকা)
-            </p>
-            <div>
-                <label class="block text-[10px] text-gray-400 mb-1">আপনার বিকাশ/নগদ নম্বর</label>
-                <input id="senderNum" type="number" placeholder="013XXXXXXXX" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-xs text-white focus:outline-none">
+            <div class="form-group">
+                <label>অ্যাকাউন্ট নাম্বার / ওয়ালেট অ্যাড্রেস</label>
+                <input type="text" class="form-control" id="accountNumber" placeholder="আপনার নম্বর দিন">
             </div>
-            <div>
-                <label class="block text-[10px] text-gray-400 mb-1">ট্রানজেকশন আইডি (TxID)</label>
-                <input id="trxId" type="text" placeholder="যেমন: 8N7A6D5E" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-xs text-white uppercase focus:outline-none">
+            <div class="form-group">
+                <label>টাকার পরিমাণ (সর্বনিম্ন ৩০০ টাকা)</label>
+                <input type="number" class="form-control" id="withdrawAmount" placeholder="300">
             </div>
-            <button onclick="submitDeposit()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl transition text-xs">
-                পেমেন্ট তথ্য জমা দিন
-            </button>
+            <button class="action-btn" style="width: 100%; padding: 14px;" onclick="requestWithdraw()">উইথড্র রিকোয়েস্ট পাঠান</button>
         </div>
     </div>
 
     <!-- Bottom Navigation Bar -->
-    <div class="fixed bottom-0 left-0 right-0 card rounded-none border-t border-white/10 px-2 py-2 flex justify-around items-center bg-slate-950/95 backdrop-blur-lg z-40">
-        <button onclick="showTab('home')" id="nav-home" class="nav-btn text-sky-400 text-[11px] font-medium text-center p-1.5"><i class="fa-solid fa-house text-base block mb-0.5"></i>হোম</button>
-        <button onclick="showTab('tasks')" id="nav-tasks" class="nav-btn text-gray-400 text-[11px] font-medium text-center p-1.5"><i class="fa-solid fa-list-check text-base block mb-0.5"></i>টাস্ক</button>
-        <button onclick="showTab('plans')" id="nav-plans" class="nav-btn text-gray-400 text-[11px] font-medium text-center p-1.5"><i class="fa-solid fa-gem text-base block mb-0.5"></i>প্ল্যান</button>
-        <button onclick="showTab('withdraw')" id="nav-withdraw" class="nav-btn text-gray-400 text-[11px] font-medium text-center p-1.5"><i class="fa-solid fa-wallet text-base block mb-0.5"></i>উইথড্র</button>
+    <div class="nav-bar">
+        <button class="nav-item active" onclick="switchTab('home', this)">
+            <span>🏠</span>
+            <span>হোম</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('task', this)">
+            <span>📋</span>
+            <span>টাস্ক</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('plan', this)">
+            <span>💎</span>
+            <span>প্ল্যান</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('withdraw', this)">
+            <span>💳</span>
+            <span>উইথড্র</span>
+        </button>
     </div>
 
-    <!-- Script Logic -->
     <script>
-        const tg = window.Telegram?.WebApp;
-        let userId = "default_user";
+        // Telegram WebApp Initialization
+        let tg = window.Telegram.WebApp;
+        tg.expand();
 
-        if (tg) {
-            tg.ready();
-            tg.expand();
-            if (tg.initDataUnsafe?.user?.id) {
-                userId = String(tg.initDataUnsafe.user.id);
-            }
-        }
+        // Local Storage State Management
+        let userBalance = parseFloat(localStorage.getItem('takapay_balance')) || 0.00;
+        let todayEarned = parseFloat(localStorage.getItem('takapay_today')) || 0.00;
+        let taskCompleted = localStorage.getItem('takapay_channel_joined') === 'true';
 
-        document.getElementById('uid').innerText = userId;
-        document.getElementById('refLink').value = `https://t.me/TakaPayBot?start=ref${userId}`;
-
-        const balKey = `tp_bal_${userId}`;
-        const adsKey = `tp_ads_${userId}`;
-
-        let balance = parseFloat(localStorage.getItem(balKey)) || 0.00;
-        let adsWatched = parseInt(localStorage.getItem(adsKey)) || 0;
-        const maxAds = 20;
-
-        function updateUI() {
-            document.getElementById('bal').innerText = balance.toFixed(2);
-            document.getElementById('todayInc').innerText = (adsWatched * 2.00).toFixed(2);
-            document.getElementById('adCounter').innerText = adsWatched;
-
-            if (adsWatched >= maxAds) {
-                const btn = document.getElementById('watchAdBtn');
-                if (btn) {
-                    btn.innerText = 'শেষ';
-                    btn.classList.replace('bg-indigo-600', 'bg-gray-600');
-                    btn.disabled = true;
-                }
-            }
-        }
-
+        // UI update on load
         updateUI();
 
-        function showTab(tab) {
-            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
-            document.getElementById(tab + 'View').classList.remove('hidden');
-
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-sky-400', 'text-gray-400'));
-            document.getElementById('nav-' + tab).classList.replace('text-gray-400', 'text-sky-400');
+        if (taskCompleted) {
+            let btn = document.getElementById('channelBtn');
+            btn.innerText = 'সম্পন্ন';
+            btn.disabled = true;
         }
 
-        function copyRef() {
-            const copyText = document.getElementById('refLink');
-            navigator.clipboard.writeText(copyText.value);
-            alert('রেফার লিংক কপি হয়েছে!');
+        // Set User ID if available from Telegram
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            document.getElementById('userIdDisplay').innerText = tg.initDataUnsafe.user.id;
         }
 
-        function openModal(name, price) {
-            document.getElementById('modalPlanName').innerText = name;
-            document.getElementById('modalPrice').innerText = price;
-            document.getElementById('paymentModal').classList.remove('hidden');
+        // Tab Switching Logic
+        function switchTab(tabName, element) {
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+
+            if (tabName === 'home') document.getElementById('homeSection').classList.add('active');
+            if (tabName === 'task') document.getElementById('taskSection').classList.add('active');
+            if (tabName === 'plan') document.getElementById('planSection').classList.add('active');
+            if (tabName === 'withdraw') document.getElementById('withdrawSection').classList.add('active');
+
+            element.classList.add('active');
         }
 
-        function closeModal() {
-            document.getElementById('paymentModal').classList.add('hidden');
+        // Watch Ad Logic (AdsGram SDK Simulation)
+        function watchAd() {
+            // এখানে AdsGram SDK ఇంటిগ্রেশন থাকবে (Block ID: 53355)
+            alert('বিজ্ঞাপন লোড হচ্ছে...');
+            setTimeout(() => {
+                userBalance += 2.00;
+                todayEarned += 2.00;
+                saveData();
+                updateUI();
+                alert('অভিনন্দন! আপনি ২.০০ টাকা অর্জন করেছেন।');
+            }, 1500);
         }
 
-        function submitDeposit() {
-            const num = document.getElementById('senderNum').value;
-            const trx = document.getElementById('trxId').value;
-            if (!num || num.length < 11) {
-                alert('সঠিক বিকাশ/নগদ নম্বর দিন!');
-                return;
-            }
-            if (!trx) {
-                alert('ট্রানজেকশন আইডি (TxID) দিন!');
-                return;
-            }
-            closeModal();
-            alert('পেমেন্ট রিকুয়েস্ট সফলভাবে জমা হয়েছে! চেক করে প্ল্যান অ্যাক্টিভ করা হবে।');
-        }
-
-        // AdsGram Integration (Block ID: 53355)
-        let AdController = null;
-        if (window.Adsgram) {
-            try {
-                AdController = window.Adsgram.init({ blockId: "53355" });
-            } catch (e) {
-                console.log("Adsgram init error:", e);
-            }
-        }
-
-        function showRewardAd() {
-            if (adsWatched >= maxAds) {
-                alert('আজকের ২০টি বিজ্ঞাপনের লিমিট শেষ!');
-                return;
-            }
-
-            if (AdController) {
-                AdController.show().then((result) => {
-                    giveReward();
-                }).catch((result) => {
-                    alert("বিজ্ঞাপন সম্পূর্ণ না দেখলে পয়েন্ট পাবেন না।");
-                });
+        // Join Official Channel Logic
+        function openOfficialChannel() {
+            const channelUrl = 'https://t.me/takapay_official';
+            
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.openTelegramLink(channelUrl);
             } else {
-                giveReward();
+                window.open(channelUrl, '_blank');
+            }
+
+            // Give Reward for joining channel (only once)
+            if (!taskCompleted) {
+                setTimeout(() => {
+                    userBalance += 5.00;
+                    todayEarned += 5.00;
+                    taskCompleted = true;
+                    localStorage.setItem('takapay_channel_joined', 'true');
+                    saveData();
+                    updateUI();
+                    
+                    let btn = document.getElementById('channelBtn');
+                    btn.innerText = 'সম্পন্ন';
+                    btn.disabled = true;
+                    alert('চ্যানেলে জয়েন করার জন্য ৫.০০ টাকা বোনাস দেওয়া হয়েছে!');
+                }, 3000);
             }
         }
 
-        function giveReward() {
-            balance += 2.00;
-            adsWatched += 1;
-
-            localStorage.setItem(balKey, balance);
-            localStorage.setItem(adsKey, adsWatched);
-
+        // Buy Plan Logic
+        function buyPlan(planName, price) {
+            if (userBalance < price) {
+                alert('আপনার পর্যাপ্ত ব্যালেন্স নেই! বিজ্ঞাপন দেখে বা ইনভেস্ট করে ব্যালেন্স বাড়ান।');
+                return;
+            }
+            userBalance -= price;
+            saveData();
             updateUI();
-            alert("অভিনন্দন! আপনি ২.০০ ৳ রিওয়ার্ড পেয়েছেন।");
+            document.getElementById('userPlanBadge').innerText = '⭐ ' + planName + ' প্ল্যান';
+            alert(`সফলভাবে ${planName} প্ল্যানটি ক্রয় করা হয়েছে!`);
         }
 
-        function withdraw() {
-            const num = document.getElementById('wNum').value;
-            const amt = parseFloat(document.getElementById('wAmt').value);
+        // Withdraw Request Logic
+        function requestWithdraw() {
+            let amount = parseFloat(document.getElementById('withdrawAmount').value);
+            let account = document.getElementById('accountNumber').value;
 
-            if (!num || num.length < 11) {
-                alert('সঠিক অ্যাকাউন্ট নম্বর দিন!');
+            if (!account) {
+                alert('অনুগ্রহ করে আপনার অ্যাকাউন্ট নম্বর দিন।');
                 return;
             }
-            if (!amt || amt < 300) {
-                alert('কমপক্ষে ৩০০ টাকা উইথড্র করতে হবে!');
+            if (isNaN(amount) || amount < 300) {
+                alert('সর্বনিম্ন উইথড্র পরিমাণ ৩০০ টাকা।');
                 return;
             }
-            if (amt > balance) {
-                alert('আপনার ওয়ালেটে পর্যাপ্ত ব্যালেন্স নেই!');
+            if (userBalance < amount) {
+                alert('আপনার মূল অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!');
                 return;
             }
 
-            balance -= amt;
-            localStorage.setItem(balKey, balance);
+            userBalance -= amount;
+            saveData();
             updateUI();
-            alert('আপনার উইথড্র রিকুয়েস্ট সফলভাবে জমা হয়েছে!');
+            alert('আপনার উইথড্র রিকোয়েস্ট সফলভাবে জমা হয়েছে। ২৪ ঘণ্টার মধ্যে পেমেন্ট পেয়ে যাবেন।');
+            document.getElementById('withdrawAmount').value = '';
+            document.getElementById('accountNumber').value = '';
+        }
+
+        // Save Data to LocalStorage
+        function saveData() {
+            localStorage.setItem('takapay_balance', userBalance);
+            localStorage.setItem('takapay_today', todayEarned);
+        }
+
+        // Update UI Display Elements
+        function updateUI() {
+            document.getElementById('balanceDisplay').innerText = '৳ ' + userBalance.toFixed(2);
+            document.getElementById('todayEarnings').innerText = '৳ ' + todayEarned.toFixed(2);
+            document.getElementById('withdrawBalance').innerText = '৳ ' + userBalance.toFixed(2);
+            document.getElementById('completedTasksCount').innerText = (taskCompleted ? '১' : '০') + ' টি';
         }
     </script>
 </body>
