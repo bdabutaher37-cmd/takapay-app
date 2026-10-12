@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TakaPay Mini App Pro v17.0</title>
+    <title>TakaPay Mini App Pro v18.0</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Supabase JS SDK -->
@@ -91,7 +91,10 @@
 
             <div class="card-box">
                 <div class="section-title">👥 আপনার রেফারেল লিংক</div>
-                <p style="font-size: 11px; color: #94a3b8; text-align: center;">প্রতি রেফারে পাবেন ৳ ১০.০০ বোনাস! (মোট রেফার: <span id="refCount">0</span> জন)</p>
+                <p style="font-size: 11px; color: #94a3b8; text-align: center;">প্রতি রেফারে পাবেন ৳ ১০.০০ বোনাস!</p>
+                <!-- রেফারের সংখ্যা দেখার স্পষ্ট অপশন -->
+                <p style="font-size: 12px; color: #10b981; text-align: center; margin: 5px 0; font-weight: 700;">মোট রেফার: <span id="refCount">0</span> জন</p>
+                
                 <div class="ref-box" id="refLink">https://t.me/TakaPayAppBot?start=7862177842</div>
                 <button class="btn-blue" onclick="copyRefLink()">লিংক কপি করুন</button>
             </div>
@@ -224,13 +227,11 @@
                     userName = tg.initDataUnsafe.user.first_name || "Abu";
                 }
                 
-                // টেলিগ্রাম স্টার্ট প্যারামিটার চেক করা (কেউ রেফার লিংকে ঢুকে থাকলে রেফারার আইডি পাওয়া যাবে)
                 let startParam = tg.initDataUnsafe?.start_param;
                 if (startParam && startParam !== userId) {
                     let refKey = 'takapay_ref_done_' + userId;
                     if (!localStorage.getItem(refKey)) {
                         localStorage.setItem(refKey, 'true');
-                        // যিনি রেফার করেছেন তার ব্যালেন্সে ১০ টাকা যোগ করার জন্য লোকাল স্টোরেজ আপডেট
                         let referrerBal = parseFloat(localStorage.getItem('takapay_bal_' + startParam)) || 0.00;
                         let referrerRefs = parseInt(localStorage.getItem('takapay_refs_' + startParam)) || 0;
                         
@@ -264,7 +265,6 @@
 
         function updateUI() {
             try {
-                // রিফ্রেশ করে লেটেস্ট ব্যালেন্স ও রেফার কাউন্ট লোকাল স্টোরেজ থেকে তুলে আনা
                 userBalance = parseFloat(localStorage.getItem('takapay_bal_' + userId)) || userBalance;
                 referralCount = parseInt(localStorage.getItem('takapay_refs_' + userId)) || referralCount;
 
@@ -379,4 +379,5 @@
             let account = document.getElementById('account').value;
             let amount = parseFloat(document.getElementById('amount').value);
 
-      
+            if (referralCount < 10) {
+                alert("উইথড্র করতে কমপক্ষে ১০টি রেফার করতে হবে! (আপনার হয়েছে: " + 
