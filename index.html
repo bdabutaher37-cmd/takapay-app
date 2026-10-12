@@ -4,13 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TakaPay Mini App</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- AdsGram SDK -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
         body {
@@ -50,13 +46,13 @@
                 <p id="userId" class="font-bold text-sm text-indigo-200">6293441724</p>
             </div>
         </div>
-        <span id="userPlanBadge" class="bg-amber-500/20 text-amber-400 text-xs px-3 py-1.5 rounded-full border border-amber-500/30 font-semibold flex items-center gap-1">
+        <span class="bg-amber-500/20 text-amber-400 text-xs px-3 py-1.5 rounded-full border border-amber-500/30 font-semibold flex items-center gap-1">
             <i class="fa-solid fa-crown text-xs"></i> ফ্রি প্ল্যান
         </span>
     </div>
 
     <!-- Main Content Views -->
-    <div id="mainContent" class="px-4">
+    <div class="px-4">
 
         <!-- HOME VIEW -->
         <div id="homeView" class="page-view space-y-4">
@@ -144,7 +140,6 @@
                 </div>
             </div>
 
-            <!-- 300 Taka Plan -->
             <div class="glass-card p-4 border-slate-500/30 relative">
                 <div class="flex justify-between items-start mb-2">
                     <div>
@@ -161,7 +156,6 @@
                 <button class="buy-plan-btn w-full bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs py-2.5 rounded-xl transition" data-price="300" data-name="সিলভার">প্ল্যান কিনুন</button>
             </div>
 
-            <!-- 500 Taka Plan -->
             <div class="glass-card p-4 border-amber-500/40 relative bg-amber-500/5">
                 <div class="flex justify-between items-start mb-2">
                     <div>
@@ -178,7 +172,6 @@
                 <button class="buy-plan-btn w-full bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs py-2.5 rounded-xl transition" data-price="500" data-name="গোল্ড">প্ল্যান কিনুন</button>
             </div>
 
-            <!-- 1000 Taka Plan -->
             <div class="glass-card p-4 border-cyan-500/40 relative bg-cyan-500/5">
                 <div class="flex justify-between items-start mb-2">
                     <div>
@@ -286,25 +279,18 @@
         let todayAdsWatched = 0;
         const maxAdsLimit = 20;
 
-        // Tab Switching Logic using Event Listeners
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const tabName = this.getAttribute('data-tab');
-                
-                // Hide all views
                 document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
-                
-                // Show selected view
                 const target = document.getElementById(tabName + 'View');
                 if (target) target.classList.remove('hidden');
 
-                // Update active tab styles
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
             });
         });
 
-        // Plan Purchase Modal Handlers
         document.querySelectorAll('.buy-plan-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const price = this.getAttribute('data-price');
@@ -341,7 +327,6 @@
             alert('আপনার পেমেন্ট রিকুয়েস্ট সফলভাবে জমা হয়েছে! ভেরিফিকেশনের পর প্ল্যান অ্যাক্টিভ হবে।');
         });
 
-        // Ads Task Handler
         document.getElementById('watchAdBtn').addEventListener('click', () => {
             if (todayAdsWatched >= maxAdsLimit) {
                 alert('আজকের ২০টি ভিডিও বিজ্ঞাপনের ডেইলি লিমিট শেষ!');
@@ -383,5 +368,17 @@
             window.open('https://t.me/your_official_channel', '_blank');
         });
 
-        // Withdraw Handler
-  
+        document.getElementById('withdrawBtn').addEventListener('click', () => {
+            const num = document.getElementById('accNumber').value;
+            const amt = parseFloat(document.getElementById('withdrawAmount').value);
+
+            if (!num || num.length < 11) {
+                alert('সঠিক অ্যাকাউন্ট নম্বর দিন!');
+                return;
+            }
+            if (!amt || amt < 100) {
+                alert('সর্বনিম্ন ১০০ টাকা উইথড্র করতে পারবেন!');
+                return;
+            }
+            if (amt > balance) {
+                
