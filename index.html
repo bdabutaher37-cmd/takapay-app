@@ -86,7 +86,7 @@
             <div class="card-box">
                 <div class="section-title">👥 আপনার রেফারেল লিংক</div>
                 <p style="font-size: 12px; color: #94a3b8; text-align: center;">প্রতি রেফারে পাবেন ৳ ৫.০০ বোনাস!</p>
-                <div class="ref-box" id="refLink">লিংক তৈরি হচ্ছে...</div>
+                <div class="ref-box" id="refLink">লিংক লোড হচ্ছে...</div>
                 <button class="btn-blue" onclick="copyRefLink()">লিংক কপি করুন</button>
             </div>
 
@@ -94,11 +94,11 @@
             <div class="stats-grid">
                 <div class="stat-item">
                     <p>আজকের আয়</p>
-                    <h4>৳ 0.00</h4>
+                    <h4>৳ <span id="todayIncome">0.00</span></h4>
                 </div>
                 <div class="stat-item">
                     <p>সম্পন্ন টাস্ক</p>
-                    <h4>০ টি</h4>
+                    <h4><span id="completedTasks">0</span> টি</h4>
                 </div>
             </div>
         </div>
@@ -112,7 +112,7 @@
                     <h4>ভিডিও বিজ্ঞাপন দেখুন</h4>
                     <p>+৳ ২.০০ / অ্যাড (প্রতিদিন ২০টি)</p>
                 </div>
-                <button class="btn-sm" onclick="alert('টাস্ক শীঘ্রই আসছে!')">দেখন</button>
+                <button class="btn-sm" onclick="completeWatchTask()">দেখুন</button>
             </div>
 
             <div class="item-card">
@@ -120,7 +120,7 @@
                     <h4>অফিসিয়াল টেলিগ্রাম চ্যানেল</h4>
                     <p>+৳ ৫.০০ (একবার)</p>
                 </div>
-                <button class="btn-sm" onclick="alert('চ্যানেলে যুক্ত হন!')">জয়েন</button>
+                <button class="btn-sm" onclick="joinTelegramChannel()">জয়েন</button>
             </div>
         </div>
 
@@ -130,10 +130,18 @@
 
             <div class="item-card">
                 <div class="item-info">
+                    <h4>ফ্রি প্ল্যান (Free)</h4>
+                    <p>মূল্য: ৳ ০ | দৈনিক আয়: ৳ ২</p>
+                </div>
+                <button class="btn-sm" style="background: #10b981;">সক্রিয়</button>
+            </div>
+
+            <div class="item-card">
+                <div class="item-info">
                     <h4>সিলভার প্ল্যান (Silver)</h4>
                     <p>মূল্য: ৳ ৫০০ | দৈনিক আয়: ৳ ৫০</p>
                 </div>
-                <button class="btn-sm" onclick="alert('পর্যাপ্ত ব্যালেন্স নেই!')">কিনুন</button>
+                <button class="btn-sm" onclick="alert('পর্যাপ্ত ব্যালেন্স বা ডিপোজিট প্রয়োজন!')">কিনুন</button>
             </div>
 
             <div class="item-card">
@@ -141,7 +149,7 @@
                     <h4>গোল্ড প্ল্যান (Gold)</h4>
                     <p>মূল্য: ৳ ১০০০ | দৈনিক আয়: ৳ ১২০</p>
                 </div>
-                <button class="btn-sm" onclick="alert('পর্যাপ্ত ব্যালেন্স নেই!')">কিনুন</button>
+                <button class="btn-sm" onclick="alert('পর্যাপ্ত ব্যালেন্স বা ডিপোজিট প্রয়োজন!')">কিনুন</button>
             </div>
 
             <div class="item-card">
@@ -149,7 +157,7 @@
                     <h4>ডায়মন্ড প্ল্যান (Diamond)</h4>
                     <p>মূল্য: ৳ ২৫০০ | দৈনিক আয়: ৳ ৩০০</p>
                 </div>
-                <button class="btn-sm" onclick="alert('পর্যাপ্ত ব্যালেন্স নেই!')">কিনুন</button>
+                <button class="btn-sm" onclick="alert('পর্যাপ্ত ব্যালেন্স বা ডিপোজিট প্রয়োজন!')">কিনুন</button>
             </div>
         </div>
 
@@ -157,6 +165,7 @@
         <div id="tab-withdraw" class="tab-content">
             <div class="card-box">
                 <div class="section-title">💳 টাকা উত্তোলন (Withdraw)</div>
+                <p style="font-size: 11px; color: #f59e0b; margin-bottom: 10px;">⚠️ উইথড্র করতে মিনিমাম ১০টি রেফার আবশ্যক!</p>
                 <select id="method">
                     <option value="bkash">বিকাশ (bKash)</option>
                     <option value="nagad">নগদ (Nagad)</option>
@@ -198,7 +207,8 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        const userId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : '7862177842';
+        const BOT_USERNAME = "TakaPayAppBot";
+        const userId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : '6293441724';
         document.getElementById('displayUserId').innerText = userId;
 
         // ট্যাব পরিবর্তন ফাংশন
@@ -210,7 +220,6 @@
             element.classList.add('active');
         }
 
-        // রেফারেল অ্যান্ড ইউজার হ্যান্ডলিং
         const urlParams = new URLSearchParams(window.location.search);
         const refBy = urlParams.get('start');
 
@@ -242,8 +251,7 @@
 
         function updateUI(balance) {
             document.getElementById('balance').innerText = Number(balance).toFixed(2);
-            const botUsername = "TakaPay_Bot"; // আপনার টেলিগ্রাম বটের ইউজারনেম
-            const refUrl = `https://t.me/${botUsername}?start=${userId}`;
+            const refUrl = `https://t.me/${BOT_USERNAME}?start=${userId}`;
             document.getElementById('refLink').innerText = refUrl;
         }
 
@@ -253,10 +261,46 @@
             alert('রেফারেল লিংক কপি করা হয়েছে!');
         }
 
+        // অ্যাড দেখে আয় করার ফাংশন
+        async function completeWatchTask() {
+            let { data: user } = await supabaseClient.from('users').select('balance').eq('id', userId).single();
+            if(user) {
+                let newBal = Number(user.balance) + 2.00;
+                await supabaseClient.from('users').update({ balance: newBal }).eq('id', userId);
+                
+                let currentInc = parseFloat(document.getElementById('todayIncome').innerText) || 0;
+                let currentTasks = parseInt(document.getElementById('completedTasks').innerText) || 0;
+                
+                document.getElementById('todayIncome').innerText = (currentInc + 2.00).toFixed(2);
+                document.getElementById('completedTasks').innerText = currentTasks + 1;
+                
+                alert('বিজ্ঞাপন দেখার জন্য আপনার ব্যালেন্সে ৳ ২.০০ যোগ করা হয়েছে!');
+                loadUserData();
+            }
+        }
+
+        // টেলিগ্রাম চ্যানেলে জয়েন করা
+        function joinTelegramChannel() {
+            tg.openTelegramLink("https://t.me/" + BOT_USERNAME);
+        }
+
+        // উইথড্র সাবমিট ফাংশন (১০ রেফার শর্ত চেক সহ)
         async function requestWithdrawal() {
             const method = document.getElementById('method').value;
             const account = document.getElementById('account').value;
             const amount = parseFloat(document.getElementById('amount').value);
+
+            // ইউজား কয়টি রেফার করেছে তা ডাটাবেজ থেকে চেক করা
+            let { count: referralCount, error: refError } = await supabaseClient
+                .from('users')
+                .select('*', { count: 'exact', head: true })
+                .eq('referred_by', userId);
+
+            // টেস্ট বা কাজের সুবিধার জন্য চাইলে রিকোয়ারমেন্ট শিথিল রাখতে পারেন, তবে শর্ত অনুযায়ী ১০ জন রেফার চেক করা হলো:
+            if (referralCount < 10) {
+                alert(`উইথড্র করতে কমপক্ষে ১০টি রেফার করতে হবে! আপনার বর্তমান রেফার: ${referralCount || 0}টি`);
+                return;
+            }
 
             if (!account || !amount || amount <= 0) {
                 alert('সঠিক অ্যাকাউন্ট নাম্বার এবং পরিমাণ লিখুন।');
