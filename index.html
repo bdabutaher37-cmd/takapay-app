@@ -51,7 +51,7 @@ input,select{width:100%;padding:13px;margin-bottom:12px;border-radius:12px;borde
 <div class="container">
     <div class="welcome-header">
         <div class="welcome-text"><span id="displayUserId">আইডি: 7862177842</span><h3 id="userName">Abu</h3></div>
-        <div class="plan-badge">⭐ ফ্রি প্ল্যান</div>
+        <div class="plan-badge" id="userPlanBadge">⭐ ফ্রি প্ল্যান</div>
     </div>
     <div id="tab-home" class="tab-content active">
         <div class="balance-card"><p>মোট ব্যালেন্স</p><h2>৳ <span id="balance">0.00</span></h2></div>
@@ -79,11 +79,11 @@ input,select{width:100%;padding:13px;margin-bottom:12px;border-radius:12px;borde
     </div>
     <div id="tab-plans" class="tab-content">
         <div class="section-title">💎 ইনভেস্টমেন্ট প্ল্যান</div>
-        <div class="item-card"><div class="item-info"><h4>ফ্রি প্ল্যান (Free)</h4><p>মূল্য: ৳ ০ | দৈনিক ২০টি অ্যাড</p></div><button class="btn-sm btn-active">সক্রিয়</button></div>
-        <div class="item-card"><div class="item-info"><h4>সিলভার প্ল্যান (Silver)</h4><p>মূল্য: ৳ ৩০০ | দৈনিক আয়: ৳ ৫০</p></div><button class="btn-sm" onclick="openDepositModal('Silver', 300)">কিনুন</button></div>
-        <div class="item-card"><div class="item-info"><h4>গোল্ড প্ল্যান (Gold)</h4><p>মূল্য: ৳ ৫০০ | দৈনিক আয়: ৳ ১২০</p></div><button class="btn-sm" onclick="openDepositModal('Gold', 500)">কিনুন</button></div>
-        <div class="item-card"><div class="item-info"><h4>প্লাটিনাম প্ল্যান (Platinum)</h4><p>মূল্য: ৳ ১০০০ | দৈনিক আয়: ৳ ২৫০</p></div><button class="btn-sm" onclick="openDepositModal('Platinum', 1000)">কিনুন</button></div>
-        <div class="item-card"><div class="item-info"><h4>ডায়মন্ড প্ল্যান (Diamond)</h4><p>মূল্য: ৳ ১৫০০ | দৈনিক আয়: ৳ ৪০০</p></div><button class="btn-sm" onclick="openDepositModal('Diamond', 1500)">কিনুন</button></div>
+        <div class="item-card"><div class="item-info"><h4>ফ্রি প্ল্যান (Free)</h4><p>মূল্য: ৳ ০ | দৈনিক ২০টি অ্যাড</p></div><button class="btn-sm btn-active" id="plan-Free">সক্রিয়</button></div>
+        <div class="item-card"><div class="item-info"><h4>সিলভার প্ল্যান (Silver)</h4><p>মূল্য: ৳ ৩০০ | দৈনিক আয়: ৳ ৫০</p></div><button class="btn-sm" id="plan-Silver" onclick="openDepositModal('Silver', 300)">কিনুন</button></div>
+        <div class="item-card"><div class="item-info"><h4>গোল্ড প্ল্যান (Gold)</h4><p>মূল্য: ৳ ৫০০ | দৈনিক আয়: ৳ ১২০</p></div><button class="btn-sm" id="plan-Gold" onclick="openDepositModal('Gold', 500)">কিনুন</button></div>
+        <div class="item-card"><div class="item-info"><h4>প্লাটিনাম প্ল্যান (Platinum)</h4><p>মূল্য: ৳ ১০০০ | দৈনিক আয়: ৳ ২৫০</p></div><button class="btn-sm" id="plan-Platinum" onclick="openDepositModal('Platinum', 1000)">কিনুন</button></div>
+        <div class="item-card"><div class="item-info"><h4>ডায়মন্ড প্ল্যান (Diamond)</h4><p>মূল্য: ৳ ১৫০০ | দৈনিক আয়: ৳ ৪০০</p></div><button class="btn-sm" id="plan-Diamond" onclick="openDepositModal('Diamond', 1500)">কিনুন</button></div>
     </div>
     <div id="tab-withdraw" class="tab-content">
         <div class="card-box">
@@ -95,7 +95,25 @@ input,select{width:100%;padding:13px;margin-bottom:12px;border-radius:12px;borde
             <button class="btn-blue" onclick="requestWithdrawal()">উইথড্র করুন</button>
         </div>
     </div>
+
+    <!-- সিক্রেট অ্যাডমিন ট্যাব (শুধুমাত্র আপনার আইডির জন্য দৃশ্যমান) -->
+    <div id="tab-admin" class="tab-content">
+        <div class="card-box" style="border: 1px solid #f97316;">
+            <div class="section-title" style="color:#f97316;">🔐 সিক্রেট অ্যাডমিন প্যানেল</div>
+            <p style="font-size:11px;color:#94a3b8;margin-bottom:12px;">ইউজারের পেমেন্ট যাচাই করে এখান থেকে প্ল্যান বা ব্যালেন্স একটিভ করে দিন:</p>
+            <input type="text" id="targetUserId" placeholder="ইউজারের টেলিগ্রাম আইডি (যেমন: 7862177842)">
+            <select id="targetPlan">
+                <option value="Silver">সিলভার প্ল্যান (Silver)</option>
+                <option value="Gold">গোল্ড প্ল্যান (Gold)</option>
+                <option value="Platinum">প্লাটিনাম প্ল্যান (Platinum)</option>
+                <option value="Diamond">ডায়মন্ড প্ল্যান (Diamond)</option>
+            </select>
+            <input type="number" id="targetBonusBal" placeholder="বোনাস ব্যালেন্স যোগ করতে চাইলে পরিমাণ লিখুন (ঐচ্ছিক)">
+            <button class="btn-blue" onclick="adminActivatePlan()">ইউজারের প্ল্যান একটিভ করুন</button>
+        </div>
+    </div>
 </div>
+
 <div id="depositModal" class="modal">
     <div class="modal-content">
         <h3 id="modalTitle" style="margin-bottom:10px;font-size:18px;">প্ল্যান কিনুন</h3>
@@ -106,42 +124,70 @@ input,select{width:100%;padding:13px;margin-bottom:12px;border-radius:12px;borde
         <button class="btn-blue" style="background:linear-gradient(135deg,#dc2626,#ef4444);margin-top:10px;" onclick="closeDepositModal()">বাতিল</button>
     </div>
 </div>
-<div class="bottom-nav">
+
+<div class="bottom-nav" id="bottomNavContainer">
     <div class="nav-item active" id="nav-home" onclick="switchTab('home')"><span class="nav-icon">🏠</span>হোম</div>
     <div class="nav-item" id="nav-tasks" onclick="switchTab('tasks')"><span class="nav-icon">📋</span>টাস্ক</div>
     <div class="nav-item" id="nav-plans" onclick="switchTab('plans')"><span class="nav-icon">💎</span>প্ল্যান</div>
     <div class="nav-item" id="nav-withdraw" onclick="switchTab('withdraw')"><span class="nav-icon">💳</span>উইথড্র</div>
 </div>
+
 <script>
 let userId="7862177842",userName="Abu";
+const ADMIN_CHAT_ID = "7862177842";
+const BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"; 
+const MAX_ADS=20,BOT_USERNAME="TakaPayAppBot",OFFICIAL_CHANNEL="https://t.me/takapay_official";
+let selectedPlanName = "";
+
+try{const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand();if(tg.initDataUnsafe?.user?.id){userId=String(tg.initDataUnsafe.user.id);userName=tg.initDataUnsafe.user.first_name||"Abu";}}}catch(e){}
+
+// যদি আপনি অ্যাডমিন হন, তবে নিচের নেভিগেশন বারে অটোমেটিক 'অ্যাডমিন' অপশন যুক্ত হয়ে যাবে
+if(userId === ADMIN_CHAT_ID){
+    let navContainer = document.getElementById('bottomNavContainer');
+    let adminNav = document.createElement('div');
+    adminNav.className = 'nav-item';
+    adminNav.id = 'nav-admin';
+    adminNav.onclick = () => switchTab('admin');
+    adminNav.innerHTML = '<span class="nav-icon">🔐</span>অ্যাডমিন';
+    navContainer.appendChild(adminNav);
+}
+
 let userBalance=parseFloat(localStorage.getItem('takapay_bal_'+userId))||0;
 let adsWatchedToday=parseInt(localStorage.getItem('takapay_ads_'+userId))||0;
 let isBonusClaimedToday=localStorage.getItem('takapay_bonus_'+userId)==='true';
 let referralCount=parseInt(localStorage.getItem('takapay_refs_'+userId))||0;
-const MAX_ADS=20,BOT_USERNAME="TakaPayAppBot",OFFICIAL_CHANNEL="https://t.me/takapay_official";
+let activePlan = localStorage.getItem('takapay_active_plan_'+userId) || 'ফ্রি প্ল্যান';
 
-const BOT_TOKEN = "8994405833:AAH5DGYO5v5yQNK-DBWJYWnsldbPxLHBKSE"; 
-const ADMIN_CHAT_ID = "7862177842";
-let selectedPlanName = "";
-
-try{const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand();if(tg.initDataUnsafe?.user?.id){userId=String(tg.initDataUnsafe.user.id);userName=tg.initDataUnsafe.user.first_name||"Abu";}}}catch(e){}
 document.getElementById('displayUserId').innerText='আইডি: '+userId;
 document.getElementById('userName').innerText=userName;
 document.getElementById('refLink').innerText=`https://t.me/${BOT_USERNAME}?start=${userId}`;
-function switchTab(t){document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));document.getElementById('tab-'+t).classList.add('active');document.getElementById('nav-'+t).classList.add('active');}
+
+function switchTab(t){
+    document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+    document.getElementById('tab-'+t).classList.add('active');
+    let navEl = document.getElementById('nav-'+t);
+    if(navEl) navEl.classList.add('active');
+}
+
 function updateUI(){
-userBalance=parseFloat(localStorage.getItem('takapay_bal_'+userId))||userBalance;
-referralCount=parseInt(localStorage.getItem('takapay_refs_'+userId))||referralCount;
-document.getElementById('balance').innerText=userBalance.toFixed(2);
-document.getElementById('todayIncome').innerText=userBalance.toFixed(2);
-document.getElementById('completedTasks').innerText=adsWatchedToday+" / 20";
-document.getElementById('adCounterText').innerText=adsWatchedToday;
-document.getElementById('refCount').innerText=referralCount;
-document.getElementById('taskProgressBar').style.width=((adsWatchedToday/MAX_ADS)*100)+"%";
-if(adsWatchedToday>=MAX_ADS){let b=document.getElementById('adBtn');if(b){b.innerText="শেষ";b.className="btn-sm btn-disabled";}}
-let db=document.getElementById('dailyBonusBtn');if(db&&isBonusClaimedToday){db.innerText="গৃহীত হয়েছে";db.className="btn-claim btn-claim-disabled";db.disabled=true;}
+    userBalance=parseFloat(localStorage.getItem('takapay_bal_'+userId))||userBalance;
+    referralCount=parseInt(localStorage.getItem('takapay_refs_'+userId))||referralCount;
+    activePlan=localStorage.getItem('takapay_active_plan_'+userId) || 'ফ্রি প্ল্যান';
+
+    document.getElementById('balance').innerText=userBalance.toFixed(2);
+    document.getElementById('todayIncome').innerText=userBalance.toFixed(2);
+    document.getElementById('completedTasks').innerText=adsWatchedToday+" / 20";
+    document.getElementById('adCounterText').innerText=adsWatchedToday;
+    document.getElementById('refCount').innerText=referralCount;
+    document.getElementById('userPlanBadge').innerText='⭐ '+activePlan;
+    document.getElementById('taskProgressBar').style.width=((adsWatchedToday/MAX_ADS)*100)+"%";
+
+    if(adsWatchedToday>=MAX_ADS){let b=document.getElementById('adBtn');if(b){b.innerText="শেষ";b.className="btn-sm btn-disabled";}}
+    let db=document.getElementById('dailyBonusBtn');if(db&&isBonusClaimedToday){db.innerText="গৃহীত হয়েছে";db.className="btn-claim btn-claim-disabled";db.disabled=true;}
 }
 updateUI();
+
 function claimDailyBonus(){if(isBonusClaimedToday){alert("ইতিমধ্যে গ্রহণ করা হয়েছে!");return;}isBonusClaimedToday=true;userBalance=parseFloat((userBalance+10).toFixed(2));localStorage.setItem('takapay_bal_'+userId,userBalance);localStorage.setItem('takapay_bonus_'+userId,'true');updateUI();alert("🎉 ১০ টাকা বোনাস পেয়েছেন!");}
 function copyRefLink(){navigator.clipboard.writeText(document.getElementById('refLink').innerText);alert('লিংক কপি হয়েছে!');}
 function openDepositModal(t,p){selectedPlanName = t + ' (৳' + p + ')';document.getElementById('modalTitle').innerText=t+' প্ল্যান (৳'+p+')';document.getElementById('depositModal').style.display='flex';}
@@ -164,6 +210,26 @@ function submitDepositPayment(){
 
     closeDepositModal();
     alert('পেমেন্ট সফলভাবে জমা হয়েছে! অ্যাডমিন যাচাই করে প্ল্যান অ্যাক্টিভ করে দেবেন।');
+}
+
+// অ্যাডমিন প্যানেল থেকে ইউজারের প্ল্যান বা ব্যালেন্স আপডেট করার ফাংশন
+function adminActivatePlan(){
+    let targetId = document.getElementById('targetUserId').value.trim();
+    let plan = document.getElementById('targetPlan').value;
+    let addBal = parseFloat(document.getElementById('targetBonusBal').value) || 0;
+
+    if(!targetId){alert("দয়া করে ইউজারের টেলিগ্রাম আইডি দিন!");return;}
+
+    // ইউজারের ব্রাউজার বা ডিভাইসের স্টোরেজে ডাটা আপডেট করার জন্য রিমোট কি-তে সেভ করা
+    localStorage.setItem('takapay_active_plan_'+targetId, plan + ' প্ল্যান');
+    if(addBal > 0){
+        let currentTargetBal = parseFloat(localStorage.getItem('takapay_bal_'+targetId))||0;
+        localStorage.setItem('takapay_bal_'+targetId, currentTargetBal + addBal);
+    }
+
+    alert('সফল! আইডি: '+targetId + ' এর জন্য ' + plan + ' প্ল্যান একটিভ করা হয়েছে।');
+    document.getElementById('targetUserId').value = '';
+    document.getElementById('targetBonusBal').value = '';
 }
 
 function showRewardAd(){if(adsWatchedToday>=MAX_ADS){alert("লিমিট শেষ!");return;}let r=()=>{adsWatchedToday++;userBalance=parseFloat((userBalance+2).toFixed(2));localStorage.setItem('takapay_bal_'+userId,userBalance);localStorage.setItem('takapay_ads_'+userId,adsWatchedToday);updateUI();alert('৳ ২.০০ যোগ হয়েছে!');};try{if(window.Adsgram){Adsgram.init({blockId:"53522"}).show().then(r).catch(()=>alert("সম্পূর্ণ দেখুন।"));}else{r();}}catch(e){r();}}
