@@ -229,7 +229,7 @@
             <div class="refer-box">
                 <h4>👥 আপনার রেফারেল লিংক</h4>
                 <p style="font-size: 12px; color: #94a3b8; margin-top: 4px;">প্রতি রেফারে পাবেন ৳ ৫.০০ বোনাস!</p>
-                <input type="text" id="refLinkInput" class="refer-input" readonly value="https://t.me/TakaPayBot?start=7862177842">
+                <input type="text" id="refLinkInput" class="refer-input" readonly value="https://t.me/TakaPayAppBot?start=7862177842">
                 <button class="action-btn" style="width: 100%;" onclick="copyReferralLink()">লিংক কপি করুন</button>
             </div>
 
@@ -354,7 +354,8 @@
             if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 userId = tg.initDataUnsafe.user.id;
                 document.getElementById('userIdDisplay').innerText = userId;
-                document.getElementById('refLinkInput').value = `https://t.me/TakaPayBot?start=${userId}`;
+                // বটের সঠিক ইউজারনেম TakaPayAppBot সেট করা হয়েছে
+                document.getElementById('refLinkInput').value = `https://t.me/TakaPayAppBot?start=${userId}`;
             }
         }
 
@@ -454,10 +455,11 @@
             alert(`সফলভাবে ${planName} প্ল্যানটি ক্রয় করা হয়েছে!`);
         }
 
-        // Withdraw Request Logic
+        // Withdraw Request Logic (উইথড্র নোটিফিকেশন সহ)
         function requestWithdraw() {
             let amount = parseFloat(document.getElementById('withdrawAmount').value);
             let account = document.getElementById('accountNumber').value;
+            let method = document.getElementById('paymentMethod').value;
 
             if (!account) {
                 alert('অনুগ্রহ করে আপনার অ্যাকাউন্ট নম্বর দিন।');
@@ -475,7 +477,24 @@
             userBalance -= amount;
             saveData();
             updateUI();
-            alert('আপনার উইথড্র রিকোয়েস্ট সফলভাবে জমা হয়েছে। ২৪ ঘণ্টার মধ্যে পেমেন্ট পেয়ে যাবেন।');
+
+            // উইথড্র মেসেজ ফরম্যাট
+            let withdrawMsg = `🚨 **নতুন উইথড্র রিকোয়েস্ট!** 🚨\n\n` +
+                              `👤 ইউজার আইডি: ${userId}\n` +
+                              `💳 পেমেন্ট মেথড: ${method}\n` +
+                              `📱 অ্যাকাউন্ট নম্বর: ${account}\n` +
+                              `💰 পরিমাণ: ৳${amount.toFixed(2)}`;
+
+            let telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(withdrawMsg)}`;
+            
+            alert('আপনার উইথড্র রিকোয়েস্ট গ্রহণ করা হয়েছে! নিশ্চিত করতে ওকে (OK) চেপে টেলিগ্রামে মেসেজটি সেন্ড করুন।');
+            
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.openTelegramLink(telegramShareUrl);
+            } else {
+                window.open(telegramShareUrl, '_blank');
+            }
+
             document.getElementById('withdrawAmount').value = '';
             document.getElementById('accountNumber').value = '';
         }
