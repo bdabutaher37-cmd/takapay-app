@@ -44,6 +44,8 @@ input,select{width:100%;padding:12px;margin-bottom:10px;border-radius:10px;borde
         </div>
         <div class="box">
             <div class="title">👥 রেফারেল লিংক</div>
+            <p style="font-size:11px;color:#94a3b8;text-align:center;">প্রতি রেফারে ৳ ১০!</p>
+            <p style="font-size:12px;color:#f97316;text-align:center;margin:6px 0;font-weight:700;">মোট রেফার: <span id="refCount">0</span> জন</p>
             <div class="ref" id="rlink">...</div>
             <button class="btn" onclick="copyRef()">কপি করুন</button>
         </div>
@@ -56,7 +58,7 @@ input,select{width:100%;padding:12px;margin-bottom:10px;border-radius:10px;borde
     <div id="t-tasks" class="tab">
         <div class="title">📋 টাস্কসমূহ</div>
         <div class="box" style="display:flex;justify-content:space-between;align-items:center">
-            <div><h4 style="font-size:13px">বিজ্ঞাপন দেখুন</h4><p style="font-size:10px;color:#f97316" id="adRate">প্রতি অ্যাড ৳২</p></div>
+            <div><h4 style="font-size:13px">বিজ্ঞাপন দেখুন</h4><p style="font-size:10px;color:#f97316" id="adRate">প্রতি অ্যাড ৳২</p><p style="font-size:10px;color:#94a3b8;margin-top:2px">দেখা হয়েছে: <span id="adCounterText">0</span> / 20</p></div>
             <button class="btn-sm" id="adBtn" onclick="watchAd()">দেখুন</button>
         </div>
         <div class="box" style="display:flex;justify-content:space-between;align-items:center">
@@ -136,11 +138,14 @@ function getRate(){
 function updateUI(){
     bal=parseFloat(localStorage.getItem('tp_bal_'+uid))||bal;
     ads=parseInt(localStorage.getItem('tp_ads_'+uid))||ads;
+    refs=parseInt(localStorage.getItem('tp_refs_'+uid))||refs;
     plan=localStorage.getItem('tp_plan_'+uid)||'ফ্রি প্ল্যান';
     let r=getRate();
     document.getElementById('bal').innerText=bal.toFixed(2);
     document.getElementById('inc').innerText=bal.toFixed(2);
     document.getElementById('adsCnt').innerText=ads;
+    document.getElementById('refCount').innerText=refs;
+    document.getElementById('adCounterText').innerText=ads;
     document.getElementById('adRate').innerText=`প্রতি অ্যাড ৳${r}`;
     document.getElementById('ubadge').innerText=plan;
     ['Free','Silver','Gold','Platinum','Diamond'].forEach(p=>{
@@ -159,7 +164,7 @@ function updateUI(){
 }
 updateUI();
 function claimBonus(){if(claimed){alert("নিন!");return;}claimed=true;bal+=10;localStorage.setItem('tp_bal_'+uid,bal);localStorage.setItem('tp_bonus_'+uid,'true');updateUI();alert("৳ ১০ বোনাস!");}
-function copyRef(){navigator.clipboard.writeText(document.getElementById('rlink').innerText);alert('কپی!');}
+function copyRef(){navigator.clipboard.writeText(document.getElementById('rlink').innerText);alert('কপি!');}
 function buyPlan(t,p){selPlan=t+' (৳'+p+')';document.getElementById('mTitle').innerText=t+' প্ল্যান (৳'+p+')';document.getElementById('modal').style.display='flex';}
 function closeModal(){document.getElementById('modal').style.display='none';}
 function subDep(){
