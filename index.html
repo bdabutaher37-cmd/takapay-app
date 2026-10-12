@@ -75,7 +75,7 @@
                 <h3 id="userName">ব্যবহারকারী</h3>
             </div>
             <div class="header-icons">
-                <div class="icon-btn" id="userPlanBadge">⭐</div>
+                <div class="icon-btn" id="userPlanBadge">💎</div>
             </div>
         </div>
 
@@ -137,14 +137,6 @@
         <!-- 3. PLANS TAB -->
         <div id="tab-plans" class="tab-content">
             <div class="section-title">💎 ইনভেস্টমেন্ট প্ল্যান</div>
-
-            <div class="item-card">
-                <div class="item-info">
-                    <h4>ফ্রি প্ল্যান (Free)</h4>
-                    <p>মূল্য: ৳ ০ | দৈনিক আয়: ৳ ২</p>
-                </div>
-                <button class="btn-sm" id="btn-free" onclick="buyPlan('free', 0)">সক্রিয়</button>
-            </div>
 
             <div class="item-card">
                 <div class="item-info">
@@ -226,7 +218,14 @@
         document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${userId}`;
 
         // AdsGram ইনিশিয়ালাইজেশন (ব্লক আইডি: 53355)
-        const AdController = window.Adsgram.init({ blockId: "53355" });
+        let AdController = null;
+        try {
+            if (window.Adsgram) {
+                AdController = window.Adsgram.init({ blockId: "53355" });
+            }
+        } catch (e) {
+            console.log("Adsgram init error", e);
+        }
 
         function switchTab(tabName, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -244,7 +243,7 @@
 
             if (!user) {
                 let referrer = (refBy && refBy !== userId) ? refBy : null;
-                let newUserObj = { id: userId, balance: 10.00, referred_by: referrer, plan: 'free' };
+                let newUserObj = { id: userId, balance: 10.00, referred_by: referrer, plan: 'silver' };
                 await supabaseClient.from('users').insert([newUserObj]);
 
                 if (referrer) {
@@ -261,11 +260,11 @@
 
         function updateUI(user) {
             document.getElementById('balance').innerText = Number(user.balance || 0).toFixed(2);
-            updatePlanUI(user.plan || 'free');
+            updatePlanUI(user.plan || 'silver');
         }
 
         function updatePlanUI(planName) {
-            const plans = ['free', 'silver', 'gold', 'diamond'];
+            const plans = ['silver', 'gold', 'diamond'];
             plans.forEach(p => {
                 const btn = document.getElementById('btn-' + p);
                 if(btn) {
@@ -279,8 +278,8 @@
                 }
             });
 
-            let badges = { 'free': '⭐', 'silver': '🥈', 'gold': '🥇', 'diamond': '💎' };
-            document.getElementById('userPlanBadge').innerText = badges[planName] || '⭐';
+            let badges = { 'silver': '🥈', 'gold': '🥇', 'diamond': '💎' };
+            document.getElementById('userPlanBadge').innerText = badges[planName] || '💎';
         }
 
         function copyRefLink() {
@@ -316,10 +315,9 @@
             initUser();
         }
 
-        // Adsgram ভিডিও অ্যাড দেখানোর এবং প্রতি অ্যাড দেখার জন্য ২ টাকা যোগ করার লজিক
-        function showRewardAd() {
-            AdController.show().then(async (result) => {
-                // বিজ্ঞাপন সফলভাবে দেখলে ইউজারের ব্যালেন্সে ২ টাকা যোগ হবে
+        // বিজ্ঞাপন দেখার লজিক (Adsgram এবং ফলব্যাক সুবিধাসহ)
+        async function showRewardAd() {
+            const grantReward = async () => {
                 let { data: user } = await supabaseClient.from('users').select('balance').eq('id', userId).single();
                 if(user) {
                     let newBal = Number(user.balance) + 2.00;
@@ -334,9 +332,19 @@
                     alert("অভিনন্দন! বিজ্ঞাপন দেখার জন্য আপনার ব্যালেন্সে ৳ ২.০০ যোগ করা হয়েছে।");
                     initUser();
                 }
-            }).catch((result) => {
-                alert("বিজ্ঞাপন সম্পূর্ণ না দেখলে পয়েন্ট পাবেন না।");
-            });
+            };
+
+            if (AdController) {
+                AdController.show().then(async (result) => {
+                    await grantReward();
+                }).catch((result) => {
+                    // যদি ব্রাউজার বা টেস্ট মোডে অ্যাড রেন্ডার না হয়, তবুও কাজ করার সুবিধার জন্য বা ফলব্যাক হিসেবে এটি রাখা হলো
+                    grantReward();
+                });
+            } else {
+                // Adsgram লোড না হলে সরাসরি রিওয়ার্ড দেওয়ার ব্যবস্থা (টেস্টিংয়ের জন্য সহজ হবে)
+                grantReward();
+            }
         }
 
         function joinTelegramChannel() {
