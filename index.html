@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TakaPay Mini App Pro v11.0</title>
+    <title>TakaPay Mini App Pro v12.0</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Supabase JS SDK -->
@@ -69,8 +69,8 @@
     <div class="container">
         <div class="welcome-header">
             <div class="welcome-text">
-                <span id="displayUserId">আইডি: লোড হচ্ছে...</span>
-                <h3 id="userName">ইউজার</h3>
+                <span id="displayUserId">আইডি: 7862177842</span>
+                <h3 id="userName">Abu</h3>
             </div>
             <div class="plan-badge" id="userPlanBadge">⭐ ফ্রি প্ল্যান</div>
         </div>
@@ -93,7 +93,7 @@
             <div class="card-box">
                 <div class="section-title">👥 আপনার রেফারেল লিংক</div>
                 <p style="font-size: 11px; color: #94a3b8; text-align: center;">প্রতি রেফারে পাবেন ৳ ১০.০০ বোনাস!</p>
-                <div class="ref-box" id="refLink">লিংক তৈরি হচ্ছে...</div>
+                <div class="ref-box" id="refLink">https://t.me/TakaPayAppBot?start=7862177842</div>
                 <button class="btn-blue" onclick="copyRefLink()">লিংক কপি করুন</button>
             </div>
 
@@ -229,13 +229,6 @@
                 userId = String(tgUser.id);
                 userName = tgUser.first_name || "Abu";
             }
-        }
-
-        // যদি টেলিগ্রাম থেকে সরাসরি নাম না আসে, তবে লোকাল স্টোরেজ বা ডিফল্ট নাম ব্যবহার করবে
-        if (!userName || userName === "ইউজার") {
-            userName = localStorage.getItem('takapay_username') || "Abu";
-        } else {
-            localStorage.setItem('takapay_username', userName);
         }
 
         document.getElementById('displayUserId').innerText = 'আইডি: ' + userId;
@@ -385,4 +378,14 @@
 
             if (AdController) {
                 AdController.show().then(async (result) => {
-                    await rewar
+                    await rewardUser();
+                }).catch((result) => {
+                    alert("বিজ্ঞাপন সম্পূর্ণ না দেখলে পয়েন্ট পাবেন না।");
+                });
+            } else {
+                rewardUser();
+            }
+        }
+
+        function joinTelegramChannel() {
+            if (window.Telegr
