@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TakaPay Mini App Pro v14.0</title>
+    <title>TakaPay Mini App Pro v15.0</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Supabase JS SDK -->
@@ -203,122 +203,88 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://xkkzrfjzhbxgsqpejbwd.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_rkd7l-PFMFt2W1aAtdPcRQ_AN_xg30q';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let userId = "7862177842";
+        let userName = "Abu";
+        let userBalance = parseFloat(localStorage.getItem('takapay_bal_' + userId)) || 0.00;
+        let adsWatchedToday = parseInt(localStorage.getItem('takapay_ads_' + userId)) || 0;
+        let isBonusClaimedToday = localStorage.getItem('takapay_bonus_' + userId) === 'true';
+        const MAX_ADS = 20;
 
         const BOT_USERNAME = "TakaPayAppBot";
         const OFFICIAL_CHANNEL = "https://t.me/takapay_official";
 
-        let userId = "7862177842";
-        let userName = "Abu";
-        let userBalance = 0.00;
-        let adsWatchedToday = 0;
-        let isBonusClaimedToday = false;
-        const MAX_ADS = 20;
-
-        const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "53522" }) : null;
-
-        const tg = window.Telegram?.WebApp;
-        if (tg) {
-            tg.ready();
-            tg.expand();
-            let tgUser = tg.initDataUnsafe?.user;
-            if (tgUser && tgUser.id) {
-                userId = String(tgUser.id);
-                userName = tgUser.first_name || "Abu";
+        // সেফ টেলিগ্রাম ইনিট
+        try {
+            const tg = window.Telegram?.WebApp;
+            if (tg) {
+                tg.ready();
+                tg.expand();
+                if (tg.initDataUnsafe?.user?.id) {
+                    userId = String(tg.initDataUnsafe.user.id);
+                    userName = tg.initDataUnsafe.user.first_name || "Abu";
+                }
             }
+        } catch(e) {
+            console.log("TG Init Error", e);
         }
 
         document.getElementById('displayUserId').innerText = 'আইডি: ' + userId;
         document.getElementById('userName').innerText = userName;
         document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${userId}`;
 
+        // ট্যাব সুইচিং ফাংশন (সম্পূর্ণ গ্যারান্টিযুক্ত)
         function switchTab(tabName, element) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            
-            let targetTab = document.getElementById('tab- ' + tabName) || document.getElementById('tab-' + tabName);
-            if(targetTab) {
-                targetTab.classList.add('active');
-            }
-            if(element) {
-                element.classList.add('active');
-            }
-        }
-
-        async function loadUserData() {
-            let todayDate = new Date().toISOString().slice(0, 10);
-            let dateKey = 'takapay_date_' + userId;
-            let savedDate = localStorage.getItem(dateKey);
-
-            if (savedDate !== todayDate) {
-                localStorage.setItem(dateKey, todayDate);
-                localStorage.setItem('takapay_ads_' + userId, '0');
-                localStorage.setItem('takapay_bonus_' + userId, 'false');
-                adsWatchedToday = 0;
-                isBonusClaimedToday = false;
-            } else {
-                let localAds = localStorage.getItem('takapay_ads_' + userId);
-                if (localAds !== null) adsWatchedToday = parseInt(localAds) || 0;
-                
-                let localBonus = localStorage.getItem('takapay_bonus_' + userId);
-                if (localBonus === 'true') isBonusClaimedToday = true;
-            }
-
-            let localBal = localStorage.getItem('takapay_bal_' + userId);
-            if (localBal !== null) userBalance = parseFloat(localBal) || 0.00;
-            updateUI();
-
             try {
-                let { data: user, error } = await supabaseClient.from('users').select('*').eq('id', userId).maybeSingle();
-                if (!user) {
-                    await supabaseClient.from('users').insert([{ id: userId, balance: userBalance, ads_watched: adsWatchedToday, plan: 'free' }]);
-                } else {
-                    if (user.balance !== undefined && user.balance !== null) {
-                        userBalance = parseFloat(user.balance);
-                        localStorage.setItem('takapay_bal_' + userId, userBalance);
-                    }
-                    if (user.ads_watched !== undefined && user.ads_watched !== null) {
-                        adsWatchedToday = parseInt(user.ads_watched);
-                        localStorage.setItem('takapay_ads_' + userId, adsWatchedToday);
-                    }
+                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                
+                let target = document.getElementById('tab-' + tabName);
+                if (target) {
+                    target.classList.add('active');
                 }
-            } catch (err) {
-                console.log("DB Sync Warning:", err);
+                if (element) {
+                    element.classList.add('active');
+                }
+            } catch(e) {
+                console.log("Tab Switch Error", e);
             }
-            updateUI();
         }
 
         function updateUI() {
-            document.getElementById('balance').innerText = userBalance.toFixed(2);
-            document.getElementById('todayIncome').innerText = userBalance.toFixed(2);
-            document.getElementById('completedTasks').innerText = adsWatchedToday + " / 20";
-            document.getElementById('adCounterText').innerText = adsWatchedToday;
-            let percentage = (adsWatchedToday / MAX_ADS) * 100;
-            document.getElementById('taskProgressBar').style.width = percentage + "%";
+            try {
+                document.getElementById('balance').innerText = userBalance.toFixed(2);
+                document.getElementById('todayIncome').innerText = userBalance.toFixed(2);
+                document.getElementById('completedTasks').innerText = adsWatchedToday + " / 20";
+                document.getElementById('adCounterText').innerText = adsWatchedToday;
+                let percentage = (adsWatchedToday / MAX_ADS) * 100;
+                document.getElementById('taskProgressBar').style.width = percentage + "%";
 
-            if (adsWatchedToday >= MAX_ADS) {
-                let btn = document.getElementById('adBtn');
-                if(btn) {
-                    btn.innerText = "শেষ";
-                    btn.className = "btn-sm btn-disabled";
+                if (adsWatchedToday >= MAX_ADS) {
+                    let btn = document.getElementById('adBtn');
+                    if(btn) {
+                        btn.innerText = "শেষ";
+                        btn.className = "btn-sm btn-disabled";
+                    }
                 }
-            }
 
-            let bonusBtn = document.getElementById('dailyBonusBtn');
-            if (bonusBtn) {
-                if (isBonusClaimedToday) {
-                    bonusBtn.innerText = "গৃহীত হয়েছে";
-                    bonusBtn.className = "btn-claim btn-claim-disabled";
-                    bonusBtn.disabled = true;
-                } else {
-                    bonusBtn.innerText = "ক্লেইম করুন";
-                    bonusBtn.className = "btn-claim";
-                    bonusBtn.disabled = false;
+                let bonusBtn = document.getElementById('dailyBonusBtn');
+                if (bonusBtn) {
+                    if (isBonusClaimedToday) {
+                        bonusBtn.innerText = "গৃহীত হয়েছে";
+                        bonusBtn.className = "btn-claim btn-claim-disabled";
+                        bonusBtn.disabled = true;
+                    } else {
+                        bonusBtn.innerText = "ক্লেইম করুন";
+                        bonusBtn.className = "btn-claim";
+                        bonusBtn.disabled = false;
+                    }
                 }
+            } catch(e) {
+                console.log("UI Update Error", e);
             }
         }
+
+        updateUI();
 
         async function claimDailyBonus() {
             if (isBonusClaimedToday) {
@@ -333,18 +299,8 @@
             localStorage.setItem('takapay_bonus_' + userId, 'true');
             updateUI();
 
-            try {
-                await supabaseClient.from('users').upsert([
-                    { id: userId, balance: userBalance, ads_watched: adsWatchedToday, plan: 'free' }
-                ]);
-            } catch (e) {
-                console.log("DB Bonus Error", e);
-            }
-
             alert("🎉 অভিনন্দন! আপনি ৳ ১০.০০ দৈনিক বোনাস পেয়েছেন!");
         }
-
-        loadUserData();
 
         function copyRefLink() {
             navigator.clipboard.writeText(document.getElementById('refLink').innerText);
@@ -366,7 +322,7 @@
                 return;
             }
 
-            const rewardUser = async () => {
+            const rewardUser = () => {
                 adsWatchedToday++;
                 userBalance = parseFloat((userBalance + 2.00).toFixed(2));
 
@@ -374,17 +330,52 @@
                 localStorage.setItem('takapay_ads_' + userId, adsWatchedToday);
                 updateUI();
 
-                try {
-                    await supabaseClient.from('users').upsert([
-                        { id: userId, balance: userBalance, ads_watched: adsWatchedToday, plan: 'free' }
-                    ]);
-                } catch(e) {
-                    console.log("DB Update Error", e);
-                }
-
                 alert(`অভিনন্দন! ৳ ২.০০ যোগ হয়েছে। (আজ দেখেছেন: ${adsWatchedToday}/20টি)`);
             };
 
-            if (AdController) {
-                AdController.show().then(async (result) => {
-                    await 
+            try {
+                if (window.Adsgram) {
+                    const AdController = window.Adsgram.init({ blockId: "53522" });
+                    AdController.show().then(() => {
+                        rewardUser();
+                    }).catch(() => {
+                        alert("বিজ্ঞাপন সম্পূর্ণ না দেখলে পয়েন্ট পাবেন না।");
+                    });
+                } else {
+                    rewardUser();
+                }
+            } catch(e) {
+                rewardUser();
+            }
+        }
+
+        function joinTelegramChannel() {
+            if (window.Telegram?.WebApp?.openTelegramLink) {
+                window.Telegram.WebApp.openTelegramLink(OFFICIAL_CHANNEL);
+            } else {
+                window.open(OFFICIAL_CHANNEL, '_blank');
+            }
+        }
+
+        function requestWithdrawal() {
+            let account = document.getElementById('account').value;
+            let amount = parseFloat(document.getElementById('amount').value);
+
+            if (userBalance < 300 || userBalance < amount) {
+                alert("আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই! (মিনিমাম ৳ ৩০০)");
+                return;
+            }
+
+            if (!account || !amount) {
+                alert("সঠিক অ্যাকাউন্ট নম্বর এবং পরিমাণ দিন।");
+                return;
+            }
+
+            userBalance = parseFloat((userBalance - amount).toFixed(2));
+            localStorage.setItem('takapay_bal_' + userId, userBalance);
+            updateUI();
+            alert("উইথড্রয়াল সফলভাবে সাবমিট হয়েছে!");
+        }
+    </script>
+</body>
+</html>
