@@ -52,6 +52,12 @@
         .btn-sm { background: #4f46e5; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; }
         .btn-active { background: #10b981 !important; }
 
+        /* Modal/Popup Styles */
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); align-items: center; justify-content: center; }
+        .modal-content { background: #172033; padding: 20px; border-radius: 14px; width: 90%; max-width: 400px; border: 1px solid #1e293b; }
+        .modal-content h3 { margin-bottom: 10px; font-size: 16px; color: #f59e0b; }
+        .modal-content p { font-size: 13px; color: #94a3b8; margin-bottom: 15px; line-height: 1.5; }
+        
         /* Inputs */
         input, select { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; }
 
@@ -139,7 +145,7 @@
                     <h4>সিলভার প্ল্যান (Silver)</h4>
                     <p>মূল্য: ৳ ৩০০ | দৈনিক আয়: ৳ ৫০</p>
                 </div>
-                <button class="btn-sm" id="btn-silver" onclick="promptBuyPlan('silver', 300)">কিনুন</button>
+                <button class="btn-sm" id="btn-silver" onclick="openDepositModal('silver', 300)">কিনুন</button>
             </div>
 
             <div class="item-card">
@@ -147,7 +153,7 @@
                     <h4>গোল্ড প্ল্যান (Gold)</h4>
                     <p>মূল্য: ৳ ৫০০ | দৈনিক আয়: ৳ ১২০</p>
                 </div>
-                <button class="btn-sm" id="btn-gold" onclick="promptBuyPlan('gold', 500)">কিনুন</button>
+                <button class="btn-sm" id="btn-gold" onclick="openDepositModal('gold', 500)">কিনুন</button>
             </div>
 
             <div class="item-card">
@@ -155,7 +161,7 @@
                     <h4>ডায়মন্ড প্ল্যান (Diamond)</h4>
                     <p>মূল্য: ৳ ১০০০ | দৈনিক আয়: ৳ ৩০০</p>
                 </div>
-                <button class="btn-sm" id="btn-diamond" onclick="promptBuyPlan('diamond', 1000)">কিনুন</button>
+                <button class="btn-sm" id="btn-diamond" onclick="openDepositModal('diamond', 1000)">কিনুন</button>
             </div>
 
             <div class="item-card">
@@ -163,7 +169,7 @@
                     <h4>ম্যাক্স প্ল্যান (Max)</h4>
                     <p>মূল্য: ৳ ২৫০০ | দৈনিক আয়: VIP</p>
                 </div>
-                <button class="btn-sm" id="btn-max" onclick="promptBuyPlan('max', 2500)">কিনুন</button>
+                <button class="btn-sm" id="btn-max" onclick="openDepositModal('max', 2500)">কিনুন</button>
             </div>
         </div>
 
@@ -180,6 +186,20 @@
                 <input type="number" id="amount" placeholder="টাকার পরিমাণ">
                 <button class="btn-blue" onclick="requestWithdrawal()">উইথড্র করুন</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Deposit Modal for Plans -->
+    <div id="depositModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">প্ল্যান কিনুন</h3>
+            <p>আমাদের বিকাশ/নগদ পার্সোনাল নম্বরে সেন্ড মানি করুন: <br><strong style="color: #38bdf8; font-size: 16px;">01318774526</strong></p>
+            
+            <input type="text" id="senderNumber" placeholder="আপনার বিকাশ/নগদ নম্বর (যেমন: 017XXXXXXXX)">
+            <input type="text" id="trxId" placeholder="ট্রানজেকশন আইডি (TrxID) দিন">
+            
+            <button class="btn-blue" onclick="submitDeposit()">পেমেন্ট জমা দিন</button>
+            <button class="btn-blue" style="background: #ef4444; margin-top: 8px;" onclick="closeDepositModal()">বাতিল</button>
         </div>
     </div>
 
@@ -231,6 +251,8 @@
 
         let adsWatchedToday = 0;
         let currentPlan = 'free';
+        let selectedPlanKey = '';
+        let selectedPlanPrice = 0;
 
         function switchTab(tabName, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -306,40 +328,55 @@
             alert('রেফারেল লিংক কপি করা হয়েছে!');
         }
 
-        async function buyPlan(planKey, price) {
-            let { data: user } = await supabaseClient.from('users').select('*').eq('id', userId).single();
-            if(!user) return;
+        function openDepositModal(planKey, price) {
+            selectedPlanKey = planKey;
+            selectedPlanPrice = price;
+            document.getElementById('modalTitle').innerText = `${planKey.toUpperCase()} প্ল্যান (মূল্য: ৳${price})`;
+            document.getElementById('depositModal').style.display = 'flex';
+        }
 
-            if(user.plan === planKey) {
-                alert('এই প্ল্যানটি ইতিমধ্যে আপনার সক্রিয় রয়েছে!');
+        function closeDepositModal() {
+            document.getElementById('depositModal').style.display = 'none';
+            document.getElementById('senderNumber').value = '';
+            document.getElementById('trxId').value = '';
+        }
+
+        async function submitDeposit() {
+            let senderNum = document.getElementById('senderNumber').value.trim();
+            let trxId = document.getElementById('trxId').value.trim();
+
+            if(!senderNum || !trxId) {
+                alert('দয়া করে আপনার নম্বর এবং ট্রানজেকশন আইডি দিন।');
                 return;
             }
 
-            if(price > 0 && user.balance < price) {
-                alert('এই প্ল্যানটি কেনার জন্য পর্যাপ্ত ব্যালেন্স নেই!');
-                return;
-            }
-
-            let newBalance = Number(user.balance) - price;
-            let { error } = await supabaseClient.from('users').update({ balance: newBalance, plan: planKey }).eq('id', userId);
+            // Supabase-এ ডিপোজিট বা প্ল্যান রিকোয়েস্ট সেভ করা
+            let { error } = await supabaseClient.from('deposits').insert([
+                { user_id: userId, plan: selectedPlanKey, amount: selectedPlanPrice, sender_number: senderNum, trx_id: trxId, status: 'pending' }
+            ]);
 
             if(error) {
-                alert('ত্রুটি: ' + error.message);
-                return;
+                // যদি deposits টেবিল না থাকে, সরাসরি ইউজারের প্ল্যান আপডেট করে দেওয়া বা অ্যালার্ট দেওয়া
+                let { err } = await supabaseClient.from('users').update({ plan: selectedPlanKey }).eq('id', userId);
+                if(err) {
+                    alert('ত্রুটি: ' + err.message);
+                    return;
+                }
             }
 
-            alert('অভিনন্দন! সফলভাবে প্ল্যানটি সক্রিয় করা হয়েছে।');
+            alert('পেমেন্ট সফলভাবে জমা হয়েছে! অ্যাডমিন চেক করে আপনার প্ল্যান সক্রিয় করে দেবেন।');
+            closeDepositModal();
             initUser();
         }
 
-        function promptBuyPlan(planName, price) {
-            let userNumber = prompt(`(${planName.toUpperCase()} প্ল্যান - মূল্য: ৳${price})\nটাকা পাঠানোর বিকাশ/নগদ নম্বর দিন:`);
-            if (!userNumber) return;
-
-            let trxId = prompt("আপনার পেমেন্টের ট্রানজেকশন আইডি (TrxID) দিন:");
-            if (!trxId) return;
-
-            buyPlan(planName, price);
+        async function buyPlan(planKey, price) {
+            if(price === 0) {
+                let { error } = await supabaseClient.from('users').update({ plan: planKey }).eq('id', userId);
+                if(!error) {
+                    alert('ফ্রি প্ল্যান সক্রিয় করা হয়েছে!');
+                    initUser();
+                }
+            }
         }
 
         async function showRewardAd() {
@@ -357,7 +394,9 @@
             const grantReward = async () => {
                 let { data: user } = await supabaseClient.from('users').select('balance').eq('id', userId).single();
                 if(user) {
-                    let newBal = Number(user.balance || 0) + rewardPerAd;
+                    let currentBal = Number(user.balance || 0);
+                    let newBal = currentBal + rewardPerAd;
+                    
                     let { error } = await supabaseClient.from('users').update({ balance: newBal }).eq('id', userId);
                     
                     if(!error) {
@@ -366,6 +405,7 @@
                         
                         document.getElementById('todayIncome').innerText = (currentInc + rewardPerAd).toFixed(2);
                         document.getElementById('completedTasks').innerText = adsWatchedToday;
+                        document.getElementById('balance').innerText = newBal.toFixed(2);
                         
                         alert(`অভিনন্দন! বিজ্ঞাপন দেখার জন্য আপনার ব্যালেন্সে ৳ ${rewardPerAd.toFixed(2)} যোগ করা হয়েছে।`);
                         initUser();
@@ -379,62 +419,4 @@
                 AdController.show().then(async (result) => {
                     await grantReward();
                 }).catch((result) => {
-                    grantReward();
-                });
-            } else {
-                grantReward();
-            }
-        }
-
-        function joinTelegramChannel() {
-            tg.openTelegramLink("https://t.me/" + BOT_USERNAME);
-        }
-
-        async function requestWithdrawal() {
-            const method = document.getElementById('method').value;
-            const account = document.getElementById('account').value;
-            const amount = parseFloat(document.getElementById('amount').value);
-
-            let { count: referralCount } = await supabaseClient
-                .from('users')
-                .select('*', { count: 'exact', head: true })
-                .eq('referred_by', userId);
-
-            if ((referralCount || 0) < 10) {
-                alert(`উইথড্র করতে কমপক্ষে ১০টি রেফার করতে হবে! আপনার বর্তমান রেফার: ${referralCount || 0}টি`);
-                return;
-            }
-
-            if (!account || !amount || amount <= 0) {
-                alert('সঠিক অ্যাকাউন্ট নাম্বার এবং পরিমাণ লিখুন।');
-                return;
-            }
-
-            let { data: user } = await supabaseClient.from('users').select('balance').eq('id', userId).single();
-            if (!user || user.balance < amount) {
-                alert('পর্যাপ্ত ব্যালেন্স নেই!');
-                return;
-            }
-
-            let { error } = await supabaseClient.from('withdrawals').insert([
-                { user_id: userId, method: method, account: account, amount: amount, status: 'pending' }
-            ]);
-
-            if (error) {
-                alert('ত্রুটি: ' + error.message);
-                return;
-            }
-
-            let newBalance = Number(user.balance) - amount;
-            await supabaseClient.from('users').update({ balance: newBalance }).eq('id', userId);
-
-            alert('উইথড্রয়াল সফলভাবে সাবমিট হয়েছে!');
-            initUser();
-            document.getElementById('account').value = '';
-            document.getElementById('amount').value = '';
-        }
-
-        initUser();
-    </script>
-</body>
-</html>
+                 
