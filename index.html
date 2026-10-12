@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>TakaPay Mini App v3.1</title>
+    <title>TakaPay Mini App Final Fix</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Supabase JS SDK -->
@@ -77,7 +77,7 @@
         <!-- Top Header -->
         <div class="welcome-header">
             <div class="welcome-text">
-                <span id="displayUserId">আইডি: লোড হচ্ছে...</span>
+                <span id="displayUserId">আইডি: ---</span>
                 <h3 id="userName">ইউজার</h3>
             </div>
             <div class="plan-badge" id="userPlanBadge">⭐ ফ্রি প্ল্যান</div>
@@ -93,7 +93,7 @@
             <div class="card-box">
                 <div class="section-title">👥 আপনার রেফারেল লিংক</div>
                 <p style="font-size: 12px; color: #94a3b8; text-align: center;">প্রতি রেফারে পাবেন ৳ ৫.০০ বোনাস!</p>
-                <div class="ref-box" id="refLink">লিংক তৈরি হচ্ছে...</div>
+                <div class="ref-box" id="refLink">তৈরি হচ্ছে...</div>
                 <button class="btn-blue" onclick="copyRefLink()">লিংক কপি করুন</button>
             </div>
 
@@ -231,42 +231,49 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_rkd7l-PFMFt2W1aAtdPcRQ_AN_xg30q';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
-
         const BOT_USERNAME = "TakaPayAppBot";
-        
-        // টেলিগ্রাম অবজেক্ট থেকে ইনস্ট্যান্ট ইউজার আইডি ও নাম ফেচ করার কোড
-        let tgUser = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
-        let userId = tgUser && tgUser.id ? String(tgUser.id) : null;
-        let userName = tgUser && tgUser.first_name ? tgUser.first_name : null;
+        let userId = "";
+        let userName = "";
 
-        // যদি টেলিগ্রাম অবজেক্ট সরাসরি না পাওয়া যায়, লোকাল স্টোরেজ বা ইউনিক আইডি ব্যবহার করা
-        if (!userId) {
-            userId = localStorage.getItem('takapay_user_id');
+        // ১. নিশ্চিত ও ফাস্ট আইডি ফেচ করার লজিক
+        function getTelegramUser() {
+            try {
+                if (window.Telegram && window.Telegram.WebApp) {
+                    window.Telegram.WebApp.ready();
+                    window.Telegram.WebApp.expand();
+                    const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
+                    if (tgUser && tgUser.id) {
+                        userId = String(tgUser.id);
+                        userName = tgUser.first_name || "ইউজার";
+                    }
+                }
+            } catch(e) { console.log(e); }
+
+            // যদি Telegram WebApp SDK আইডি না দিতে পারে
             if (!userId) {
-                userId = 'user_' + Math.floor(100000 + Math.random() * 900000);
-                localStorage.setItem('takapay_user_id', userId);
+                userId = localStorage.getItem('takapay_fixed_uid');
+                if (!userId) {
+                    userId = "629" + Math.floor(100000 + Math.random() * 900000);
+                    localStorage.setItem('takapay_fixed_uid', userId);
+                }
+                userName = "ইউজার";
             }
-        }
-        if (!userName) {
-            userName = 'টেলিগ্রাম ইউজার';
+
+            // ইনস্ট্যান্ট HTML ফিক্স
+            document.getElementById('displayUserId').innerText = 'আইডি: ' + userId;
+            document.getElementById('userName').innerText = userName;
+            document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${userId}`;
         }
 
-        // ইউজার ইন্টারফেসে instantly ডেটা বসিয়ে দেওয়া
-        document.getElementById('userName').innerText = userName;
-        document.getElementById('displayUserId').innerText = 'আইডি: ' + userId;
-        document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${userId}`;
+        // সাথে সাথে আইডি সেট করা
+        getTelegramUser();
 
         let AdController = null;
         try {
             if (window.Adsgram) {
                 AdController = window.Adsgram.init({ blockId: "53355" });
             }
-        } catch (e) {
-            console.log("Adsgram init error", e);
-        }
+        } catch (e) { console.log(e); }
 
         let adsWatchedToday = 0;
         let currentPlan = 'free';
@@ -285,16 +292,14 @@
         const refBy = urlParams.get('start');
 
         async function initUser() {
-            if (!userId) return;
-
-            let { data: user, error } = await supabaseClient.from('users').select('*').eq('id', userId).single();
+            let { data: user } = await supabaseClient.from('users').select('*').eq('id', userId).single();
 
             if (!user) {
                 let referrer = (refBy && refBy !== userId) ? refBy : null;
                 let newUserObj = { id: userId, balance: 0.00, referred_by: referrer, plan: 'free' };
-                let { error: insertError } = await supabaseClient.from('users').insert([newUserObj]);
+                await supabaseClient.from('users').insert([newUserObj]);
 
-                if (!insertError && referrer) {
+                if (referrer) {
                     let { data: refUser } = await supabaseClient.from('users').select('balance').eq('id', referrer).single();
                     if (refUser) {
                         await supabaseClient.from('users').update({ balance: Number(refUser.balance) + 5.00 }).eq('id', referrer);
@@ -376,11 +381,7 @@
             ]);
 
             if(error) {
-                let { err } = await supabaseClient.from('users').update({ plan: selectedPlanKey }).eq('id', userId);
-                if(err) {
-                    alert('ত্রুটি: ' + err.message);
-                    return;
-                }
+                await supabaseClient.from('users').update({ plan: selectedPlanKey }).eq('id', userId);
             }
 
             alert('পেমেন্ট সফলভাবে জমা হয়েছে! অ্যাডমিন চেক করে আপনার প্ল্যান সক্রিয় করে দেবেন।');
@@ -423,4 +424,4 @@
                         let currentInc = parseFloat(document.getElementById('todayIncome').innerText) || 0;
                         
                         document.getElementById('todayIncome').innerText = (currentInc + rewardPerAd).toFixed(2);
-         
+                        docu
