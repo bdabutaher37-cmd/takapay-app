@@ -34,7 +34,7 @@
             </div>
             <div>
                 <p class="text-[10px] text-gray-400">ইউজার আইডি</p>
-                <p id="uid" class="font-bold text-xs text-indigo-200">6293441724</p>
+                <p id="uid" class="font-bold text-xs text-indigo-200">Loading...</p>
             </div>
         </div>
         <span class="bg-amber-500/20 text-amber-400 text-[11px] px-3 py-1 rounded-full border border-amber-500/30 font-semibold">
@@ -66,7 +66,7 @@
                 <p class="text-xs font-bold text-purple-300 mb-1"><i class="fa-solid fa-share-nodes mr-1.5"></i>রেফার করে আয় করুন</p>
                 <p class="text-[11px] text-gray-300 mb-2">প্রতি রেফারে পান ১০ টাকা বোনাস!</p>
                 <div class="flex gap-2">
-                    <input type="text" id="refLink" readonly value="https://t.me/TakaPayBot?start=ref6293441724" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-3 py-2 text-[11px] text-gray-300 focus:outline-none">
+                    <input type="text" id="refLink" readonly value="https://t.me/TakaPayBot" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-3 py-2 text-[11px] text-gray-300 focus:outline-none">
                     <button onclick="copyRef()" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition">কপি</button>
                 </div>
             </div>
@@ -231,22 +231,48 @@
         <button onclick="showTab('withdraw')" id="nav-withdraw" class="nav-btn text-gray-400 text-[11px] font-medium text-center p-1.5"><i class="fa-solid fa-wallet text-base block mb-0.5"></i>উইথড্র</button>
     </div>
 
-    <!-- Script Logic -->
+    <!-- Script Logic with Persistent Storage -->
     <script>
         const tg = window.Telegram?.WebApp;
+        let userId = "guest";
+
         if (tg) {
             tg.ready();
             tg.expand();
             if (tg.initDataUnsafe?.user) {
-                const uid = tg.initDataUnsafe.user.id;
-                document.getElementById('uid').innerText = uid;
-                document.getElementById('refLink').value = `https://t.me/TakaPayBot?start=ref${uid}`;
+                userId = tg.initDataUnsafe.user.id;
+                document.getElementById('uid').innerText = userId;
+                document.getElementById('refLink').value = `https://t.me/TakaPayBot?start=ref${userId}`;
+            } else {
+                document.getElementById('uid').innerText = "6293441724";
             }
         }
 
-        let balance = 0.00;
-        let adsWatched = 0;
+        // Local Storage Keys
+        const balKey = `tp_bal_${userId}`;
+        const adsKey = `tp_ads_${userId}`;
+
+        let balance = parseFloat(localStorage.getItem(balKey)) || 0.00;
+        let adsWatched = parseInt(localStorage.getItem(adsKey)) || 0;
         const maxAds = 20;
+
+        function updateUI() {
+            document.getElementById('bal').innerText = balance.toFixed(2);
+            document.getElementById('todayInc').innerText = (adsWatched * 2.00).toFixed(2);
+            document.getElementById('adCounter').innerText = adsWatched;
+
+            if (adsWatched >= maxAds) {
+                const btn = document.getElementById('watchAdBtn');
+                if (btn) {
+                    btn.innerText = 'শেষ';
+                    btn.classList.replace('bg-indigo-600', 'bg-gray-600');
+                    btn.disabled = true;
+                }
+            }
+        }
+
+        // Init UI on load
+        updateUI();
 
         let AdController = window.AdsGram ? window.AdsGram.init({ blockId: "53448" }) : null;
 
@@ -310,17 +336,12 @@
         function giveReward() {
             balance += 2.00;
             adsWatched += 1;
-            document.getElementById('bal').innerText = balance.toFixed(2);
-            document.getElementById('todayInc').innerText = (adsWatched * 2.00).toFixed(2);
-            document.getElementById('adCounter').innerText = adsWatched;
 
-            if (adsWatched >= maxAds) {
-                const btn = document.getElementById('watchAdBtn');
-                btn.innerText = 'শেষ';
-                btn.classList.replace('bg-indigo-600', 'bg-gray-600');
-                btn.disabled = true;
-            }
+            // Save to LocalStorage
+            localStorage.setItem(balKey, balance);
+            localStorage.setItem(adsKey, adsWatched);
 
+            updateUI();
             alert('অভিনন্দন! আপনি ২.০০ ৳ রিওয়ার্ড পেয়েছেন।');
         }
 
@@ -342,7 +363,8 @@
             }
 
             balance -= amt;
-            document.getElementById('bal').innerText = balance.toFixed(2);
+            localStorage.setItem(balKey, balance);
+            updateUI();
             alert('আপনার উইথড্র রিকুয়েস্ট সফলভাবে জমা হয়েছে!');
         }
     </script>
