@@ -159,7 +159,7 @@ function updateUI(){
 }
 updateUI();
 function claimBonus(){if(claimed){alert("নিন!");return;}claimed=true;bal+=10;localStorage.setItem('tp_bal_'+uid,bal);localStorage.setItem('tp_bonus_'+uid,'true');updateUI();alert("৳ ১০ বোনাস!");}
-function copyRef(){navigator.clipboard.writeText(document.getElementById('rlink').innerText);alert('কপি!');}
+function copyRef(){navigator.clipboard.writeText(document.getElementById('rlink').innerText);alert('কپی!');}
 function buyPlan(t,p){selPlan=t+' (৳'+p+')';document.getElementById('mTitle').innerText=t+' প্ল্যান (৳'+p+')';document.getElementById('modal').style.display='flex';}
 function closeModal(){document.getElementById('modal').style.display='none';}
 function subDep(){
@@ -180,7 +180,7 @@ function adminAct(){
 }
 function watchAd(){
     if(ads>=20){alert("শেষ!");return;}
-    let rW=getRate(),r=()=>{ads++;bal+=rW;localStorage.setItem('tp_bal_'+uid,bal);localStorage.setItem('tp_ads_'+uid,ads);updateUI();alert(`৳ ${rW} যোগ!`);};
+    let rW=getRate(),r=()=>{ads++;bal+=rW;localStorage.setItem('tp_bal_'+uid,bal);localStorage.setItem('tp_ads_'+uid,ads);updateUI();alert(`৳ ${rW} যোগ হয়েছে!`);};
     try{if(window.Adsgram){Adsgram.init({blockId:"53522"}).show().then(r).catch(()=>alert("সম্পূর্ণ দেখুন"));}else{r();}}catch(e){r();}
 }
 function joinChan(){if(window.Telegram?.WebApp?.openTelegramLink){window.Telegram.WebApp.openTelegramLink(chanUrl);}else{window.open(chanUrl,'_blank');}}
