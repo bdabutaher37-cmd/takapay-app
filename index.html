@@ -104,7 +104,6 @@
                 </button>
             </div>
 
-            <!-- Telegram Channel Task -->
             <div class="card p-4 flex justify-between items-center">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center text-base">
@@ -132,6 +131,20 @@
                 </div>
             </div>
 
+            <!-- Silver Plan -->
+            <div class="card p-4 border-slate-500/40">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <h3 class="font-bold text-sm text-slate-200">সিলভার প্ল্যান</h3>
+                        <p class="text-xl font-black text-white mt-0.5">৳ ৩০০</p>
+                    </div>
+                    <span class="bg-slate-500/20 text-slate-300 text-[10px] px-2 py-0.5 rounded-full border border-slate-500/30">Tier 1</span>
+                </div>
+                <p class="text-[11px] text-gray-300 mb-3">দৈনিক ৫০টি অ্যাড ও ৩০ দিন মেয়াদ।</p>
+                <button onclick="openModal('সিলভার প্ল্যান', 300)" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs py-2.5 rounded-xl transition">প্ল্যান কিনুন</button>
+            </div>
+
+            <!-- Gold Plan -->
             <div class="card p-4 border-amber-500/40 bg-amber-500/5">
                 <div class="flex justify-between items-start mb-2">
                     <div>
@@ -142,6 +155,19 @@
                 </div>
                 <p class="text-[11px] text-gray-300 mb-3">দৈনিক ৮০টি অ্যাড ও ইনস্ট্যান্ট উইথড্র সুবিধা।</p>
                 <button onclick="openModal('গোল্ড প্ল্যান', 500)" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs py-2.5 rounded-xl transition">প্ল্যান কিনুন</button>
+            </div>
+
+            <!-- Diamond Plan -->
+            <div class="card p-4 border-cyan-500/40 bg-cyan-500/5">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <h3 class="font-bold text-sm text-cyan-300">ডায়মন্ড প্ল্যান</h3>
+                        <p class="text-xl font-black text-white mt-0.5">৳ ১০০০</p>
+                    </div>
+                    <span class="bg-cyan-500/20 text-cyan-300 text-[10px] px-2 py-0.5 rounded-full border border-cyan-500/30">ভিআইপি</span>
+                </div>
+                <p class="text-[11px] text-gray-300 mb-3">দৈনিক ১৫০টি অ্যাড ও ২৪/৭ সাপোর্ট।</p>
+                <button onclick="openModal('ডায়মন্ড প্ল্যান', 1000)" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs py-2.5 rounded-xl transition">প্ল্যান কিনুন</button>
             </div>
         </div>
 
@@ -181,10 +207,10 @@
                 <button onclick="closeModal()" class="text-gray-400 text-base">&times;</button>
             </div>
             <p class="text-[11px] text-gray-300">
-                এই নম্বরে সেন্ড মানি করুন: <b class="text-emerald-400 font-mono">01318774526</b> (<span id="modalPrice"></span> টাকা)
+                এই নম্বরে টাকা পাঠান: <b class="text-emerald-400 font-mono">01318774526</b> (<span id="modalPrice"></span> টাকা)
             </p>
             <div>
-                <label class="block text-[10px] text-gray-400 mb-1">যে নম্বর থেকে টাকা পাঠিয়েছেন</label>
+                <label class="block text-[10px] text-gray-400 mb-1">আপনার বিকাশ/নগদ নম্বর</label>
                 <input id="senderNum" type="number" placeholder="013XXXXXXXX" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-xs text-white focus:outline-none">
             </div>
             <div>
@@ -192,7 +218,7 @@
                 <input id="trxId" type="text" placeholder="যেমন: 8N7A6D5E" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-xs text-white uppercase focus:outline-none">
             </div>
             <button onclick="submitDeposit()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl transition text-xs">
-                পেমেন্ট জমা দিন
+                পেমেন্ট তথ্য জমা দিন
             </button>
         </div>
     </div>
@@ -222,6 +248,7 @@
         let adsWatched = 0;
         const maxAds = 20;
 
+        // AdsGram Controller Setup
         let AdController = window.AdsGram ? window.AdsGram.init({ blockId: "53355" }) : null;
 
         function showTab(tab) {
@@ -273,11 +300,11 @@
                 AdController.show().then((result) => {
                     giveReward();
                 }).catch((err) => {
-                    console.log('Ad error:', err);
-                    giveReward();
+                    console.log('Ad error/fallback:', err);
+                    giveReward(); // অ্যাড লোড না হলেও ইউজার যাতে রিওয়ার্ড পায়
                 });
             } else {
-                giveReward();
+                giveReward(); // টেস্ট বা ব্রাউজার মোডের জন্য সরাসরি রিওয়ার্ড
             }
         }
 
