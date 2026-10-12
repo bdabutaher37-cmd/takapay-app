@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TakaPay Mini App Pro v6.0</title>
+    <title>TakaPay Mini App Pro v7.0</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Supabase JS SDK -->
@@ -219,23 +219,32 @@
         document.getElementById('userName').innerText = userName;
         document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${userId}`;
 
-        // সরাসরি ডাটাবেজ থেকে ইউজার ব্যালেন্স ও অ্যাড কাউন্টার লোড করার ফাংশন
+        // ডাটাবেজ এবং লোকাল স্টোরেজ থেকে ব্যালেন্স ও অ্যাড কাউন্টার সিঙ্ক করার ফাংশন
         async function loadUserData() {
+            // ১. লোকাল স্টোরেজ থেকে দ্রুত লোড করা
+            let localBal = localStorage.getItem('takapay_bal_' + userId);
+            let localAds = localStorage.getItem('takapay_ads_' + userId);
+            if (localBal !== null) userBalance = parseFloat(localBal) || 0.00;
+            if (localAds !== null) adsWatchedToday = parseInt(localAds) || 0;
+            updateUI();
+
+            // ২. সুপাবেজ ডাটাবেজ থেকে লেটেস্ট ডাটা মিলিয়ে নেওয়া
             try {
                 let { data: user, error } = await supabaseClient.from('users').select('*').eq('id', userId).maybeSingle();
-                
                 if (!user) {
-                    // প্রথমবার ইউজার হলে নতুন রো তৈরি করবে
-                    let newUser = { id: userId, balance: 0.00, ads_watched: 0, plan: 'free' };
-                    await supabaseClient.from('users').insert([newUser]);
-                    userBalance = 0.00;
-                    adsWatchedToday = 0;
+                    await supabaseClient.from('users').insert([{ id: userId, balance: userBalance, ads_watched: adsWatchedToday, plan: 'free' }]);
                 } else {
-                    userBalance = parseFloat(user.balance) || 0.00;
-                    adsWatchedToday = parseInt(user.ads_watched) || 0;
+                    if (user.balance !== undefined && user.balance !== null) {
+                        userBalance = parseFloat(user.balance);
+                        localStorage.setItem('takapay_bal_' + userId, userBalance);
+                    }
+                    if (user.ads_watched !== undefined && user.ads_watched !== null) {
+                        adsWatchedToday = parseInt(user.ads_watched);
+                        localStorage.setItem('takapay_ads_' + userId, adsWatchedToday);
+                    }
                 }
             } catch (err) {
-                console.log("DB Load Error:", err);
+                console.log("DB Sync Warning:", err);
             }
             updateUI();
         }
@@ -288,9 +297,12 @@
                 adsWatchedToday++;
                 userBalance = parseFloat((userBalance + 2.00).toFixed(2));
 
+                // লোকাল স্টোরেজে তাৎক্ষণিকভাবে সেভ করা
+                localStorage.setItem('takapay_bal_' + userId, userBalance);
+                localStorage.setItem('takapay_ads_' + userId, adsWatchedToday);
                 updateUI();
 
-                // সুপাবেজ ডাটাবেজে তাৎক্ষণিকভাবে ব্যালেন্স এবং অ্যাড কাউন্ট একসাথে আপডেট করা
+                // সুপাবেজ ডাটাবেজে পার্মানেন্টলি আপডেট করা
                 try {
                     await supabaseClient.from('users').upsert([
                         { id: userId, balance: userBalance, ads_watched: adsWatchedToday, plan: 'free' }
@@ -341,6 +353,7 @@
 
             if(!error) {
                 userBalance = parseFloat((userBalance - amount).toFixed(2));
+                localStorage.setItem('takapay_bal_' + userId, userBalance);
                 await supabaseClient.from('users').upsert([
                     { id: userId, balance: userBalance, ads_watched: adsWatchedToday, plan: 'free' }
                 ]);
