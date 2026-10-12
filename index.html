@@ -151,7 +151,7 @@
                     <h4>সিলভার প্ল্যান (Silver)</h4>
                     <p>মূল্য: ৳ ৫০০ | দৈনিক আয়: ৳ ৫০</p>
                 </div>
-                <button class="btn-sm" id="btn-silver" onclick="buyPlan('silver', 500)">কিনুন</button>
+                <button class="btn-sm" id="btn-silver" onclick="promptBuyPlan('silver', 500)">কিনুন</button>
             </div>
 
             <div class="item-card">
@@ -159,7 +159,7 @@
                     <h4>গোল্ড প্ল্যান (Gold)</h4>
                     <p>মূল্য: ৳ ১০০০ | দৈনিক আয়: ৳ ১২০</p>
                 </div>
-                <button class="btn-sm" id="btn-gold" onclick="buyPlan('gold', 1000)">কিনুন</button>
+                <button class="btn-sm" id="btn-gold" onclick="promptBuyPlan('gold', 1000)">কিনুন</button>
             </div>
 
             <div class="item-card">
@@ -167,7 +167,7 @@
                     <h4>ডায়মন্ড প্ল্যান (Diamond)</h4>
                     <p>মূল্য: ৳ ২৫০০ | দৈনিক আয়: ৳ ৩০০</p>
                 </div>
-                <button class="btn-sm" id="btn-diamond" onclick="buyPlan('diamond', 2500)">কিনুন</button>
+                <button class="btn-sm" id="btn-diamond" onclick="promptBuyPlan('diamond', 2500)">কিনুন</button>
             </div>
         </div>
 
@@ -280,7 +280,7 @@
                         btn.innerText = 'সক্রিয়';
                         btn.className = 'btn-sm btn-active';
                     } else {
-                        btn.innerText = 'কিনুন';
+                        btn.innerText = (p === 'free') ? 'সক্রিয়' : 'কিনুন';
                         btn.className = 'btn-sm';
                     }
                 }
@@ -322,7 +322,19 @@
             initUser();
         }
 
-        // অ্যাড দেখা এবং দৈনিক ২০টি লিমি트 চেক করার ফাংশন
+        // প্ল্যান কেনার সময় পেমেন্ট নম্বর ও ট্রানজেকশন আইডি নেওয়ার ফাংশন
+        function promptBuyPlan(planName, price) {
+            let userNumber = prompt(`(${planName.toUpperCase()} প্ল্যান - মূল্য: ৳${price})\nটাকা পাঠানোর বিকাশ/নগদ নম্বর দিন:`);
+            if (!userNumber) return;
+
+            let trxId = prompt("আপনার পেমেন্টের ট্রানজেকশন আইডি (TrxID) দিন:");
+            if (!trxId) return;
+
+            // ডাটাবেজে পেমেন্ট রিকোয়েস্ট বা সরাসরি প্ল্যান আপডেট করার প্রসেস
+            buyPlan(planName, price);
+        }
+
+        // অ্যাড দেখা এবং দৈনিক ২০টি লিমিট ও ব্যালেন্স যোগ করার ফাংশন
         async function showRewardAd() {
             if (adsWatchedToday >= 20) {
                 alert('আজকের জন্য আপনার ২০টি অ্যাড দেখার লিমিট শেষ হয়েছে!');
