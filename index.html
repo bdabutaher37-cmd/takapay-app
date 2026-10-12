@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TakaPay Mini App Pro v15.0</title>
+    <title>TakaPay Mini App Pro v16.0</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Supabase JS SDK -->
@@ -12,7 +12,7 @@
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background: #070b14; color: #ffffff; padding-bottom: 80px; }
+        body { background: #070b14; color: #ffffff; padding-bottom: 90px; }
         .container { padding: 16px; max-width: 450px; margin: 0 auto; }
         
         .welcome-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: rgba(23, 32, 51, 0.8); padding: 15px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); }
@@ -58,7 +58,7 @@
         .modal-content { background: #0f172a; padding: 20px; border-radius: 16px; width: 90%; max-width: 400px; border: 1px solid #1e293b; }
         input, select { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #334155; background: #090d16; color: white; }
 
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(11, 17, 32, 0.95); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.08); max-width: 450px; margin: 0 auto; z-index: 99; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(11, 17, 32, 0.98); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.08); max-width: 450px; margin: 0 auto; z-index: 999; }
         .nav-item { text-align: center; color: #64748b; font-size: 11px; cursor: pointer; flex: 1; font-weight: 600; }
         .nav-item.active { color: #38bdf8; }
         .nav-icon { font-size: 18px; display: block; margin-bottom: 2px; }
@@ -196,10 +196,10 @@
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('home', this)"><span class="nav-icon">🏠</span>হোম</div>
-        <div class="nav-item" onclick="switchTab('tasks', this)"><span class="nav-icon">📋</span>টাস্ক</div>
-        <div class="nav-item" onclick="switchTab('plans', this)"><span class="nav-icon">💎</span>প্ল্যান</div>
-        <div class="nav-item" onclick="switchTab('withdraw', this)"><span class="nav-icon">💳</span>উইথড্র</div>
+        <div class="nav-item active" id="nav-home" onclick="switchTab('home')"><span class="nav-icon">🏠</span>হোম</div>
+        <div class="nav-item" id="nav-tasks" onclick="switchTab('tasks')"><span class="nav-icon">📋</span>টাস্ক</div>
+        <div class="nav-item" id="nav-plans" onclick="switchTab('plans')"><span class="nav-icon">💎</span>প্ল্যান</div>
+        <div class="nav-item" id="nav-withdraw" onclick="switchTab('withdraw')"><span class="nav-icon">💳</span>উইথড্র</div>
     </div>
 
     <script>
@@ -213,7 +213,6 @@
         const BOT_USERNAME = "TakaPayAppBot";
         const OFFICIAL_CHANNEL = "https://t.me/takapay_official";
 
-        // সেফ টেলিগ্রাম ইনিট
         try {
             const tg = window.Telegram?.WebApp;
             if (tg) {
@@ -232,19 +231,17 @@
         document.getElementById('userName').innerText = userName;
         document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${userId}`;
 
-        // ট্যাব সুইচিং ফাংশন (সম্পূর্ণ গ্যারান্টিযুক্ত)
-        function switchTab(tabName, element) {
+        // নিখুঁত ট্যাব সুইচিং ফাংশন
+        function switchTab(tabName) {
             try {
                 document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
                 document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
                 
-                let target = document.getElementById('tab-' + tabName);
-                if (target) {
-                    target.classList.add('active');
-                }
-                if (element) {
-                    element.classList.add('active');
-                }
+                let targetTab = document.getElementById('tab-' + tabName);
+                let targetNav = document.getElementById('nav-' + tabName);
+                
+                if (targetTab) targetTab.classList.add('active');
+                if (targetNav) targetNav.classList.add('active');
             } catch(e) {
                 console.log("Tab Switch Error", e);
             }
@@ -286,7 +283,7 @@
 
         updateUI();
 
-        async function claimDailyBonus() {
+        function claimDailyBonus() {
             if (isBonusClaimedToday) {
                 alert("আপনি আজকের দৈনিক বোনাস ইতিমধ্যে গ্রহণ করেছেন!");
                 return;
