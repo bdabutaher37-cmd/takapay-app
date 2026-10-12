@@ -7,116 +7,152 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- AdsGram SDK -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
         body {
-            background: #0f172a;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
             color: #ffffff;
-            font-family: sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
         .card {
             background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
+            border-radius: 20px;
         }
     </style>
 </head>
-<body class="p-4 pb-28">
+<body class="pb-28">
 
     <!-- Header -->
-    <div class="card p-4 flex justify-between items-center mb-4">
-        <div>
-            <p class="text-xs text-gray-400">ইউজার আইডি</p>
-            <p id="uid" class="font-bold text-sm text-indigo-300">6293441724</p>
-        </div>
-        <span class="bg-amber-500/20 text-amber-400 text-xs px-3 py-1 rounded-full border border-amber-500/30">ফ্রি প্ল্যান</span>
-    </div>
-
-    <!-- Views -->
-    <!-- HOME VIEW -->
-    <div id="homeView" class="view space-y-4">
-        <div class="card p-5 bg-gradient-to-r from-indigo-900 to-purple-900">
-            <p class="text-xs text-gray-300">আপনার মূল ব্যালেন্স</p>
-            <h2 class="text-3xl font-extrabold my-2">৳ <span id="bal">0.00</span></h2>
-            <div class="flex justify-between text-xs text-gray-300 pt-2 border-t border-white/10">
-                <span>আজকের ইনকাম: ৳ <span id="todayInc">0.00</span></span>
-                <span>অ্যাড দেখা: <span id="adCounter">0</span>/20</span>
+    <div class="p-4 flex justify-between items-center card mx-4 mt-4">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-sm font-bold border border-indigo-400">
+                <i class="fa-solid fa-user"></i>
+            </div>
+            <div>
+                <p class="text-[10px] text-gray-400">ইউজার আইডি</p>
+                <p id="uid" class="font-bold text-xs text-indigo-200">6293441724</p>
             </div>
         </div>
-        <div class="card p-4 text-center">
-            <i class="fa-solid fa-bolt text-amber-400 text-xl mb-1"></i>
-            <p class="text-xs text-gray-400">ডেইলি টাস্ক বোনাস</p>
-            <p class="font-bold text-amber-300 text-sm">৳ ৪০.০০ পর্যন্ত</p>
-        </div>
+        <span class="bg-amber-500/20 text-amber-400 text-[11px] px-3 py-1 rounded-full border border-amber-500/30 font-semibold">
+            <i class="fa-solid fa-crown text-[10px] mr-1"></i> ফ্রি প্ল্যান
+        </span>
     </div>
 
-    <!-- TASKS VIEW -->
-    <div id="tasksView" class="view hidden space-y-4">
-        <h2 class="font-bold text-indigo-300 text-base mb-2"><i class="fa-solid fa-list-check mr-2"></i>দৈনিক টাস্কসমূহ</h2>
-        <div class="card p-4 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center text-lg">
-                    <i class="fa-solid fa-circle-play"></i>
+    <!-- Main Views Container -->
+    <div class="px-4 mt-4">
+
+        <!-- HOME VIEW -->
+        <div id="homeView" class="view space-y-4">
+            <div class="card p-5 bg-gradient-to-r from-indigo-900/50 to-purple-950/50 border-indigo-500/30">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-gray-300 text-xs"><i class="fa-solid fa-wallet text-amber-400 mr-1.5"></i>আপনার মূল ব্যালেন্স</span>
+                    <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">সক্রিয়</span>
+                </div>
+                <div class="text-3xl font-extrabold text-white my-2">
+                    ৳ <span id="bal">0.00</span>
+                </div>
+                <div class="flex justify-between text-[11px] text-gray-400 pt-2 border-t border-white/10">
+                    <span>আজকের ইনকাম: ৳ <span id="todayInc">0.00</span></span>
+                    <span>অ্যাড দেখা: <span id="adCounter">0</span>/20</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="card p-3.5 text-center">
+                    <i class="fa-solid fa-bolt text-amber-400 text-xl mb-1"></i>
+                    <p class="text-[11px] text-gray-400">ডেইলি টাস্ক বোনাস</p>
+                    <p class="font-bold text-xs text-amber-300">৳ ৪০.০০ পর্যন্ত</p>
+                </div>
+                <div class="card p-3.5 text-center">
+                    <i class="fa-solid fa-hand-holding-dollar text-emerald-400 text-xl mb-1"></i>
+                    <p class="text-[11px] text-gray-400">মিনিমাম উইথড্র</p>
+                    <p class="font-bold text-xs text-emerald-300">৳ ১০০.০০</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TASKS VIEW -->
+        <div id="tasksView" class="view hidden space-y-4">
+            <h2 class="text-sm font-bold text-indigo-300 mb-1"><i class="fa-solid fa-list-check mr-1.5"></i>দৈনিক টাস্কসমূহ</h2>
+            
+            <div class="card p-4 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center text-base">
+                        <i class="fa-solid fa-circle-play"></i>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-xs text-white">ভিডিও বিজ্ঞাপন দেখুন</p>
+                        <p class="text-[11px] text-emerald-400">+৳ ২.০০ / অ্যাড</p>
+                    </div>
+                </div>
+                <button id="watchAdBtn" onclick="watchAd()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
+                    দেখুন
+                </button>
+            </div>
+        </div>
+
+        <!-- PLANS VIEW -->
+        <div id="plansView" class="view hidden space-y-4">
+            <h2 class="text-sm font-bold text-indigo-300 mb-1"><i class="fa-solid fa-gem mr-1.5"></i>ভিআইপি ইনভেস্টমেন্ট প্ল্যান</h2>
+            
+            <div class="card p-3.5 bg-indigo-950/50 border-indigo-500/30 text-xs text-indigo-200">
+                <p class="font-bold text-amber-300 mb-1"><i class="fa-solid fa-mobile-screen mr-1"></i>পার্সোনাল বিকাশ/নগদ নম্বর:</p>
+                <div class="p-2 bg-slate-900/90 rounded-lg font-mono text-center text-sm font-bold text-emerald-400 tracking-wider">
+                    01318774526
+                </div>
+            </div>
+
+            <div class="card p-4 border-amber-500/40 bg-amber-500/5">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <h3 class="font-bold text-sm text-amber-300">গোল্ড প্ল্যান</h3>
+                        <p class="text-xl font-black text-white mt-0.5">৳ ৫০০</p>
+                    </div>
+                    <span class="bg-amber-500/20 text-amber-300 text-[10px] px-2 py-0.5 rounded-full border border-amber-500/30">জনপ্রিয়</span>
+                </div>
+                <p class="text-[11px] text-gray-300 mb-3">দৈনিক ৮০টি অ্যাড ও ইনস্ট্যান্ট উইথড্র সুবিধা।</p>
+                <button onclick="alert('বিকাশ বা নগদে ৫০০ টাকা এই নম্বরে সেন্ড করুন: 01318774526')" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs py-2.5 rounded-xl transition">প্ল্যান কিনুন</button>
+            </div>
+        </div>
+
+        <!-- WITHDRAW VIEW -->
+        <div id="withdrawView" class="view hidden space-y-4">
+            <h2 class="text-sm font-bold text-indigo-300 mb-1"><i class="fa-solid fa-wallet mr-1.5"></i>টাকা তুলুন</h2>
+            
+            <div class="card p-4 space-y-3">
+                <div>
+                    <label class="block text-[11px] text-gray-400 mb-1">পেমেন্ট মেথড</label>
+                    <select id="wMethod" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                        <option value="bkash">বিকাশ (bKash)</option>
+                        <option value="nagad">নগদ (Nagad)</option>
+                    </select>
                 </div>
                 <div>
-                    <p class="font-semibold text-sm">ভিডিও বিজ্ঞাপন দেখুন</p>
-                    <p class="text-xs text-emerald-400">+৳ ২.০০ / অ্যাড</p>
+                    <label class="block text-[11px] text-gray-400 mb-1">অ্যাকাউন্ট নম্বর</label>
+                    <input id="wNum" type="number" placeholder="017XXXXXXXX" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                 </div>
+                <div>
+                    <label class="block text-[11px] text-gray-400 mb-1">পরিমাণ (সর্বনিম্ন ১০০ টাকা)</label>
+                    <input id="wAmt" type="number" placeholder="100" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                </div>
+                <button onclick="withdraw()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl text-xs font-bold transition">
+                    উইথড্র রিকুয়েস্ট পাঠান
+                </button>
             </div>
-            <button id="watchAdBtn" onclick="watchAd()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition">
-                দেখুন
-            </button>
         </div>
+
     </div>
 
-    <!-- PLANS VIEW -->
-    <div id="plansView" class="view hidden space-y-4">
-        <h2 class="font-bold text-indigo-300 text-base mb-2"><i class="fa-solid fa-gem mr-2"></i>ভিআইপি প্ল্যান</h2>
-        <div class="card p-4 bg-indigo-950/40 text-xs text-indigo-200 mb-3">
-            <p class="font-bold text-amber-300 mb-1">নম্বর: <span class="font-mono text-emerald-400 text-sm">01318774526</span> (বিকাশ/নগদ)</p>
-            টাকা পাঠিয়ে অ্যাডমিনের কাছে রিকুয়েস্ট করুন।
-        </div>
-        <div class="card p-4 border-amber-500/40">
-            <h3 class="font-bold text-amber-300 text-base">গোল্ড প্ল্যান - ৳ ৫০০</h3>
-            <p class="text-xs text-gray-300 my-2">দৈনিক ৮০টি অ্যাড ও ইনস্ট্যান্ট উইথড্র সুবিধা।</p>
-            <button onclick="alert('বিকাশ বা নগদে 500 টাকা পাঠিয়ে ট্রানজেকশন আইডি দিন: 01318774526')" class="w-full mt-2 bg-amber-600 hover:bg-amber-500 text-white text-xs py-2.5 rounded-xl font-bold transition">প্ল্যান কিনুন</button>
-        </div>
-    </div>
-
-    <!-- WITHDRAW VIEW -->
-    <div id="withdrawView" class="view hidden space-y-4">
-        <h2 class="font-bold text-indigo-300 text-base mb-2"><i class="fa-solid fa-wallet mr-2"></i>টাকা তুলুন</h2>
-        <div class="card p-4 space-y-3">
-            <div>
-                <label class="block text-xs text-gray-400 mb-1">পেমেন্ট মেথড</label>
-                <select id="wMethod" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white">
-                    <option value="bkash">বিকাশ (bKash)</option>
-                    <option value="nagad">নগদ (Nagad)</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-xs text-gray-400 mb-1">অ্যাকাউন্ট নম্বর</label>
-                <input id="wNum" type="number" placeholder="017XXXXXXXX" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white">
-            </div>
-            <div>
-                <label class="block text-xs text-gray-400 mb-1">পরিমাণ (সর্বনিম্ন ১০০ টাকা)</label>
-                <input id="wAmt" type="number" placeholder="100" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white">
-            </div>
-            <button onclick="withdraw()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl text-xs font-bold transition">
-                উইথড্র রিকুয়েস্ট পাঠান
-            </button>
-        </div>
-    </div>
-
-    <!-- Bottom Nav -->
-    <div class="fixed bottom-0 left-0 right-0 bg-slate-950/95 backdrop-blur-md border-t border-white/10 p-2 flex justify-around z-50">
-        <button onclick="showTab('home')" id="nav-home" class="nav-btn text-sky-400 text-xs text-center p-2"><i class="fa-solid fa-house text-lg mb-0.5"></i><br>হোম</button>
-        <button onclick="showTab('tasks')" id="nav-tasks" class="nav-btn text-gray-400 text-xs text-center p-2"><i class="fa-solid fa-list text-lg mb-0.5"></i><br>টাস্ক</button>
-        <button onclick="showTab('plans')" id="nav-plans" class="nav-btn text-gray-400 text-xs text-center p-2"><i class="fa-solid fa-gem text-lg mb-0.5"></i><br>প্ল্যান</button>
-        <button onclick="showTab('withdraw')" id="nav-withdraw" class="nav-btn text-gray-400 text-xs text-center p-2"><i class="fa-solid fa-wallet text-lg mb-0.5"></i><br>উইথড্র</button>
+    <!-- Bottom Navigation Bar -->
+    <div class="fixed bottom-0 left-0 right-0 card rounded-none border-t border-white/10 px-2 py-2 flex justify-around items-center bg-slate-950/95 backdrop-blur-lg z-50">
+        <button onclick="showTab('home')" id="nav-home" class="nav-btn text-sky-400 text-[11px] font-medium text-center p-1.5"><i class="fa-solid fa-house text-base block mb-0.5"></i>হোম</button>
+        <button onclick="showTab('tasks')" id="nav-tasks" class="nav-btn text-gray-400 text-[11px] font-medium text-center p-1.5"><i class="fa-solid fa-list-check text-base block mb-0.5"></i>টাস্ক</button>
+        <button onclick="showTab('plans')" id="nav-plans" class="nav-btn text-gray-400 text-[11px] font-medium text-center p-1.5"><i class="fa-solid fa-gem text-base block mb-0.5"></i>প্ল্যান</button>
+        <button onclick="showTab('withdraw')" id="nav-withdraw" class="nav-btn text-gray-400 text-[11px] font-medium text-center p-1.5"><i class="fa-solid fa-wallet text-base block mb-0.5"></i>উইথড্র</button>
     </div>
 
     <!-- Script Logic -->
@@ -134,7 +170,6 @@
         let adsWatched = 0;
         const maxAds = 20;
 
-        // AdsGram Initialisation with Block ID 53355
         let AdController = window.AdsGram ? window.AdsGram.init({ blockId: "53355" }) : null;
 
         function showTab(tab) {
@@ -153,15 +188,12 @@
 
             if (AdController) {
                 AdController.show().then((result) => {
-                    // বিজ্ঞাপন সফলভাবে দেখলে রিওয়ার্ড দেওয়া হবে
                     giveReward();
                 }).catch((err) => {
                     console.log('Ad error:', err);
-                    // টেস্ট বা ফলব্যাক মোডের জন্য সরাসরি রিওয়ার্ড নিশ্চিত করতে
                     giveReward();
                 });
             } else {
-                // ব্রাউজারে বা SDK লোড না হলে সরাসরি টেস্ট রিওয়ার্ড
                 giveReward();
             }
         }
