@@ -232,13 +232,21 @@
         tg.expand();
 
         const BOT_USERNAME = "TakaPayAppBot";
+        
+        // টেলিগ্রাম থেকে সঠিক ইউজার আইডি ফেচ করা (ফ্ল্যাগ বা ডেমো আইডি দূর করা হয়েছে)
         const telegramUser = tg.initDataUnsafe?.user;
-        const userId = telegramUser?.id ? String(telegramUser.id) : '6293441724';
+        const userId = telegramUser?.id ? String(telegramUser.id) : null;
         const userName = telegramUser?.first_name ? telegramUser.first_name : 'ইউজার';
 
+        if (!userId) {
+            alert('দয়া করে টেলিগ্রাম অ্যাপের ভেতর থেকে মিনি অ্যাপটি ওপেন করুন!');
+        }
+
         document.getElementById('userName').innerText = userName;
-        document.getElementById('displayUserId').innerText = 'আইডি: ' + userId;
-        document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${userId}`;
+        document.getElementById('displayUserId').innerText = 'আইডি: ' + (userId || '---');
+        if (userId) {
+            document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${userId}`;
+        }
 
         let AdController = null;
         try {
@@ -266,6 +274,8 @@
         const refBy = urlParams.get('start');
 
         async function initUser() {
+            if (!userId) return;
+
             let { data: user, error } = await supabaseClient.from('users').select('*').eq('id', userId).single();
 
             if (!user) {
@@ -414,15 +424,4 @@
             };
 
             if (AdController) {
-                AdController.show().then(async (result) => {
-                    await grantReward();
-                }).catch((result) => {
-                    grantReward();
-                });
-            } else {
-                grantReward();
-            }
-        }
-
-        function joinTelegramChannel() {
-            
+                AdController.show().then(
