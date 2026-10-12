@@ -211,6 +211,9 @@
         const userId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : '6293441724';
         document.getElementById('displayUserId').innerText = userId;
 
+        // অ্যাপ চালু হওয়া মাত্রই রেফারেল লিংক ইনস্ট্যান্ট দেখানোর জন্য ইউজার আইডি বসিয়ে দেওয়া হলো
+        document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${userId}`;
+
         function switchTab(tabName, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
@@ -223,13 +226,13 @@
         const refBy = urlParams.get('start');
 
         async function initUser() {
-            let { data: user } = await supabaseClient.from('users').select('*').eq('id', userId).single();
+            let { data: user, error } = await supabaseClient.from('users').select('*').eq('id', userId).single();
 
             if (!user) {
                 let referrer = (refBy && refBy !== userId) ? refBy : null;
-                await supabaseClient.from('users').insert([
-                    { id: userId, balance: 10.00, referred_by: referrer, plan: 'free' }
-                ]);
+                let newUserObj = { id: userId, balance: 10.00, referred_by: referrer, plan: 'free' };
+                
+                await supabaseClient.from('users').insert([newUserObj]);
 
                 if (referrer) {
                     let { data: refUser } = await supabaseClient.from('users').select('balance').eq('id', referrer).single();
@@ -237,25 +240,18 @@
                         await supabaseClient.from('users').update({ balance: Number(refUser.balance) + 5.00 }).eq('id', referrer);
                     }
                 }
-                loadUserData();
+                updateUI(newUserObj);
             } else {
                 updateUI(user);
             }
         }
 
-        async function loadUserData() {
-            let { data: user } = await supabaseClient.from('users').select('*').eq('id', userId).single();
-            if (user) updateUI(user);
-        }
-
         function updateUI(user) {
-            document.getElementById('balance').innerText = Number(user.balance).toFixed(2);
+            document.getElementById('balance').innerText = Number(user.balance || 0).toFixed(2);
             
-            // রেফারেল লিংক সেটআপ
             const refUrl = `https://t.me/${BOT_USERNAME}?start=${userId}`;
             document.getElementById('refLink').innerText = refUrl;
 
-            // প্ল্যান আপডেট ও ব্যাজ পরিবর্তন
             let currentPlan = user.plan || 'free';
             updatePlanUI(currentPlan);
         }
@@ -286,18 +282,18 @@
 
         function copyRefLink() {
             const refText = document.getElementById('refLink').innerText;
-            if(!refText || refText.includes('লোডের')) {
-                alert('লিংক তৈরি হচ্ছে, একটু অপেক্ষা করুন।');
-                return;
-            }
             navigator.clipboard.writeText(refText);
             alert('রেফারেল লিংক কপি করা হয়েছে!');
         }
 
-        // প্ল্যান কেনার ফাংশন
         async function buyPlan(planKey, price) {
             let { data: user } = await supabaseClient.from('users').select('*').eq('id', userId).single();
             
+            if(!user) {
+                alert('ইউজার ডাটা লোড হয়নি, আবার চেষ্টা করুন।');
+                return;
+            }
+
             if(user.plan === planKey) {
                 alert('এই প্ল্যানটি ইতিমধ্যে আপনার সক্রিয় রয়েছে!');
                 return;
@@ -317,10 +313,9 @@
             }
 
             alert('অভিনন্দন! সফলভাবে প্ল্যানটি সক্রিয় করা হয়েছে।');
-            loadUserData();
+            initUser();
         }
 
-        // ভিডিও অ্যাড দেখে আয় করার ফাংশন
         async function completeWatchTask() {
             let { data: user } = await supabaseClient.from('users').select('balance').eq('id', userId).single();
             if(user) {
@@ -334,7 +329,7 @@
                 document.getElementById('completedTasks').innerText = currentTasks + 1;
                 
                 alert('বিজ্ঞাপন দেখার জন্য আপনার ব্যালেন্সে ৳ ২.০০ যোগ করা হয়েছে!');
-                loadUserData();
+                initUser();
             }
         }
 
@@ -342,7 +337,6 @@
             tg.openTelegramLink("https://t.me/" + BOT_USERNAME);
         }
 
-        // উইথড্র সাবমিট ফাংশন (১০ রেফার চেক সহ)
         async function requestWithdrawal() {
             const method = document.getElementById('method').value;
             const account = document.getElementById('account').value;
@@ -382,7 +376,7 @@
             await supabaseClient.from('users').update({ balance: newBalance }).eq('id', userId);
 
             alert('উইথড্রয়াল সফলভাবে সাবমিট হয়েছে!');
-            loadUserData();
+            initUser();
             document.getElementById('account').value = '';
             document.getElementById('amount').value = '';
         }
