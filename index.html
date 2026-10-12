@@ -7,11 +7,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- AdsGram SDK -->
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
         body {
             background: #0f172a;
             color: #ffffff;
             font-family: sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
         .card {
             background: rgba(255, 255, 255, 0.05);
@@ -20,7 +24,7 @@
         }
     </style>
 </head>
-<body class="p-4 pb-24">
+<body class="p-4 pb-28">
 
     <!-- Header -->
     <div class="card p-4 flex justify-between items-center mb-4">
@@ -28,84 +32,177 @@
             <p class="text-xs text-gray-400">ইউজার আইডি</p>
             <p id="uid" class="font-bold text-sm text-indigo-300">6293441724</p>
         </div>
-        <span class="bg-amber-500/20 text-amber-400 text-xs px-3 py-1 rounded-full">ফ্রি প্ল্যান</span>
+        <span class="bg-amber-500/20 text-amber-400 text-xs px-3 py-1 rounded-full border border-amber-500/30">ফ্রি প্ল্যান</span>
     </div>
 
     <!-- Views -->
+    <!-- HOME VIEW -->
     <div id="homeView" class="view space-y-4">
         <div class="card p-5 bg-gradient-to-r from-indigo-900 to-purple-900">
             <p class="text-xs text-gray-300">আপনার মূল ব্যালেন্স</p>
             <h2 class="text-3xl font-extrabold my-2">৳ <span id="bal">0.00</span></h2>
+            <div class="flex justify-between text-xs text-gray-300 pt-2 border-t border-white/10">
+                <span>আজকের ইনকাম: ৳ <span id="todayInc">0.00</span></span>
+                <span>অ্যাড দেখা: <span id="adCounter">0</span>/20</span>
+            </div>
         </div>
         <div class="card p-4 text-center">
+            <i class="fa-solid fa-bolt text-amber-400 text-xl mb-1"></i>
             <p class="text-xs text-gray-400">ডেইলি টাস্ক বোনাস</p>
-            <p class="font-bold text-amber-300">৳ ৪০.০০ পর্যন্ত</p>
+            <p class="font-bold text-amber-300 text-sm">৳ ৪০.০০ পর্যন্ত</p>
         </div>
     </div>
 
+    <!-- TASKS VIEW -->
     <div id="tasksView" class="view hidden space-y-4">
-        <h2 class="font-bold text-indigo-300">দৈনিক টাস্কসমূহ</h2>
+        <h2 class="font-bold text-indigo-300 text-base mb-2"><i class="fa-solid fa-list-check mr-2"></i>দৈনিক টাস্কসমূহ</h2>
         <div class="card p-4 flex justify-between items-center">
-            <div>
-                <p class="font-semibold text-sm">ভিডিও বিজ্ঞাপন দেখুন</p>
-                <p class="text-xs text-emerald-400">+৳ ২.০০</p>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-circle-play"></i>
+                </div>
+                <div>
+                    <p class="font-semibold text-sm">ভিডিও বিজ্ঞাপন দেখুন</p>
+                    <p class="text-xs text-emerald-400">+৳ ২.০০ / অ্যাড</p>
+                </div>
             </div>
-            <button onclick="addMoney()" class="bg-indigo-600 text-xs px-4 py-2 rounded-xl">দেখুন</button>
+            <button id="watchAdBtn" onclick="watchAd()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition">
+                দেখুন
+            </button>
         </div>
     </div>
 
+    <!-- PLANS VIEW -->
     <div id="plansView" class="view hidden space-y-4">
-        <h2 class="font-bold text-indigo-300">ভিআইপি প্ল্যান</h2>
-        <div class="card p-4">
-            <h3 class="font-bold text-amber-300">গোল্ড প্ল্যান - ৳ ৫০০</h3>
-            <button onclick="alert('বিকাশ করুন: 01318774526')" class="w-full mt-3 bg-amber-600 text-xs py-2 rounded-xl font-bold">প্ল্যান কিনুন</button>
+        <h2 class="font-bold text-indigo-300 text-base mb-2"><i class="fa-solid fa-gem mr-2"></i>ভিআইপি প্ল্যান</h2>
+        <div class="card p-4 bg-indigo-950/40 text-xs text-indigo-200 mb-3">
+            <p class="font-bold text-amber-300 mb-1">নম্বর: <span class="font-mono text-emerald-400 text-sm">01318774526</span> (বিকাশ/নগদ)</p>
+            টাকা পাঠিয়ে অ্যাডমিনের কাছে রিকুয়েস্ট করুন।
+        </div>
+        <div class="card p-4 border-amber-500/40">
+            <h3 class="font-bold text-amber-300 text-base">গোল্ড প্ল্যান - ৳ ৫০০</h3>
+            <p class="text-xs text-gray-300 my-2">দৈনিক ৮০টি অ্যাড ও ইনস্ট্যান্ট উইথড্র সুবিধা।</p>
+            <button onclick="alert('বিকাশ বা নগদে 500 টাকা পাঠিয়ে ট্রানজেকশন আইডি দিন: 01318774526')" class="w-full mt-2 bg-amber-600 hover:bg-amber-500 text-white text-xs py-2.5 rounded-xl font-bold transition">প্ল্যান কিনুন</button>
         </div>
     </div>
 
+    <!-- WITHDRAW VIEW -->
     <div id="withdrawView" class="view hidden space-y-4">
-        <h2 class="font-bold text-indigo-300">টাকা তুলুন</h2>
+        <h2 class="font-bold text-indigo-300 text-base mb-2"><i class="fa-solid fa-wallet mr-2"></i>টাকা তুলুন</h2>
         <div class="card p-4 space-y-3">
-            <input id="wNum" type="number" placeholder="বিকাশ নম্বর" class="w-full bg-slate-800 p-3 rounded-xl text-xs text-white">
-            <input id="wAmt" type="number" placeholder="পরিমাণ (কমপক্ষে ১০০ টাকা)" class="w-full bg-slate-800 p-3 rounded-xl text-xs text-white">
-            <button onclick="withdraw()" class="w-full bg-emerald-600 py-3 rounded-xl text-xs font-bold">উইথড্র করুন</button>
+            <div>
+                <label class="block text-xs text-gray-400 mb-1">পেমেন্ট মেথড</label>
+                <select id="wMethod" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white">
+                    <option value="bkash">বিকাশ (bKash)</option>
+                    <option value="nagad">নগদ (Nagad)</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs text-gray-400 mb-1">অ্যাকাউন্ট নম্বর</label>
+                <input id="wNum" type="number" placeholder="017XXXXXXXX" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white">
+            </div>
+            <div>
+                <label class="block text-xs text-gray-400 mb-1">পরিমাণ (সর্বনিম্ন ১০০ টাকা)</label>
+                <input id="wAmt" type="number" placeholder="100" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white">
+            </div>
+            <button onclick="withdraw()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl text-xs font-bold transition">
+                উইথড্র রিকুয়েস্ট পাঠান
+            </button>
         </div>
     </div>
 
     <!-- Bottom Nav -->
-    <div class="fixed bottom-0 left-0 right-0 bg-slate-950 border-t border-white/10 p-3 flex justify-around">
-        <button onclick="showTab('home')" class="text-sky-400 text-xs"><i class="fa-solid fa-house text-lg"></i><br>হোম</button>
-        <button onclick="showTab('tasks')" class="text-gray-400 text-xs"><i class="fa-solid fa-list text-lg"></i><br>টাস্ক</button>
-        <button onclick="showTab('plans')" class="text-gray-400 text-xs"><i class="fa-solid fa-gem text-lg"></i><br>প্ল্যান</button>
-        <button onclick="showTab('withdraw')" class="text-gray-400 text-xs"><i class="fa-solid fa-wallet text-lg"></i><br>উইথড্র</button>
+    <div class="fixed bottom-0 left-0 right-0 bg-slate-950/95 backdrop-blur-md border-t border-white/10 p-2 flex justify-around z-50">
+        <button onclick="showTab('home')" id="nav-home" class="nav-btn text-sky-400 text-xs text-center p-2"><i class="fa-solid fa-house text-lg mb-0.5"></i><br>হোম</button>
+        <button onclick="showTab('tasks')" id="nav-tasks" class="nav-btn text-gray-400 text-xs text-center p-2"><i class="fa-solid fa-list text-lg mb-0.5"></i><br>টাস্ক</button>
+        <button onclick="showTab('plans')" id="nav-plans" class="nav-btn text-gray-400 text-xs text-center p-2"><i class="fa-solid fa-gem text-lg mb-0.5"></i><br>প্ল্যান</button>
+        <button onclick="showTab('withdraw')" id="nav-withdraw" class="nav-btn text-gray-400 text-xs text-center p-2"><i class="fa-solid fa-wallet text-lg mb-0.5"></i><br>উইথড্র</button>
     </div>
 
+    <!-- Script Logic -->
     <script>
+        const tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            if (tg.initDataUnsafe?.user) {
+                document.getElementById('uid').innerText = tg.initDataUnsafe.user.id;
+            }
+        }
+
         let balance = 0.00;
+        let adsWatched = 0;
+        const maxAds = 20;
+
+        // AdsGram Initialisation with Block ID 53355
+        let AdController = window.AdsGram ? window.AdsGram.init({ blockId: "53355" }) : null;
 
         function showTab(tab) {
             document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
             document.getElementById(tab + 'View').classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-sky-400', 'text-gray-400'));
+            document.getElementById('nav-' + tab).classList.replace('text-gray-400', 'text-sky-400');
         }
 
-        function addMoney() {
+        function watchAd() {
+            if (adsWatched >= maxAds) {
+                alert('আজকের ২০টি বিজ্ঞাপনের লিমিট শেষ!');
+                return;
+            }
+
+            if (AdController) {
+                AdController.show().then((result) => {
+                    // বিজ্ঞাপন সফলভাবে দেখলে রিওয়ার্ড দেওয়া হবে
+                    giveReward();
+                }).catch((err) => {
+                    console.log('Ad error:', err);
+                    // টেস্ট বা ফলব্যাক মোডের জন্য সরাসরি রিওয়ার্ড নিশ্চিত করতে
+                    giveReward();
+                });
+            } else {
+                // ব্রাউজারে বা SDK লোড না হলে সরাসরি টেস্ট রিওয়ার্ড
+                giveReward();
+            }
+        }
+
+        function giveReward() {
             balance += 2.00;
+            adsWatched += 1;
             document.getElementById('bal').innerText = balance.toFixed(2);
-            alert('২ টাকা যোগ হয়েছে!');
+            document.getElementById('todayInc').innerText = (adsWatched * 2.00).toFixed(2);
+            document.getElementById('adCounter').innerText = adsWatched;
+
+            if (adsWatched >= maxAds) {
+                const btn = document.getElementById('watchAdBtn');
+                btn.innerText = 'শেষ';
+                btn.classList.replace('bg-indigo-600', 'bg-gray-600');
+                btn.disabled = true;
+            }
+
+            alert('অভিনন্দন! আপনি ২.০০ ৳ রিওয়ার্ড পেয়েছেন।');
         }
 
         function withdraw() {
+            const num = document.getElementById('wNum').value;
             const amt = parseFloat(document.getElementById('wAmt').value);
+
+            if (!num || num.length < 11) {
+                alert('সঠিক অ্যাকাউন্ট নম্বর দিন!');
+                return;
+            }
             if (!amt || amt < 100) {
-                alert('কমপক্ষে ১০০ টাকা হতে হবে!');
+                alert('কমপক্ষে ১০০ টাকা উইথড্র করতে হবে!');
                 return;
             }
             if (amt > balance) {
-                alert('পর্যাপ্ত ব্যালেন্স নেই!');
+                alert('আপনার ওয়ালেটে পর্যাপ্ত ব্যালেন্স নেই!');
                 return;
             }
+
             balance -= amt;
             document.getElementById('bal').innerText = balance.toFixed(2);
-            alert('উইথড্র সফল হয়েছে!');
+            alert('আপনার উইথড্র রিকুয়েস্ট সফলভাবে জমা হয়েছে!');
         }
     </script>
 </body>
