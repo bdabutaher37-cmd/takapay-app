@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TakaPay Mini App Pro v13.0</title>
+    <title>TakaPay Mini App Pro v14.0</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Supabase JS SDK -->
@@ -58,7 +58,7 @@
         .modal-content { background: #0f172a; padding: 20px; border-radius: 16px; width: 90%; max-width: 400px; border: 1px solid #1e293b; }
         input, select { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #334155; background: #090d16; color: white; }
 
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(11, 17, 32, 0.95); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.08); max-width: 450px; margin: 0 auto; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(11, 17, 32, 0.95); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.08); max-width: 450px; margin: 0 auto; z-index: 99; }
         .nav-item { text-align: center; color: #64748b; font-size: 11px; cursor: pointer; flex: 1; font-weight: 600; }
         .nav-item.active { color: #38bdf8; }
         .nav-icon { font-size: 18px; display: block; margin-bottom: 2px; }
@@ -81,7 +81,6 @@
                 <h2>৳ <span id="balance">0.00</span></h2>
             </div>
 
-            <!-- দৈনিক বোনাস বক্স -->
             <div class="daily-bonus-box">
                 <div>
                     <h4>🎁 দৈনিক বোনাস</h4>
@@ -211,7 +210,6 @@
         const BOT_USERNAME = "TakaPayAppBot";
         const OFFICIAL_CHANNEL = "https://t.me/takapay_official";
 
-        // ফিক্সড ইউজার আইডি ও নাম সরাসরি সেট করে দেওয়া হলো যাতে "লোড হচ্ছে" না দেখায়
         let userId = "7862177842";
         let userName = "Abu";
         let userBalance = 0.00;
@@ -235,6 +233,19 @@
         document.getElementById('displayUserId').innerText = 'আইডি: ' + userId;
         document.getElementById('userName').innerText = userName;
         document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${userId}`;
+
+        function switchTab(tabName, element) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            
+            let targetTab = document.getElementById('tab- ' + tabName) || document.getElementById('tab-' + tabName);
+            if(targetTab) {
+                targetTab.classList.add('active');
+            }
+            if(element) {
+                element.classList.add('active');
+            }
+        }
 
         async function loadUserData() {
             let todayDate = new Date().toISOString().slice(0, 10);
@@ -289,19 +300,23 @@
 
             if (adsWatchedToday >= MAX_ADS) {
                 let btn = document.getElementById('adBtn');
-                btn.innerText = "শেষ";
-                btn.className = "btn-sm btn-disabled";
+                if(btn) {
+                    btn.innerText = "শেষ";
+                    btn.className = "btn-sm btn-disabled";
+                }
             }
 
             let bonusBtn = document.getElementById('dailyBonusBtn');
-            if (isBonusClaimedToday) {
-                bonusBtn.innerText = "গৃহীত হয়েছে";
-                bonusBtn.className = "btn-claim btn-claim-disabled";
-                bonusBtn.disabled = true;
-            } else {
-                bonusBtn.innerText = "ক্লেইম করুন";
-                bonusBtn.className = "btn-claim";
-                bonusBtn.disabled = false;
+            if (bonusBtn) {
+                if (isBonusClaimedToday) {
+                    bonusBtn.innerText = "গৃহীত হয়েছে";
+                    bonusBtn.className = "btn-claim btn-claim-disabled";
+                    bonusBtn.disabled = true;
+                } else {
+                    bonusBtn.innerText = "ক্লেইম করুন";
+                    bonusBtn.className = "btn-claim";
+                    bonusBtn.disabled = false;
+                }
             }
         }
 
@@ -330,13 +345,6 @@
         }
 
         loadUserData();
-
-        function switchTab(tabName, element) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            document.getElementById('tab-' + tabName).classList.add('active');
-            element.classList.add('active');
-        }
 
         function copyRefLink() {
             navigator.clipboard.writeText(document.getElementById('refLink').innerText);
@@ -379,10 +387,4 @@
 
             if (AdController) {
                 AdController.show().then(async (result) => {
-                    await rewardUser();
-                }).catch((result) => {
-                    alert("বিজ্ঞাপন সম্পূর্ণ না দেখলে পয়েন্ট পাবেন না।");
-                });
-            } else {
-                rewardUser();
-         
+                    await 
