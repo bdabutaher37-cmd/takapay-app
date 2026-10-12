@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TakaPay Mini App</title>
+    <title>TakaPay Mini App Pro</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Supabase JS SDK -->
@@ -43,6 +43,7 @@
         .item-info p { font-size: 11px; color: #10b981; }
         .btn-sm { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; }
         .btn-active { background: #10b981 !important; }
+        .btn-disabled { background: #475569 !important; cursor: not-allowed; opacity: 0.6; }
 
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; }
         .modal-content { background: #0f172a; padding: 20px; border-radius: 16px; width: 90%; max-width: 400px; border: 1px solid #1e293b; }
@@ -59,8 +60,8 @@
     <div class="container">
         <div class="welcome-header">
             <div class="welcome-text">
-                <span id="displayUserId">আইডি: 7862177842</span>
-                <h3 id="userName">Abu</h3>
+                <span id="displayUserId">আইডি: লোড হচ্ছে...</span>
+                <h3 id="userName">ইউজার</h3>
             </div>
             <div class="plan-badge" id="userPlanBadge">⭐ ফ্রি প্ল্যান</div>
         </div>
@@ -74,7 +75,7 @@
             <div class="card-box">
                 <div class="section-title">👥 আপনার রেফারেল লিংক</div>
                 <p style="font-size: 11px; color: #94a3b8; text-align: center;">প্রতি রেফারে পাবেন ৳ ৫.০০ বোনাস!</p>
-                <div class="ref-box" id="refLink">https://t.me/TakaPayAppBot?start=7862177842</div>
+                <div class="ref-box" id="refLink">লিংক তৈরি হচ্ছে...</div>
                 <button class="btn-blue" onclick="copyRefLink()">লিংক কপি করুন</button>
             </div>
 
@@ -98,7 +99,7 @@
                     <h4>ভিডিও বিজ্ঞাপন দেখুন</h4>
                     <p id="adRewardText">+৳ ২.০০ / অ্যাড (প্রতিদিন ২০টি)</p>
                 </div>
-                <button class="btn-sm" onclick="showRewardAd()">দেখুন</button>
+                <button class="btn-sm" id="adBtn" onclick="showRewardAd()">দেখুন</button>
             </div>
             <div class="item-card">
                 <div class="item-info">
@@ -172,9 +173,12 @@
         const OFFICIAL_CHANNEL = "https://t.me/takapay_official";
 
         let currentBalance = 0.00;
-        let referralCount = 0;
+        let adsWatchedToday = 0;
+        const MAX_ADS = 20;
 
-        // ১. টেলিগ্রাম ইউজার ডাটা ডাইরেক্ট লোড
+        // Adsgram Controller Initialize
+        const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "53355" }) : null;
+
         window.addEventListener('load', () => {
             if (window.Telegram && window.Telegram.WebApp) {
                 window.Telegram.WebApp.ready();
@@ -184,6 +188,10 @@
                     document.getElementById('displayUserId').innerText = 'আইডি: ' + user.id;
                     document.getElementById('userName').innerText = user.first_name || "Abu";
                     document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${user.id}`;
+                } else {
+                    document.getElementById('displayUserId').innerText = 'আইডি: 7862177842';
+                    document.getElementById('userName').innerText = "Abu";
+                    document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=7862177842`;
                 }
             }
         });
@@ -210,16 +218,47 @@
         }
 
         function showRewardAd() {
-            alert("অ্যাড লোড হচ্ছে...");
-            currentBalance += 2.00;
-            document.getElementById('balance').innerText = currentBalance.toFixed(2);
-            document.getElementById('todayIncome').innerText = currentBalance.toFixed(2);
-            document.getElementById('completedTasks').innerText = "1";
-            alert("অভিনন্দন! আপনার অ্যাকাউন্টে ৳ ২.০০ যোগ করা হয়েছে।");
+            if (adsWatchedToday >= MAX_ADS) {
+                alert("আজকের আপনার ২০টি অ্যাড দেখার দৈনিক লিমিট শেষ হয়ে গেছে!");
+                let btn = document.getElementById('adBtn');
+                btn.innerText = "শেষ";
+                btn.className = "btn-sm btn-disabled";
+                return;
+            }
+
+            if (AdController) {
+                AdController.show().then((result) => {
+                    // অ্যাড সফলভাবে দেখা শেষ হলে রিওয়ার্ড যোগ হবে
+                    adsWatchedToday++;
+                    currentBalance += 2.00;
+
+                    document.getElementById('balance').innerText = currentBalance.toFixed(2);
+                    document.getElementById('todayIncome').innerText = currentBalance.toFixed(2);
+                    document.getElementById('completedTasks').innerText = adsWatchedToday + " / 20";
+
+                    alert(`অভিনন্দন! আপনার অ্যাকাউন্টে ৳ ২.০০ যোগ করা হয়েছে। (আজ দেখেছেন: ${adsWatchedToday}/20টি)`);
+
+                    if (adsWatchedToday >= MAX_ADS) {
+                        let btn = document.getElementById('adBtn');
+                        btn.innerText = "শেষ";
+                        btn.className = "btn-sm btn-disabled";
+                    }
+                }).catch((err) => {
+                    alert("বিজ্ঞাপন সম্পূর্ণ না দেখলে পয়েন্ট পাবেন না।");
+                });
+            } else {
+                // ব্রাউজারে টেস্টিংয়ের জন্য ফলব্যাক
+                adsWatchedToday++;
+                currentBalance += 2.00;
+                document.getElementById('balance').innerText = currentBalance.toFixed(2);
+                document.getElementById('todayIncome').innerText = currentBalance.toFixed(2);
+                document.getElementById('completedTasks').innerText = adsWatchedToday + " / 20";
+                alert(`টیس্টিং মোড: ৳ ২.০০ যোগ হয়েছে (${adsWatchedToday}/20টি)।`);
+            }
         }
 
         function joinTelegramChannel() {
-            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
+            if (window.Telegram?.WebApp?.openTelegramLink) {
                 window.Telegram.WebApp.openTelegramLink(OFFICIAL_CHANNEL);
             } else {
                 window.open(OFFICIAL_CHANNEL, '_blank');
@@ -232,11 +271,6 @@
 
             if (currentBalance < 300 || currentBalance < amount) {
                 alert("আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই! (মিনিমাম ৳ ৩০০)");
-                return;
-            }
-
-            if (referralCount < 10) {
-                alert(`উইথড্র করতে কমপক্ষে ১০টি রেফার করতে হবে! আপনার বর্তমান রেফার: ${referralCount}টি`);
                 return;
             }
 
