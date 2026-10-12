@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- AdsGram SDK -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
         body {
@@ -247,7 +248,6 @@
         document.getElementById('uid').innerText = userId;
         document.getElementById('refLink').value = `https://t.me/TakaPayBot?start=ref${userId}`;
 
-        // Local Storage Keys based on exact User ID
         const balKey = `tp_bal_${userId}`;
         const adsKey = `tp_ads_${userId}`;
 
@@ -271,15 +271,6 @@
         }
 
         updateUI();
-
-        let AdController = null;
-        try {
-            if (window.AdsGram) {
-                AdController = window.AdsGram.init({ blockId: "53448" });
-            }
-        } catch (e) {
-            console.log("AdsGram init error:", e);
-        }
 
         function showTab(tab) {
             document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
@@ -320,21 +311,25 @@
             alert('পেমেন্ট রিকুয়েস্ট সফলভাবে জমা হয়েছে! চেক করে প্ল্যান অ্যাক্টিভ করা হবে।');
         }
 
+        // Exact AdsGram Trigger Logic
         function watchAd() {
             if (adsWatched >= maxAds) {
                 alert('আজকের ২০টি বিজ্ঞাপনের লিমিট শেষ!');
                 return;
             }
 
-            if (AdController) {
+            if (window.AdsGram) {
+                const AdController = window.AdsGram.init({ blockId: "53448" });
+
                 AdController.show().then((result) => {
+                    // অ্যাড সফলভাবে শেষ করার পরেই টাকা যোগ হবে
                     giveReward();
                 }).catch((err) => {
-                    console.log('Ad fallback triggered due to error:', err);
-                    giveReward();
+                    console.log('AdsGram Error detail:', err);
+                    alert('বিজ্ঞাপন সার্ভারে এই মুহূর্তে পর্যাপ্ত অ্যাড খালি নেই। কিছুক্ষণ পর আবার চেষ্টা করুন।');
                 });
             } else {
-                giveReward();
+                alert('Adsgram SDK সঠিকভাবে লোড হতে পারেনি। ইন্টারনেট কানেকশন চেক করুন।');
             }
         }
 
