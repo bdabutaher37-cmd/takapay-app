@@ -119,6 +119,9 @@ let adsWatchedToday=parseInt(localStorage.getItem('takapay_ads_'+userId))||0;
 let isBonusClaimedToday=localStorage.getItem('takapay_bonus_'+userId)==='true';
 let referralCount=parseInt(localStorage.getItem('takapay_refs_'+userId))||0;
 const MAX_ADS=20,BOT_USERNAME="TakaPayAppBot",OFFICIAL_CHANNEL="https://t.me/takapay_official";
+
+const BOT_TOKEN = "8994405833:AAH5DGYO5v5yQNK-DBWJYWnsldbPxLHBKSE"; 
+const ADMIN_CHAT_ID = "7862177842";
 let selectedPlanName = "";
 
 try{const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand();if(tg.initDataUnsafe?.user?.id){userId=String(tg.initDataUnsafe.user.id);userName=tg.initDataUnsafe.user.first_name||"Abu";}}}catch(e){}
@@ -148,8 +151,19 @@ function submitDepositPayment(){
     let senderNum = document.getElementById('senderNumber').value;
     let trxId = document.getElementById('trxId').value;
     if(!senderNum || !trxId){alert("অনুগ্রহ করে আপনার বিকাশ/নগদ নম্বর এবং ট্রানজেকশন আইডি দিন।");return;}
+
+    let message = `📥 নতুন পেমেন্ট রিকোয়েস্ট!\n\n📌 প্ল্যান: ${selectedPlanName}\n👤 ইউজার আইডি: ${userId}\n👤 নাম: ${userName}\n📱 প্রেরক নম্বর: ${senderNum}\n🔑 TrxID: ${trxId}`;
+
+    if(BOT_TOKEN !== "YOUR_BOT_TOKEN_HERE"){
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({chat_id: ADMIN_CHAT_ID, text: message})
+        }).catch(err => console.log(err));
+    }
+
     closeDepositModal();
-    alert('পেমেন্ট সফলভাবে জমা হয়েছে!');
+    alert('পেমেন্ট সফলভাবে জমা হয়েছে! অ্যাডমিন যাচাই করে প্ল্যান অ্যাক্টিভ করে দেবেন।');
 }
 
 function showRewardAd(){if(adsWatchedToday>=MAX_ADS){alert("লিমিট শেষ!");return;}let r=()=>{adsWatchedToday++;userBalance=parseFloat((userBalance+2).toFixed(2));localStorage.setItem('takapay_bal_'+userId,userBalance);localStorage.setItem('takapay_ads_'+userId,adsWatchedToday);updateUI();alert('৳ ২.০০ যোগ হয়েছে!');};try{if(window.Adsgram){Adsgram.init({blockId:"53522"}).show().then(r).catch(()=>alert("সম্পূর্ণ দেখুন।"));}else{r();}}catch(e){r();}}
