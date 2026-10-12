@@ -120,7 +120,7 @@
             <div class="item-card">
                 <div class="item-info">
                     <h4>ভিডিও বিজ্ঞাপন দেখুন</h4>
-                    <p>+৳ ২.০০ / অ্যাড (প্রতিদিন ২০টি)</p>
+                    <p id="adRewardText">+৳ ২.০০ / অ্যাড (প্রতিদিন ২০টি)</p>
                 </div>
                 <button class="btn-sm" onclick="showRewardAd()">দেখুন</button>
             </div>
@@ -234,6 +234,7 @@
         }
 
         let adsWatchedToday = 0;
+        let currentPlan = 'free';
 
         function switchTab(tabName, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -268,7 +269,19 @@
 
         function updateUI(user) {
             document.getElementById('balance').innerText = Number(user.balance || 0).toFixed(2);
-            updatePlanUI(user.plan || 'free');
+            currentPlan = user.plan || 'free';
+            updatePlanUI(currentPlan);
+            
+            // প্ল্যান অনুযায়ী প্রতি অ্যাডের রিওয়ার্ড নির্ধারণ (ফ্রি: ২ টাকা, সিলভার: ২.৫০ টাকা ইত্যাদি)
+            if(currentPlan === 'silver') {
+                document.getElementById('adRewardText').innerText = "+৳ ২.৫০ / অ্যাড (প্রতিদিন ২০টি)";
+            } else if(currentPlan === 'gold') {
+                document.getElementById('adRewardText').innerText = "+৳ ৬.০০ / অ্যাড (প্রতিদিন ২০টি)";
+            } else if(currentPlan === 'diamond') {
+                document.getElementById('adRewardText').innerText = "+৳ ১৫.০০ / অ্যাড (প্রতিদিন ২০টি)";
+            } else {
+                document.getElementById('adRewardText').innerText = "+৳ ২.০০ / অ্যাড (প্রতিদিন ২০টি)";
+            }
         }
 
         function updatePlanUI(planName) {
@@ -322,7 +335,6 @@
             initUser();
         }
 
-        // প্ল্যান কেনার সময় পেমেন্ট নম্বর ও ট্রানজেকশন আইডি নেওয়ার ফাংশন
         function promptBuyPlan(planName, price) {
             let userNumber = prompt(`(${planName.toUpperCase()} প্ল্যান - মূল্য: ৳${price})\nটাকা পাঠানোর বিকাশ/নগদ নম্বর দিন:`);
             if (!userNumber) return;
@@ -330,31 +342,35 @@
             let trxId = prompt("আপনার পেমেন্টের ট্রানজেকশন আইডি (TrxID) দিন:");
             if (!trxId) return;
 
-            // ডাটাবেজে পেমেন্ট রিকোয়েস্ট বা সরাসরি প্ল্যান আপডেট করার প্রসেস
             buyPlan(planName, price);
         }
 
-        // অ্যাড দেখা এবং দৈনিক ২০টি লিমিট ও ব্যালেন্স যোগ করার ফাংশন
         async function showRewardAd() {
             if (adsWatchedToday >= 20) {
                 alert('আজকের জন্য আপনার ২০টি অ্যাড দেখার লিমিট শেষ হয়েছে!');
                 return;
             }
 
+            // প্ল্যান অনুযায়ী প্রতি অ্যাডের রিওয়ার্ড হিসাব
+            let rewardPerAd = 2.00;
+            if (currentPlan === 'silver') rewardPerAd = 2.50;
+            else if (currentPlan === 'gold') rewardPerAd = 6.00;
+            else if (currentPlan === 'diamond') rewardPerAd = 15.00;
+
             const grantReward = async () => {
                 let { data: user } = await supabaseClient.from('users').select('balance').eq('id', userId).single();
                 if(user) {
-                    let newBal = Number(user.balance || 0) + 2.00;
+                    let newBal = Number(user.balance || 0) + rewardPerAd;
                     let { error } = await supabaseClient.from('users').update({ balance: newBal }).eq('id', userId);
                     
                     if(!error) {
                         adsWatchedToday++;
                         let currentInc = parseFloat(document.getElementById('todayIncome').innerText) || 0;
                         
-                        document.getElementById('todayIncome').innerText = (currentInc + 2.00).toFixed(2);
+                        document.getElementById('todayIncome').innerText = (currentInc + rewardPerAd).toFixed(2);
                         document.getElementById('completedTasks').innerText = adsWatchedToday;
                         
-                        alert("অভিনন্দন! বিজ্ঞাপন দেখার জন্য আপনার ব্যালেন্সে ৳ ২.০০ যোগ করা হয়েছে।");
+                        alert(`অভিনন্দন! বিজ্ঞাপন দেখার জন্য আপনার ব্যালেন্সে ৳ ${rewardPerAd.toFixed(2)} যোগ করা হয়েছে।`);
                         initUser();
                     } else {
                         alert("ব্যালেন্স আপডেট করতে সমস্যা হয়েছে: " + error.message);
