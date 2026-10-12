@@ -236,7 +236,8 @@
                     <h4>অফিসিয়াল টেলিগ্রাম চ্যানেল</h4>
                     <p>+৳ 5.00 (একবার)</p>
                 </div>
-                <button class="action-btn" id="channelBtn" onclick="joinOfficialChannel()">জয়েন</button>
+                <!-- এখানে সঠিক ফাংশন রিডাইরেক্ট দেওয়া হয়েছে -->
+                <button class="action-btn" id="channelBtn" onclick="openOfficialChannel()">জয়েন</button>
             </div>
         </div>
 
@@ -315,8 +316,10 @@
 
     <script>
         // Telegram WebApp Initialization
-        let tg = window.Telegram.WebApp;
-        tg.expand();
+        let tg = window.Telegram ? window.Telegram.WebApp : null;
+        if (tg) {
+            tg.expand();
+        }
 
         // Local Storage State Management
         let userBalance = parseFloat(localStorage.getItem('takapay_balance')) || 0.00;
@@ -328,12 +331,14 @@
 
         if (taskCompleted) {
             let btn = document.getElementById('channelBtn');
-            btn.innerText = 'সম্পন্ন';
-            btn.disabled = true;
+            if (btn) {
+                btn.innerText = 'সম্পন্ন';
+                btn.disabled = true;
+            }
         }
 
         // Set User ID if available from Telegram
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
             document.getElementById('userIdDisplay').innerText = tg.initDataUnsafe.user.id;
         }
 
@@ -352,7 +357,6 @@
 
         // Watch Ad Logic (AdsGram SDK Simulation)
         function watchAd() {
-            // এখানে AdsGram SDK ఇంటిগ্রেশন থাকবে (Block ID: 53355)
             alert('বিজ্ঞাপন লোড হচ্ছে...');
             setTimeout(() => {
                 userBalance += 2.00;
@@ -363,10 +367,11 @@
             }, 1500);
         }
 
-        // Join Official Channel Logic
+        // Join Official Channel Logic (Fixed Link Action)
         function openOfficialChannel() {
             const channelUrl = 'https://t.me/takapay_official';
             
+            // টেলিগ্রাম অ্যাপের ভেতর সরাসরি লিংক ওপেন করবে
             if (window.Telegram && window.Telegram.WebApp) {
                 window.Telegram.WebApp.openTelegramLink(channelUrl);
             } else {
@@ -384,10 +389,12 @@
                     updateUI();
                     
                     let btn = document.getElementById('channelBtn');
-                    btn.innerText = 'সম্পন্ন';
-                    btn.disabled = true;
+                    if (btn) {
+                        btn.innerText = 'সম্পন্ন';
+                        btn.disabled = true;
+                    }
                     alert('চ্যানেলে জয়েন করার জন্য ৫.০০ টাকা বোনাস দেওয়া হয়েছে!');
-                }, 3000);
+                }, 2000);
             }
         }
 
