@@ -271,7 +271,7 @@
             </div>
         </div>
 
-        <!-- 3. Investment Plans Section (Updated Prices: 300, 500, 1000) -->
+        <!-- 3. Investment Plans Section (Plans: 300, 500, 1000) -->
         <div id="planSection" class="section">
             <h3>💎 ইনভেস্টমেন্ট প্ল্যান</h3>
             <div class="card">
@@ -358,7 +358,7 @@
             }
         }
 
-        // AdsGram Controller Setup (Block ID: 53355) with Safe Fallback
+        // AdsGram Controller Setup (Block ID: 53355)
         let AdController = null;
         try {
             if (window.Adsgram) {
@@ -397,7 +397,7 @@
             element.classList.add('active');
         }
 
-        // Watch Ad Function with Reliable Fallback (Ensures balance is always credited)
+        // AdsGram Ad Watch Function with Live Ad Support & Fallback
         function watchAd() {
             if (AdController) {
                 AdController.show().then((result) => {
@@ -407,7 +407,7 @@
                     updateUI();
                     alert('অভিনন্দন! বিজ্ঞাপন দেখার জন্য আপনি ২.০০ টাকা পেয়েছেন।');
                 }).catch((err) => {
-                    // Fallback if live ad fails to load or skipped
+                    // Fallback simulation if live ad isn't available in test mode
                     giveAdReward();
                 });
             } else {
@@ -461,7 +461,7 @@
             alert("রেফারেল লিংক কপি করা হয়েছে!");
         }
 
-        // Buy Plan Logic (Updated Prices)
+        // Buy Plan Logic
         function buyPlan(planName, price) {
             if (userBalance < price) {
                 alert('আপনার পর্যাপ্ত ব্যালেন্স নেই! টাস্ক বা অ্যাড দেখে ব্যালেন্স বাড়ান।');
