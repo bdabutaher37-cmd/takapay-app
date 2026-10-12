@@ -28,6 +28,7 @@
         }
         .tab-btn {
             color: #94a3b8;
+            cursor: pointer;
             transition: all 0.2s ease;
         }
         .tab-btn.active {
@@ -109,7 +110,7 @@
                         <p class="text-xs text-emerald-400">+৳ ২.০০/অ্যাড (লিমিট: ২০টি)</p>
                     </div>
                 </div>
-                <button id="watchAdBtn" onclick="showAd()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
+                <button id="watchAdBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
                     দেখুন
                 </button>
             </div>
@@ -124,7 +125,7 @@
                         <p class="text-xs text-emerald-400">+৳ ৫.০০ (একবার)</p>
                     </div>
                 </div>
-                <button onclick="joinTelegram()" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
+                <button id="joinTgBtn" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
                     জয়েন
                 </button>
             </div>
@@ -139,10 +140,11 @@
                 প্ল্যান কিনতে নিচে উল্লেখিত বিকাশ/নগদ পার্সোনাল নম্বরে টাকা পাঠান:
                 <div class="my-2 p-2 bg-slate-900/80 rounded-lg font-mono text-center text-sm font-bold text-emerald-400 flex justify-between items-center">
                     <span>01318774526</span>
-                    <button onclick="navigator.clipboard.writeText('01318774526'); alert('নম্বর কপি হয়েছে!');" class="text-xs bg-indigo-600 text-white px-2 py-1 rounded">কপি</button>
+                    <button id="copyNumBtn" class="text-xs bg-indigo-600 text-white px-2 py-1 rounded">কপি</button>
                 </div>
             </div>
 
+            <!-- 300 Taka Plan -->
             <div class="glass-card p-4 border-slate-500/30 relative">
                 <div class="flex justify-between items-start mb-2">
                     <div>
@@ -156,9 +158,10 @@
                     <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>মেয়াদ: ৩০ দিন</li>
                     <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>প্রতি অ্যাড মূল্য: ৳ ২.৫০</li>
                 </ul>
-                <button onclick="openPaymentModal(300, 'সিলভার')" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs py-2.5 rounded-xl transition">প্ল্যান কিনুন</button>
+                <button class="buy-plan-btn w-full bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs py-2.5 rounded-xl transition" data-price="300" data-name="সিলভার">প্ল্যান কিনুন</button>
             </div>
 
+            <!-- 500 Taka Plan -->
             <div class="glass-card p-4 border-amber-500/40 relative bg-amber-500/5">
                 <div class="flex justify-between items-start mb-2">
                     <div>
@@ -172,9 +175,10 @@
                     <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>মেয়াদ: ৪৫ দিন</li>
                     <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>ইনস্ট্যান্ট উইথড্র সুবিধা</li>
                 </ul>
-                <button onclick="openPaymentModal(500, 'গোল্ড')" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs py-2.5 rounded-xl transition">প্ল্যান কিনুন</button>
+                <button class="buy-plan-btn w-full bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs py-2.5 rounded-xl transition" data-price="500" data-name="গোল্ড">প্ল্যান কিনুন</button>
             </div>
 
+            <!-- 1000 Taka Plan -->
             <div class="glass-card p-4 border-cyan-500/40 relative bg-cyan-500/5">
                 <div class="flex justify-between items-start mb-2">
                     <div>
@@ -188,7 +192,7 @@
                     <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>মেয়াদ: ৬০ দিন</li>
                     <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>২৪/৭ প্রিমিয়াম সাপোর্ট</li>
                 </ul>
-                <button onclick="openPaymentModal(1000, 'ডায়মন্ড')" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs py-2.5 rounded-xl transition">প্ল্যান কিনুন</button>
+                <button class="buy-plan-btn w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs py-2.5 rounded-xl transition" data-price="1000" data-name="ডায়মন্ড">প্ল্যান কিনুন</button>
             </div>
         </div>
 
@@ -212,7 +216,7 @@
                     <label class="block text-xs text-gray-400 mb-1">উইথড্র পরিমাণ (৳)</label>
                     <input id="withdrawAmount" type="number" placeholder="সর্বনিম্ন ১০০ টাকা" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
                 </div>
-                <button onclick="handleWithdraw()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition text-sm">
+                <button id="withdrawBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition text-sm">
                     উইথড্র রিকুয়েস্ট পাঠান
                 </button>
             </div>
@@ -225,7 +229,7 @@
         <div class="glass-card bg-slate-900 border-indigo-500/40 p-5 w-full max-w-sm space-y-4">
             <div class="flex justify-between items-center border-b border-white/10 pb-2">
                 <h3 class="font-bold text-amber-300 text-sm"><span id="modalPlanName"></span> প্ল্যান রিচার্জ</h3>
-                <button onclick="closePaymentModal()" class="text-gray-400 text-lg">&times;</button>
+                <button id="closeModalBtn" class="text-gray-400 text-lg">&times;</button>
             </div>
             <p class="text-xs text-gray-300">
                 নিচের নম্বরটিতে <b>৳ <span id="modalPlanPrice"></span></b> সেন্ড মানি / ক্যাশ আউট করুন:
@@ -241,7 +245,7 @@
                 <label class="block text-xs text-gray-400 mb-1">ট্রানজেকশন আইডি (TxID)</label>
                 <input id="trxId" type="text" placeholder="যেমন: 8N7A6D5E" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
             </div>
-            <button onclick="submitDeposit()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl transition text-xs">
+            <button id="submitDepositBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl transition text-xs">
                 পেমেন্ট তথ্য জমা দিন
             </button>
         </div>
@@ -249,22 +253,22 @@
 
     <!-- Bottom Navigation Bar -->
     <div class="fixed bottom-0 left-0 right-0 glass-card rounded-none border-t border-white/10 px-4 py-3 flex justify-around items-center bg-slate-950/95 backdrop-blur-lg z-40">
-        <button onclick="switchTab('home')" id="nav-home" class="tab-btn active flex flex-col items-center gap-1 p-2">
+        <div class="tab-btn active flex flex-col items-center gap-1 p-2" data-tab="home">
             <i class="fa-solid fa-house text-xl"></i>
             <span class="text-[11px] font-medium">হোম</span>
-        </button>
-        <button onclick="switchTab('tasks')" id="nav-tasks" class="tab-btn flex flex-col items-center gap-1 p-2">
+        </div>
+        <div class="tab-btn flex flex-col items-center gap-1 p-2" data-tab="tasks">
             <i class="fa-solid fa-list-check text-xl"></i>
             <span class="text-[11px] font-medium">টাস্ক</span>
-        </button>
-        <button onclick="switchTab('plans')" id="nav-plans" class="tab-btn flex flex-col items-center gap-1 p-2">
+        </div>
+        <div class="tab-btn flex flex-col items-center gap-1 p-2" data-tab="plans">
             <i class="fa-solid fa-gem text-xl"></i>
             <span class="text-[11px] font-medium">প্ল্যান</span>
-        </button>
-        <button onclick="switchTab('withdraw')" id="nav-withdraw" class="tab-btn flex flex-col items-center gap-1 p-2">
+        </div>
+        <div class="tab-btn flex flex-col items-center gap-1 p-2" data-tab="withdraw">
             <i class="fa-solid fa-wallet text-xl"></i>
             <span class="text-[11px] font-medium">উইথড্র</span>
-        </button>
+        </div>
     </div>
 
     <!-- Application Script Logic -->
@@ -282,38 +286,45 @@
         let todayAdsWatched = 0;
         const maxAdsLimit = 20;
 
-        function switchTab(tabName) {
-            // Hide all views
-            const views = document.querySelectorAll('.page-view');
-            views.forEach(v => v.classList.add('hidden'));
+        // Tab Switching Logic using Event Listeners
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabName = this.getAttribute('data-tab');
+                
+                // Hide all views
+                document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
+                
+                // Show selected view
+                const target = document.getElementById(tabName + 'View');
+                if (target) target.classList.remove('hidden');
 
-            // Show target view
-            const targetView = document.getElementById(tabName + 'View');
-            if (targetView) {
-                targetView.classList.remove('hidden');
-            }
+                // Update active tab styles
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
 
-            // Update active states on buttons
-            const buttons = document.querySelectorAll('.tab-btn');
-            buttons.forEach(b => b.classList.remove('active'));
+        // Plan Purchase Modal Handlers
+        document.querySelectorAll('.buy-plan-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const price = this.getAttribute('data-price');
+                const name = this.getAttribute('data-name');
+                document.getElementById('modalPlanPrice').innerText = price;
+                document.getElementById('modalPlanName').innerText = name;
+                document.getElementById('paymentModal').classList.remove('hidden');
+            });
+        });
 
-            const activeBtn = document.getElementById('nav-' + tabName);
-            if (activeBtn) {
-                activeBtn.classList.add('active');
-            }
-        }
-
-        function openPaymentModal(price, name) {
-            document.getElementById('modalPlanPrice').innerText = price;
-            document.getElementById('modalPlanName').innerText = name;
-            document.getElementById('paymentModal').classList.remove('hidden');
-        }
-
-        function closePaymentModal() {
+        document.getElementById('closeModalBtn').addEventListener('click', () => {
             document.getElementById('paymentModal').classList.add('hidden');
-        }
+        });
 
-        function submitDeposit() {
+        document.getElementById('copyNumBtn').addEventListener('click', () => {
+            navigator.clipboard.writeText('01318774526');
+            alert('নম্বর কপি হয়েছে!');
+        });
+
+        document.getElementById('submitDepositBtn').addEventListener('click', () => {
             const num = document.getElementById('senderNum').value;
             const trx = document.getElementById('trxId').value;
 
@@ -326,11 +337,12 @@
                 return;
             }
 
-            closePaymentModal();
+            document.getElementById('paymentModal').classList.add('hidden');
             alert('আপনার পেমেন্ট রিকুয়েস্ট সফলভাবে জমা হয়েছে! ভেরিফিকেশনের পর প্ল্যান অ্যাক্টিভ হবে।');
-        }
+        });
 
-        function showAd() {
+        // Ads Task Handler
+        document.getElementById('watchAdBtn').addEventListener('click', () => {
             if (todayAdsWatched >= maxAdsLimit) {
                 alert('আজকের ২০টি ভিডিও বিজ্ঞাপনের ডেইলি লিমিট শেষ!');
                 return;
@@ -348,7 +360,7 @@
             } else {
                 rewardUser();
             }
-        }
+        });
 
         function rewardUser() {
             balance += 2.00;
@@ -367,26 +379,9 @@
             alert('অভিনন্দন! আপনি ২.০০ ৳ রিওয়ার্ড পেয়েছেন।');
         }
 
-        function joinTelegram() {
+        document.getElementById('joinTgBtn').addEventListener('click', () => {
             window.open('https://t.me/your_official_channel', '_blank');
-        }
+        });
 
-        function handleWithdraw() {
-            const num = document.getElementById('accNumber').value;
-            const amt = parseFloat(document.getElementById('withdrawAmount').value);
-
-            if (!num || num.length < 11) {
-                alert('সঠিক অ্যাকাউন্ট নম্বর দিন!');
-                return;
-            }
-            if (!amt || amt < 100) {
-                alert('সর্বনিম্ন ১০০ টাকা উইথড্র করতে পারবেন!');
-                return;
-            }
-            if (amt > balance) {
-                alert('আপনার ওয়ালেটে পর্যাপ্ত ব্যালেন্স নেই!');
-                return;
-            }
-
-            balance -= amt;
-            document.getElementById('userBalance').innerText = bala
+        // Withdraw Handler
+  
