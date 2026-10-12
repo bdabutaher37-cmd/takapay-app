@@ -9,37 +9,183 @@
     <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: Arial, sans-serif; background: #0f172a; color: #fff; text-align: center; padding: 20px; margin: 0; }
-        .card { background: #1e293b; padding: 20px; border-radius: 12px; margin: 15px auto; max-width: 400px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        button { background: #38bdf8; color: #0f172a; border: none; padding: 12px 20px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 10px; }
-        button:hover { background: #0ea5e9; }
-        input, select { width: 100%; padding: 10px; margin-top: 8px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: #fff; box-sizing: border-box; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0b1120; color: #ffffff; padding-bottom: 70px; }
+        .container { padding: 15px; max-width: 450px; margin: 0 auto; }
+        
+        /* Top Header User Card */
+        .user-header { background: #172033; border-radius: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border: 1px solid #1e293b; }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 40px; height: 40px; background: #6366f1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .user-details span { font-size: 11px; color: #94a3b8; }
+        .user-details h4 { font-size: 14px; letter-spacing: 0.5px; }
+        .plan-badge { background: #f59e0b; color: #000; font-weight: bold; font-size: 12px; padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 4px; }
+
+        /* Navigation Sections */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Main Balance Card */
+        .balance-card { background: linear-gradient(135deg, #2563eb, #1d4ed8); border-radius: 16px; padding: 25px 15px; text-align: center; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
+        .balance-card p { font-size: 13px; color: #bfdbfe; margin-bottom: 5px; }
+        .balance-card h2 { font-size: 32px; font-weight: 700; }
+
+        /* Generic Section Box */
+        .card-box { background: #172033; border-radius: 14px; padding: 15px; margin-bottom: 15px; border: 1px solid #1e293b; }
+        .section-title { font-size: 15px; font-weight: bold; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+
+        /* Referral Box */
+        .ref-box { background: #0f172a; padding: 10px; border-radius: 8px; word-break: break-all; color: #38bdf8; font-size: 13px; border: 1px solid #334155; margin: 10px 0; text-align: center; }
+        .btn-blue { background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; width: 100%; cursor: pointer; }
+        .btn-blue:active { opacity: 0.8; }
+
+        /* Dashboard Overview Grid */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .stat-item { background: #0f172a; padding: 12px; border-radius: 10px; border: 1px solid #1e293b; }
+        .stat-item p { font-size: 12px; color: #94a3b8; }
+        .stat-item h4 { font-size: 15px; margin-top: 5px; color: #e2e8f0; }
+
+        /* Task & Plan Items */
+        .item-card { background: #0f172a; border-radius: 10px; padding: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border: 1px solid #1e293b; }
+        .item-info h4 { font-size: 14px; margin-bottom: 4px; }
+        .item-info p { font-size: 11px; color: #10b981; }
+        .btn-sm { background: #4f46e5; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; }
+
+        /* Inputs */
+        input, select { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; }
+
+        /* Bottom Nav Bar */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #1e293b; max-width: 450px; margin: 0 auto; }
+        .nav-item { text-align: center; color: #64748b; font-size: 11px; cursor: pointer; text-decoration: none; flex: 1; }
+        .nav-item.active { color: #3b82f6; font-weight: bold; }
+        .nav-icon { font-size: 18px; display: block; margin-bottom: 2px; }
     </style>
 </head>
 <body>
 
-    <h1>TakaPay</h1>
-    
-    <div class="card">
-        <h3>আপনার ব্যালেন্স</h3>
-        <h2 id="balance">৳0.00</h2>
+    <div class="container">
+        <!-- Top User Header -->
+        <div class="user-header">
+            <div class="user-info">
+                <div class="avatar">👤</div>
+                <div class="user-details">
+                    <span>ইউজার আইডি</span>
+                    <h4 id="displayUserId">---</h4>
+                </div>
+            </div>
+            <div class="plan-badge">⭐ ফ্রি প্ল্যান</div>
+        </div>
+
+        <!-- 1. HOME TAB -->
+        <div id="tab-home" class="tab-content active">
+            <div class="balance-card">
+                <p>মোট ব্যালেন্স</p>
+                <h2>৳ <span id="balance">0.00</span></h2>
+            </div>
+
+            <div class="card-box">
+                <div class="section-title">👥 আপনার রেফারেল লিংক</div>
+                <p style="font-size: 12px; color: #94a3b8; text-align: center;">প্রতি রেফারে পাবেন ৳ ৫.০০ বোনাস!</p>
+                <div class="ref-box" id="refLink">লিংক তৈরি হচ্ছে...</div>
+                <button class="btn-blue" onclick="copyRefLink()">লিংক কপি করুন</button>
+            </div>
+
+            <div class="section-title">📊 ড্যাশবোর্ড ওভারভিউ</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <p>আজকের আয়</p>
+                    <h4>৳ 0.00</h4>
+                </div>
+                <div class="stat-item">
+                    <p>সম্পন্ন টাস্ক</p>
+                    <h4>০ টি</h4>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. TASKS TAB -->
+        <div id="tab-tasks" class="tab-content">
+            <div class="section-title">📋 দৈনিক টাস্কসমূহ</div>
+            
+            <div class="item-card">
+                <div class="item-info">
+                    <h4>ভিডিও বিজ্ঞাপন দেখুন</h4>
+                    <p>+৳ ২.০০ / অ্যাড (প্রতিদিন ২০টি)</p>
+                </div>
+                <button class="btn-sm" onclick="alert('টাস্ক শীঘ্রই আসছে!')">দেখন</button>
+            </div>
+
+            <div class="item-card">
+                <div class="item-info">
+                    <h4>অফিসিয়াল টেলিগ্রাম চ্যানেল</h4>
+                    <p>+৳ ৫.০০ (একবার)</p>
+                </div>
+                <button class="btn-sm" onclick="alert('চ্যানেলে যুক্ত হন!')">জয়েন</button>
+            </div>
+        </div>
+
+        <!-- 3. PLANS TAB -->
+        <div id="tab-plans" class="tab-content">
+            <div class="section-title">💎 ইনভেস্টমেন্ট প্ল্যান</div>
+
+            <div class="item-card">
+                <div class="item-info">
+                    <h4>সিলভার প্ল্যান (Silver)</h4>
+                    <p>মূল্য: ৳ ৫০০ | দৈনিক আয়: ৳ ৫০</p>
+                </div>
+                <button class="btn-sm" onclick="alert('পর্যাপ্ত ব্যালেন্স নেই!')">কিনুন</button>
+            </div>
+
+            <div class="item-card">
+                <div class="item-info">
+                    <h4>গোল্ড প্ল্যান (Gold)</h4>
+                    <p>মূল্য: ৳ ১০০০ | দৈনিক আয়: ৳ ১২০</p>
+                </div>
+                <button class="btn-sm" onclick="alert('পর্যাপ্ত ব্যালেন্স নেই!')">কিনুন</button>
+            </div>
+
+            <div class="item-card">
+                <div class="item-info">
+                    <h4>ডায়মন্ড প্ল্যান (Diamond)</h4>
+                    <p>মূল্য: ৳ ২৫০০ | দৈনিক আয়: ৳ ৩০০</p>
+                </div>
+                <button class="btn-sm" onclick="alert('পর্যাপ্ত ব্যালেন্স নেই!')">কিনুন</button>
+            </div>
+        </div>
+
+        <!-- 4. WITHDRAW TAB -->
+        <div id="tab-withdraw" class="tab-content">
+            <div class="card-box">
+                <div class="section-title">💳 টাকা উত্তোলন (Withdraw)</div>
+                <select id="method">
+                    <option value="bkash">বিকাশ (bKash)</option>
+                    <option value="nagad">নগদ (Nagad)</option>
+                </select>
+                <input type="text" id="account" placeholder="অ্যাকাউন্ট নাম্বার (যেমন: 017XXXXXXXX)">
+                <input type="number" id="amount" placeholder="টাকার পরিমাণ">
+                <button class="btn-blue" onclick="requestWithdrawal()">উত্তোলন করুন</button>
+            </div>
+        </div>
     </div>
 
-    <div class="card">
-        <h3>রেফারেল লিংক</h3>
-        <p id="refLink" style="word-break: break-all; color: #38bdf8; font-size: 14px; margin: 10px 0;"></p>
-        <button onclick="copyRefLink()">লিংক কপি করুন</button>
-    </div>
-
-    <div class="card">
-        <h3>টাকা উত্তোলন (Withdraw)</h3>
-        <select id="method">
-            <option value="bkash">বিকাশ (bKash)</option>
-            <option value="nagad">নগদ (Nagad)</option>
-        </select>
-        <input type="text" id="account" placeholder="অ্যাকাউন্ট নাম্বার (যেমন: 017XXXXXXXX)">
-        <input type="number" id="amount" placeholder="টাকার পরিমাণ">
-        <button onclick="requestWithdrawal()">উত্তোলন করুন</button>
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('home', this)">
+            <span class="nav-icon">🏠</span>
+            হোম
+        </div>
+        <div class="nav-item" onclick="switchTab('tasks', this)">
+            <span class="nav-icon">📋</span>
+            টাস্ক
+        </div>
+        <div class="nav-item" onclick="switchTab('plans', this)">
+            <span class="nav-icon">💎</span>
+            প্ল্যান
+        </div>
+        <div class="nav-item" onclick="switchTab('withdraw', this)">
+            <span class="nav-icon">💳</span>
+            উইথড্র
+        </div>
     </div>
 
     <script>
@@ -48,38 +194,39 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_rkd7l-PFMFt2W1aAtdPcRQ_AN_xg30q';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // টেলিগ্রাম ইউজার ইনিশিয়ালাইজেশন
+        // টেলিগ্রাম ইনিশিয়ালাইজেশন
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // ইউজারের আইডেন্টিটি চেক (টেলিগ্রাম আইডি অথবা টেস্ট আইডি)
-        const userId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : 'test_user_' + Math.floor(Math.random() * 1000);
-        
-        // রেফারেল চেক (যদি কেউ রেফারেল লিংকে প্রবেশ করে)
+        const userId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : '7862177842';
+        document.getElementById('displayUserId').innerText = userId;
+
+        // ট্যাব পরিবর্তন ফাংশন
+        function switchTab(tabName, element) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            
+            document.getElementById('tab-' + tabName).classList.add('active');
+            element.classList.add('active');
+        }
+
+        // রেফারেল অ্যান্ড ইউজার হ্যান্ডলিং
         const urlParams = new URLSearchParams(window.location.search);
         const refBy = urlParams.get('start');
 
         async function initUser() {
-            // ১. ইউজার ডাটা আছে কিনা চেক করা
-            let { data: user, error } = await supabaseClient
-                .from('users')
-                .select('*')
-                .eq('id', userId)
-                .single();
+            let { data: user } = await supabaseClient.from('users').select('*').eq('id', userId).single();
 
             if (!user) {
-                // নতুন ইউজার হলে ডাটাবেজে তৈরি করা
                 let referrer = (refBy && refBy !== userId) ? refBy : null;
-                
                 await supabaseClient.from('users').insert([
-                    { id: userId, balance: 10.00, referred_by: referrer } // সাইনআপ বোনাস ১০ টাকা
+                    { id: userId, balance: 10.00, referred_by: referrer }
                 ]);
 
-                // যদি রেফারার থাকে, তাকে বোনাস দেওয়া
                 if (referrer) {
                     let { data: refUser } = await supabaseClient.from('users').select('balance').eq('id', referrer).single();
                     if (refUser) {
-                        await supabaseClient.from('users').update({ balance: Number(refUser.balance) + 5.00 }).eq('id', referrer); // রেফার বোনাস ৫ টাকা
+                        await supabaseClient.from('users').update({ balance: Number(refUser.balance) + 5.00 }).eq('id', referrer);
                     }
                 }
                 loadUserData();
@@ -90,24 +237,18 @@
 
         async function loadUserData() {
             let { data: user } = await supabaseClient.from('users').select('*').eq('id', userId).single();
-            if (user) {
-                updateUI(user.balance);
-            }
+            if (user) updateUI(user.balance);
         }
 
         function updateUI(balance) {
-            document.getElementById('balance').innerText = '৳' + Number(balance).toFixed(2);
-            const botUsername = "TakaPay_Bot"; // আপনার বটের ইউজারনেম
+            document.getElementById('balance').innerText = Number(balance).toFixed(2);
+            const botUsername = "TakaPay_Bot"; // আপনার টেলিগ্রাম বটের ইউজারনেম
             const refUrl = `https://t.me/${botUsername}?start=${userId}`;
             document.getElementById('refLink').innerText = refUrl;
         }
 
         function copyRefLink() {
             const refText = document.getElementById('refLink').innerText;
-            if(!refText) {
-                alert('লিংক তৈরি হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন।');
-                return;
-            }
             navigator.clipboard.writeText(refText);
             alert('রেফারেল লিংক কপি করা হয়েছে!');
         }
@@ -122,24 +263,21 @@
                 return;
             }
 
-            // ব্যালেন্স চেক করা
             let { data: user } = await supabaseClient.from('users').select('balance').eq('id', userId).single();
             if (!user || user.balance < amount) {
                 alert('পর্যাপ্ত ব্যালেন্স নেই!');
                 return;
             }
 
-            // উইথড্রয়াল রিকোয়েস্ট সেভ করা
-            let { error: wError } = await supabaseClient.from('withdrawals').insert([
+            let { error } = await supabaseClient.from('withdrawals').insert([
                 { user_id: userId, method: method, account: account, amount: amount, status: 'pending' }
             ]);
 
-            if (wError) {
-                alert('ত্রুটি হয়েছে: ' + wError.message);
+            if (error) {
+                alert('ত্রুটি: ' + error.message);
                 return;
             }
 
-            // ইউজারের অ্যাকাউন্ট থেকে ব্যালেন্স কেটে নেওয়া
             let newBalance = Number(user.balance) - amount;
             await supabaseClient.from('users').update({ balance: newBalance }).eq('id', userId);
 
