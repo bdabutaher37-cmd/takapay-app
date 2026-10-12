@@ -7,7 +7,7 @@
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- AdsGram SDK Integration -->
-    <script src="https://sad.adsgram.ai/js/sad-b3.js"></script>
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -258,7 +258,7 @@
                     <h4>ভিডিও বিজ্ঞাপন দেখুন</h4>
                     <p>+৳ 2.00 / অ্যাড (প্রতিদিন ২০টি)</p>
                 </div>
-                <button class="action-btn" id="adBtn" onclick="watchAd()">দেখুন</button>
+                <button class="action-btn" id="adBtn" onclick="showRewardAd()">দেখুন</button>
             </div>
 
             <!-- Official Channel Task -->
@@ -271,7 +271,7 @@
             </div>
         </div>
 
-        <!-- 3. Investment Plans Section (Plans: 300, 500, 1000) -->
+        <!-- 3. Investment Plans Section (300, 500, 1000) -->
         <div id="planSection" class="section">
             <h3>💎 ইনভেস্টমেন্ট প্ল্যান</h3>
             <div class="card">
@@ -359,13 +359,19 @@
         }
 
         // AdsGram Controller Setup (Block ID: 53355)
-        let AdController = null;
-        try {
-            if (window.Adsgram) {
-                AdController = window.Adsgram.init({ blockId: "53355" });
-            }
-        } catch (e) {
-            console.log("AdsGram init error:", e);
+        const AdController = window.Adsgram.init({ blockId: "53355" });
+
+        function showRewardAd() {
+            AdController.show().then((result) => {
+                // রিওয়ার্ড যুক্ত করার লজিক (প্রতি অ্যাড ২ টাকা)
+                userBalance += 2.00;
+                todayEarned += 2.00;
+                saveData();
+                updateUI();
+                alert("অভিনন্দন! আপনি বিজ্ঞাপন দেখে ২.০০ টাকা রিওয়ার্ড পেয়েছেন।");
+            }).catch((result) => {
+                alert("বিজ্ঞাপন সম্পূর্ণ না দেখলে পয়েন্ট পাবেন না।");
+            });
         }
 
         // Local Storage State Management
@@ -395,32 +401,6 @@
             if (tabName === 'withdraw') document.getElementById('withdrawSection').classList.add('active');
 
             element.classList.add('active');
-        }
-
-        // AdsGram Ad Watch Function with Live Ad Support & Fallback
-        function watchAd() {
-            if (AdController) {
-                AdController.show().then((result) => {
-                    userBalance += 2.00;
-                    todayEarned += 2.00;
-                    saveData();
-                    updateUI();
-                    alert('অভিনন্দন! বিজ্ঞাপন দেখার জন্য আপনি ২.০০ টাকা পেয়েছেন।');
-                }).catch((err) => {
-                    // Fallback simulation if live ad isn't available in test mode
-                    giveAdReward();
-                });
-            } else {
-                giveAdReward();
-            }
-        }
-
-        function giveAdReward() {
-            userBalance += 2.00;
-            todayEarned += 2.00;
-            saveData();
-            updateUI();
-            alert('অভিনন্দন! বিজ্ঞাপন সম্পন্ন হয়েছে এবং ২.০০ টাকা যোগ হয়েছে।');
         }
 
         // Join Official Channel Logic
