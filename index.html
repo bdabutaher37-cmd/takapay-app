@@ -26,13 +26,17 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
         }
-        .active-tab {
+        .tab-btn {
+            color: #94a3b8;
+            transition: all 0.2s ease;
+        }
+        .tab-btn.active {
             color: #38bdf8 !important;
             transform: translateY(-2px);
         }
     </style>
 </head>
-<body class="pb-28">
+<body class="pb-32">
 
     <!-- Header Section -->
     <div class="p-4 flex justify-between items-center glass-card m-4">
@@ -42,7 +46,7 @@
             </div>
             <div>
                 <p class="text-xs text-gray-400">ইউজার আইডি</p>
-                <p id="userId" class="font-bold text-sm text-indigo-200">Loading...</p>
+                <p id="userId" class="font-bold text-sm text-indigo-200">6293441724</p>
             </div>
         </div>
         <span id="userPlanBadge" class="bg-amber-500/20 text-amber-400 text-xs px-3 py-1.5 rounded-full border border-amber-500/30 font-semibold flex items-center gap-1">
@@ -54,8 +58,7 @@
     <div id="mainContent" class="px-4">
 
         <!-- HOME VIEW -->
-        <div id="homeView" class="space-y-4">
-            <!-- Balance Card -->
+        <div id="homeView" class="page-view space-y-4">
             <div class="glass-card p-5 bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border-indigo-500/30">
                 <div class="flex justify-between items-center mb-2">
                     <span class="text-gray-300 text-sm"><i class="fa-solid fa-wallet text-amber-400 mr-2"></i>আপনার মূল ব্যালেন্স</span>
@@ -70,7 +73,6 @@
                 </div>
             </div>
 
-            <!-- Quick Stats Grid -->
             <div class="grid grid-cols-2 gap-3">
                 <div class="glass-card p-4 text-center">
                     <i class="fa-solid fa-bolt text-amber-400 text-2xl mb-1"></i>
@@ -84,7 +86,6 @@
                 </div>
             </div>
 
-            <!-- Announcement Banner -->
             <div class="glass-card p-4 bg-amber-500/10 border-amber-500/20 flex gap-3 items-center">
                 <i class="fa-solid fa-bullhorn text-amber-400 text-xl"></i>
                 <div class="text-xs text-gray-300">
@@ -95,10 +96,9 @@
         </div>
 
         <!-- TASKS VIEW -->
-        <div id="tasksView" class="hidden space-y-4">
+        <div id="tasksView" class="page-view hidden space-y-4">
             <h2 class="text-lg font-bold text-indigo-300 mb-2"><i class="fa-solid fa-list-check mr-2"></i>দৈনিক টাস্কসমূহ</h2>
             
-            <!-- Video Ads Task -->
             <div class="glass-card p-4 flex justify-between items-center">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center text-lg">
@@ -114,7 +114,6 @@
                 </button>
             </div>
 
-            <!-- Join Telegram Channel Task -->
             <div class="glass-card p-4 flex justify-between items-center">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center text-lg">
@@ -132,10 +131,9 @@
         </div>
 
         <!-- VIP PLANS VIEW -->
-        <div id="plansView" class="hidden space-y-4">
+        <div id="plansView" class="page-view hidden space-y-4">
             <h2 class="text-lg font-bold text-indigo-300 mb-2"><i class="fa-solid fa-gem mr-2"></i>ভিআইপি ইনভেস্টমেন্ট প্ল্যান</h2>
             
-            <!-- Recharge Notice -->
             <div class="glass-card p-4 bg-indigo-900/40 border-indigo-500/40 text-xs text-indigo-200">
                 <p class="font-bold text-amber-300 mb-1"><i class="fa-solid fa-mobile-screen mr-1"></i> রিচার্জ করার নিয়ম:</p>
                 প্ল্যান কিনতে নিচে উল্লেখিত বিকাশ/নগদ পার্সোনাল নম্বরে টাকা পাঠান:
@@ -145,7 +143,6 @@
                 </div>
             </div>
 
-            <!-- 300 Taka Plan -->
             <div class="glass-card p-4 border-slate-500/30 relative">
                 <div class="flex justify-between items-start mb-2">
                     <div>
@@ -162,7 +159,6 @@
                 <button onclick="openPaymentModal(300, 'সিলভার')" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs py-2.5 rounded-xl transition">প্ল্যান কিনুন</button>
             </div>
 
-            <!-- 500 Taka Plan -->
             <div class="glass-card p-4 border-amber-500/40 relative bg-amber-500/5">
                 <div class="flex justify-between items-start mb-2">
                     <div>
@@ -179,7 +175,6 @@
                 <button onclick="openPaymentModal(500, 'গোল্ড')" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs py-2.5 rounded-xl transition">প্ল্যান কিনুন</button>
             </div>
 
-            <!-- 1000 Taka Plan -->
             <div class="glass-card p-4 border-cyan-500/40 relative bg-cyan-500/5">
                 <div class="flex justify-between items-start mb-2">
                     <div>
@@ -198,7 +193,7 @@
         </div>
 
         <!-- WITHDRAW VIEW -->
-        <div id="withdrawView" class="hidden space-y-4">
+        <div id="withdrawView" class="page-view hidden space-y-4">
             <h2 class="text-lg font-bold text-indigo-300 mb-2"><i class="fa-solid fa-money-bill-transfer mr-2"></i>টাকা তুলুন</h2>
             
             <div class="glass-card p-5 space-y-4">
@@ -253,64 +248,61 @@
     </div>
 
     <!-- Bottom Navigation Bar -->
-    <div class="fixed bottom-0 left-0 right-0 glass-card rounded-none border-t border-white/10 px-6 py-3 flex justify-between items-center bg-slate-950/90 backdrop-blur-lg z-40">
-        <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-1 active-tab text-sky-400 transition">
-            <i class="fa-solid fa-house text-lg"></i>
-            <span class="text-[10px] font-medium">হোম</span>
+    <div class="fixed bottom-0 left-0 right-0 glass-card rounded-none border-t border-white/10 px-4 py-3 flex justify-around items-center bg-slate-950/95 backdrop-blur-lg z-40">
+        <button onclick="switchTab('home')" id="nav-home" class="tab-btn active flex flex-col items-center gap-1 p-2">
+            <i class="fa-solid fa-house text-xl"></i>
+            <span class="text-[11px] font-medium">হোম</span>
         </button>
-        <button onclick="switchTab('tasks')" id="nav-tasks" class="flex flex-col items-center gap-1 text-gray-400 transition">
-            <i class="fa-solid fa-list-check text-lg"></i>
-            <span class="text-[10px] font-medium">টাস্ক</span>
+        <button onclick="switchTab('tasks')" id="nav-tasks" class="tab-btn flex flex-col items-center gap-1 p-2">
+            <i class="fa-solid fa-list-check text-xl"></i>
+            <span class="text-[11px] font-medium">টাস্ক</span>
         </button>
-        <button onclick="switchTab('plans')" id="nav-plans" class="flex flex-col items-center gap-1 text-gray-400 transition">
-            <i class="fa-solid fa-gem text-lg"></i>
-            <span class="text-[10px] font-medium">প্ল্যান</span>
+        <button onclick="switchTab('plans')" id="nav-plans" class="tab-btn flex flex-col items-center gap-1 p-2">
+            <i class="fa-solid fa-gem text-xl"></i>
+            <span class="text-[11px] font-medium">প্ল্যান</span>
         </button>
-        <button onclick="switchTab('withdraw')" id="nav-withdraw" class="flex flex-col items-center gap-1 text-gray-400 transition">
-            <i class="fa-solid fa-wallet text-lg"></i>
-            <span class="text-[10px] font-medium">উইথড্র</span>
+        <button onclick="switchTab('withdraw')" id="nav-withdraw" class="tab-btn flex flex-col items-center gap-1 p-2">
+            <i class="fa-solid fa-wallet text-xl"></i>
+            <span class="text-[11px] font-medium">উইথড্র</span>
         </button>
     </div>
 
     <!-- Application Script Logic -->
     <script>
-        // Initialize Telegram WebApp
         const tg = window.Telegram?.WebApp;
         if (tg) {
             tg.ready();
             tg.expand();
             if (tg.initDataUnsafe?.user) {
                 document.getElementById('userId').innerText = tg.initDataUnsafe.user.id;
-            } else {
-                document.getElementById('userId').innerText = "6293441724";
             }
-        } else {
-            document.getElementById('userId').innerText = "6293441724";
         }
 
-        // App State (New user starts with 0.00 balance)
         let balance = 0.00;
         let todayAdsWatched = 0;
         const maxAdsLimit = 20;
 
-        // Navigation Controller
-        function switchTab(tab) {
-            ['homeView', 'tasksView', 'plansView', 'withdrawView'].forEach(v => {
-                document.getElementById(v).classList.add('hidden');
-            });
-            ['home', 'tasks', 'plans', 'withdraw'].forEach(n => {
-                const btn = document.getElementById('nav-' + n);
-                btn.classList.remove('active-tab', 'text-sky-400');
-                btn.classList.add('text-gray-400');
-            });
+        function switchTab(tabName) {
+            // Hide all views
+            const views = document.querySelectorAll('.page-view');
+            views.forEach(v => v.classList.add('hidden'));
 
-            document.getElementById(tab + 'View').classList.remove('hidden');
-            const activeBtn = document.getElementById('nav-' + tab);
-            activeBtn.classList.add('active-tab', 'text-sky-400');
-            activeBtn.classList.remove('text-gray-400');
+            // Show target view
+            const targetView = document.getElementById(tabName + 'View');
+            if (targetView) {
+                targetView.classList.remove('hidden');
+            }
+
+            // Update active states on buttons
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(b => b.classList.remove('active'));
+
+            const activeBtn = document.getElementById('nav-' + tabName);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
         }
 
-        // Modal Functions
         function openPaymentModal(price, name) {
             document.getElementById('modalPlanPrice').innerText = price;
             document.getElementById('modalPlanName').innerText = name;
@@ -338,7 +330,6 @@
             alert('আপনার পেমেন্ট রিকুয়েস্ট সফলভাবে জমা হয়েছে! ভেরিফিকেশনের পর প্ল্যান অ্যাক্টিভ হবে।');
         }
 
-        // AdsGram Integration & Reward Handler
         function showAd() {
             if (todayAdsWatched >= maxAdsLimit) {
                 alert('আজকের ২০টি ভিডিও বিজ্ঞাপনের ডেইলি লিমিট শেষ!');
@@ -381,4 +372,21 @@
         }
 
         function handleWithdraw() {
-            const num 
+            const num = document.getElementById('accNumber').value;
+            const amt = parseFloat(document.getElementById('withdrawAmount').value);
+
+            if (!num || num.length < 11) {
+                alert('সঠিক অ্যাকাউন্ট নম্বর দিন!');
+                return;
+            }
+            if (!amt || amt < 100) {
+                alert('সর্বনিম্ন ১০০ টাকা উইথড্র করতে পারবেন!');
+                return;
+            }
+            if (amt > balance) {
+                alert('আপনার ওয়ালেটে পর্যাপ্ত ব্যালেন্স নেই!');
+                return;
+            }
+
+            balance -= amt;
+            document.getElementById('userBalance').innerText = bala
