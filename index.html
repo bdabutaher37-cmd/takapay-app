@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>TakaPay Mini App</title>
+    <title>TakaPay Mini App v2.5</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Supabase JS SDK -->
@@ -77,8 +77,8 @@
         <!-- Top Header -->
         <div class="welcome-header">
             <div class="welcome-text">
-                <span id="displayUserId">আইডি: লোড হচ্ছে...</span>
-                <h3 id="userName">ইউজার</h3>
+                <span id="displayUserId">আইডি লোড হচ্ছে...</span>
+                <h3 id="userName">লোডিং...</h3>
             </div>
             <div class="plan-badge" id="userPlanBadge">⭐ ফ্রি প্ল্যান</div>
         </div>
@@ -236,22 +236,16 @@
 
         const BOT_USERNAME = "TakaPayAppBot";
         
-        // টেলিগ্রাম থেকে সঠিক ইউজার আইডি ফেচ করা
+        // রিয়েল টেলিগ্রাম আইডি এবং নাম ফেচ করা নিশ্চিত করা
         const telegramUser = tg.initDataUnsafe?.user;
         let userId = telegramUser?.id ? String(telegramUser.id) : null;
         let userName = telegramUser?.first_name ? telegramUser.first_name : null;
 
-        // যদি টেলিগ্রাম থেকে সরাসরি ডাটা না আসে, লোকাল স্টোরেজ বা ফলব্যাক হ্যান্ডেল করা
         if (!userId) {
-            userId = localStorage.getItem('takapay_user_id');
-            if (!userId) {
-                userId = 'user_' + Math.floor(100000 + Math.random() * 900000);
-                localStorage.setItem('takapay_user_id', userId);
-            }
+            userId = 'tg_' + Math.floor(100000 + Math.random() * 900000);
         }
-
         if (!userName) {
-            userName = 'ব্যবহারকারী';
+            userName = 'টেলিগ্রাম ইউজার';
         }
 
         document.getElementById('userName').innerText = userName;
@@ -291,9 +285,9 @@
             if (!user) {
                 let referrer = (refBy && refBy !== userId) ? refBy : null;
                 let newUserObj = { id: userId, balance: 0.00, referred_by: referrer, plan: 'free' };
-                await supabaseClient.from('users').insert([newUserObj]);
+                let { err: insertErr } = await supabaseClient.from('users').insert([newUserObj]);
 
-                if (referrer) {
+                if (!insertErr && referrer) {
                     let { data: refUser } = await supabaseClient.from('users').select('balance').eq('id', referrer).single();
                     if (refUser) {
                         await supabaseClient.from('users').update({ balance: Number(refUser.balance) + 5.00 }).eq('id', referrer);
@@ -424,4 +418,8 @@
                         document.getElementById('todayIncome').innerText = (currentInc + rewardPerAd).toFixed(2);
                         document.getElementById('completedTasks').innerText = adsWatchedToday;
                         document.getElementById('balance').innerText = newBal.toFixed(2);
-             
+                        
+                        alert(`অভিনন্দন! বিজ্ঞাপন দেখার জন্য আপনার ব্যালেন্সে ৳ ${rewardPerAd.toFixed(2)} যোগ করা হয়েছে।`);
+                        initUser();
+                    } else {
+   
