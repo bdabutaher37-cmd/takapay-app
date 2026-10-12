@@ -97,7 +97,7 @@
                     </div>
                     <div>
                         <p class="font-semibold text-xs text-white">ভিডিও বিজ্ঞাপন দেখুন</p>
-                        <p class="text-[11px] text-emerald-400">+৳ ০.৫০ / অ্যাড (প্রতিদিন ২০টি)</p>
+                        <p class="text-[11px] text-emerald-400">+৳ ২.০০ / অ্যাড (প্রতিদিন ২০টি)</p>
                     </div>
                 </div>
                 <button id="watchAdBtn" onclick="showRewardAd()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
@@ -109,11 +109,51 @@
         <!-- PLANS VIEW -->
         <div id="plansView" class="view hidden space-y-4">
             <h2 class="text-sm font-bold text-indigo-300 mb-1"><i class="fa-solid fa-gem mr-1.5"></i>ভিআইপি ইনভেস্টমেন্ট প্ল্যান</h2>
+            
             <div class="card p-3.5 bg-indigo-950/50 border-indigo-500/30 text-xs text-indigo-200">
                 <p class="font-bold text-amber-300 mb-1"><i class="fa-solid fa-mobile-screen mr-1"></i>পার্সোনাল বিকাশ/নগদ নম্বর:</p>
                 <div class="p-2 bg-slate-900/90 rounded-lg font-mono text-center text-sm font-bold text-emerald-400 tracking-wider">
                     01318774526
                 </div>
+            </div>
+
+            <!-- Silver Plan -->
+            <div class="card p-4 border-slate-500/40">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <h3 class="font-bold text-sm text-slate-200">সিলভার প্ল্যান</h3>
+                        <p class="text-xl font-black text-white mt-0.5">৳ ৩০০</p>
+                    </div>
+                    <span class="bg-slate-500/20 text-slate-300 text-[10px] px-2 py-0.5 rounded-full border border-slate-500/30">Tier 1</span>
+                </div>
+                <p class="text-[11px] text-gray-300 mb-3">দৈনিক ২০টি অ্যাড ও ৩০ দিন মেয়াদ।</p>
+                <button onclick="openModal('সিলভার প্ল্যান', 300)" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs py-2.5 rounded-xl transition">প্ল্যান কিনুন</button>
+            </div>
+
+            <!-- Gold Plan -->
+            <div class="card p-4 border-amber-500/40 bg-amber-500/5">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <h3 class="font-bold text-sm text-amber-300">গোল্ড প্ল্যান</h3>
+                        <p class="text-xl font-black text-white mt-0.5">৳ ৫০০</p>
+                    </div>
+                    <span class="bg-amber-500/20 text-amber-300 text-[10px] px-2 py-0.5 rounded-full border border-amber-500/30">জনপ্রিয়</span>
+                </div>
+                <p class="text-[11px] text-gray-300 mb-3">দৈনিক ২০টি অ্যাড ও ইনস্ট্যান্ট উইথড্র সুবিধা।</p>
+                <button onclick="openModal('গোল্ড প্ল্যান', 500)" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs py-2.5 rounded-xl transition">প্ল্যান কিনুন</button>
+            </div>
+
+            <!-- Diamond Plan -->
+            <div class="card p-4 border-cyan-500/40 bg-cyan-500/5">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <h3 class="font-bold text-sm text-cyan-300">ডায়মন্ড প্ল্যান</h3>
+                        <p class="text-xl font-black text-white mt-0.5">৳ ১০০০</p>
+                    </div>
+                    <span class="bg-cyan-500/20 text-cyan-300 text-[10px] px-2 py-0.5 rounded-full border border-cyan-500/30">ভিআইপি</span>
+                </div>
+                <p class="text-[11px] text-gray-300 mb-3">দৈনিক ২০টি অ্যাড ও ২৪/৭ সাপোর্ট।</p>
+                <button onclick="openModal('ডায়মন্ড প্ল্যান', 1000)" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs py-2.5 rounded-xl transition">প্ল্যান কিনুন</button>
             </div>
         </div>
 
@@ -142,6 +182,30 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- Recharge Payment Modal -->
+    <div id="paymentModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="card bg-slate-900 border-indigo-500/40 p-5 w-full max-w-sm space-y-3">
+            <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                <h3 class="font-bold text-amber-300 text-xs"><span id="modalPlanName"></span> রিচার্জ</h3>
+                <button onclick="closeModal()" class="text-gray-400 text-base">&times;</button>
+            </div>
+            <p class="text-[11px] text-gray-300">
+                এই নম্বরে টাকা পাঠান: <b class="text-emerald-400 font-mono">01318774526</b> (<span id="modalPrice"></span> টাকা)
+            </p>
+            <div>
+                <label class="block text-[10px] text-gray-400 mb-1">আপনার বিকাশ/নগদ নম্বর</label>
+                <input id="senderNum" type="number" placeholder="013XXXXXXXX" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-xs text-white focus:outline-none">
+            </div>
+            <div>
+                <label class="block text-[10px] text-gray-400 mb-1">ট্রানজেকশন আইডি (TxID)</label>
+                <input id="trxId" type="text" placeholder="যেমন: 8N7A6D5E" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-xs text-white uppercase focus:outline-none">
+            </div>
+            <button onclick="submitDeposit()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl transition text-xs">
+                পেমেন্ট তথ্য জমা দিন
+            </button>
+        </div>
     </div>
 
     <!-- Bottom Navigation Bar -->
@@ -177,7 +241,7 @@
 
         function updateUI() {
             document.getElementById('bal').innerText = balance.toFixed(2);
-            document.getElementById('todayInc').innerText = (adsWatched * 0.50).toFixed(2);
+            document.getElementById('todayInc').innerText = (adsWatched * 2.00).toFixed(2);
             document.getElementById('adCounter').innerText = adsWatched;
 
             if (adsWatched >= maxAds) {
@@ -206,6 +270,31 @@
             alert('রেফার লিংক কপি হয়েছে!');
         }
 
+        function openModal(name, price) {
+            document.getElementById('modalPlanName').innerText = name;
+            document.getElementById('modalPrice').innerText = price;
+            document.getElementById('paymentModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('paymentModal').classList.add('hidden');
+        }
+
+        function submitDeposit() {
+            const num = document.getElementById('senderNum').value;
+            const trx = document.getElementById('trxId').value;
+            if (!num || num.length < 11) {
+                alert('সঠিক বিকাশ/নগদ নম্বর দিন!');
+                return;
+            }
+            if (!trx) {
+                alert('ট্রানজেকশন আইডি (TxID) দিন!');
+                return;
+            }
+            closeModal();
+            alert('পেমেন্ট রিকুয়েস্ট সফলভাবে জমা হয়েছে! চেক করে প্ল্যান অ্যাক্টিভ করা হবে।');
+        }
+
         // AdsGram Integration (Block ID: 53355)
         let AdController = null;
         if (window.Adsgram) {
@@ -229,20 +318,19 @@
                     alert("বিজ্ঞাপন সম্পূর্ণ না দেখলে পয়েন্ট পাবেন না।");
                 });
             } else {
-                // যদি SDK লোড না হয় তবে ফলব্যাক হিসেবে সরাসরি রিওয়ার্ড দিয়ে দেওয়া নিরাপদ রাখতে পারেন
                 giveReward();
             }
         }
 
         function giveReward() {
-            balance += 0.50;
+            balance += 2.00;
             adsWatched += 1;
 
             localStorage.setItem(balKey, balance);
             localStorage.setItem(adsKey, adsWatched);
 
             updateUI();
-            alert("অভিনন্দন! আপনি ৫০ পয়সা রিওয়ার্ড পেয়েছেন।");
+            alert("অভিনন্দন! আপনি ২.০০ ৳ রিওয়ার্ড পেয়েছেন।");
         }
 
         function withdraw() {
