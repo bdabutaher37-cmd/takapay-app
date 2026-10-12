@@ -80,7 +80,7 @@
                 <div class="card p-3.5 text-center">
                     <i class="fa-solid fa-hand-holding-dollar text-emerald-400 text-xl mb-1"></i>
                     <p class="text-[11px] text-gray-400">মিনিমাম উইথড্র</p>
-                    <p class="font-bold text-xs text-emerald-300">৳ ১০০.০০</p>
+                    <p class="font-bold text-xs text-emerald-300">৳ ৩০০.০০</p>
                 </div>
             </div>
         </div>
@@ -96,7 +96,7 @@
                     </div>
                     <div>
                         <p class="font-semibold text-xs text-white">ভিডিও বিজ্ঞাপন দেখুন</p>
-                        <p class="text-[11px] text-emerald-400">+৳ ২.০০ / অ্যাড</p>
+                        <p class="text-[11px] text-emerald-400">+৳ ২.০০ / অ্যাড (প্রতিদিন ২০টি)</p>
                     </div>
                 </div>
                 <button id="watchAdBtn" onclick="watchAd()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
@@ -140,7 +140,7 @@
                     </div>
                     <span class="bg-slate-500/20 text-slate-300 text-[10px] px-2 py-0.5 rounded-full border border-slate-500/30">Tier 1</span>
                 </div>
-                <p class="text-[11px] text-gray-300 mb-3">দৈনিক ৫০টি অ্যাড ও ৩০ দিন মেয়াদ।</p>
+                <p class="text-[11px] text-gray-300 mb-3">দৈনিক ২০টি অ্যাড ও ৩০ দিন মেয়াদ।</p>
                 <button onclick="openModal('সিলভার প্ল্যান', 300)" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs py-2.5 rounded-xl transition">প্ল্যান কিনুন</button>
             </div>
 
@@ -153,7 +153,7 @@
                     </div>
                     <span class="bg-amber-500/20 text-amber-300 text-[10px] px-2 py-0.5 rounded-full border border-amber-500/30">জনপ্রিয়</span>
                 </div>
-                <p class="text-[11px] text-gray-300 mb-3">দৈনিক ৮০টি অ্যাড ও ইনস্ট্যান্ট উইথড্র সুবিধা।</p>
+                <p class="text-[11px] text-gray-300 mb-3">দৈনিক ২০টি অ্যাড ও ইনস্ট্যান্ট উইথড্র সুবিধা।</p>
                 <button onclick="openModal('গোল্ড প্ল্যান', 500)" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs py-2.5 rounded-xl transition">প্ল্যান কিনুন</button>
             </div>
 
@@ -166,7 +166,7 @@
                     </div>
                     <span class="bg-cyan-500/20 text-cyan-300 text-[10px] px-2 py-0.5 rounded-full border border-cyan-500/30">ভিআইপি</span>
                 </div>
-                <p class="text-[11px] text-gray-300 mb-3">দৈনিক ১৫০টি অ্যাড ও ২৪/৭ সাপোর্ট।</p>
+                <p class="text-[11px] text-gray-300 mb-3">দৈনিক ২০টি অ্যাড ও ২৪/৭ সাপোর্ট।</p>
                 <button onclick="openModal('ডায়মন্ড প্ল্যান', 1000)" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs py-2.5 rounded-xl transition">প্ল্যান কিনুন</button>
             </div>
         </div>
@@ -188,8 +188,8 @@
                     <input id="wNum" type="number" placeholder="017XXXXXXXX" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                 </div>
                 <div>
-                    <label class="block text-[11px] text-gray-400 mb-1">পরিমাণ (সর্বনিম্ন ১০০ টাকা)</label>
-                    <input id="wAmt" type="number" placeholder="100" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
+                    <label class="block text-[11px] text-gray-400 mb-1">পরিমাণ (সর্বনিম্ন ৩০০ টাকা)</label>
+                    <input id="wAmt" type="number" placeholder="300" class="w-full bg-slate-800/90 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none">
                 </div>
                 <button onclick="withdraw()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl text-xs font-bold transition">
                     উইথড্র রিকুয়েস্ট পাঠান
@@ -248,8 +248,7 @@
         let adsWatched = 0;
         const maxAds = 20;
 
-        // AdsGram Controller Setup
-        let AdController = window.AdsGram ? window.AdsGram.init({ blockId: "53355" }) : null;
+        let AdController = window.AdsGram ? window.AdsGram.init({ blockId: "53448" }) : null;
 
         function showTab(tab) {
             document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
@@ -301,10 +300,10 @@
                     giveReward();
                 }).catch((err) => {
                     console.log('Ad error/fallback:', err);
-                    giveReward(); // অ্যাড লোড না হলেও ইউজার যাতে রিওয়ার্ড পায়
+                    giveReward();
                 });
             } else {
-                giveReward(); // টেস্ট বা ব্রাউজার মোডের জন্য সরাসরি রিওয়ার্ড
+                giveReward();
             }
         }
 
@@ -333,8 +332,8 @@
                 alert('সঠিক অ্যাকাউন্ট নম্বর দিন!');
                 return;
             }
-            if (!amt || amt < 100) {
-                alert('কমপক্ষে ১০০ টাকা উইথড্র করতে হবে!');
+            if (!amt || amt < 300) {
+                alert('কমপক্ষে ৩০০ টাকা উইথড্র করতে হবে!');
                 return;
             }
             if (amt > balance) {
