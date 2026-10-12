@@ -27,7 +27,7 @@
 
     <div class="card">
         <h3>রেফারেল লিংক</h3>
-        <p id="refLink" style="word-break: break-all; color: #38bdf8; font-size: 14px;"></p>
+        <p id="refLink" style="word-break: break-all; color: #38bdf8; font-size: 14px; margin: 10px 0;"></p>
         <button onclick="copyRefLink()">লিংক কপি করুন</button>
     </div>
 
@@ -52,7 +52,7 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // ইউজারের ইউনিক আইডি (টেলিগ্রাম আইডি অথবা টেস্ট আইডি)
+        // ইউজারের আইডেন্টিটি চেক (টেলিগ্রাম আইডি অথবা টেস্ট আইডি)
         const userId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : 'test_user_' + Math.floor(Math.random() * 1000);
         
         // রেফারেল চেক (যদি কেউ রেফারেল লিংকে প্রবেশ করে)
@@ -68,7 +68,7 @@
                 .single();
 
             if (!user) {
-                // নতুন ইউজার হলে ডাটাবেজে এন্ট্রি করা
+                // নতুন ইউজার হলে ডাটাবেজে তৈরি করা
                 let referrer = (refBy && refBy !== userId) ? refBy : null;
                 
                 await supabaseClient.from('users').insert([
@@ -97,13 +97,17 @@
 
         function updateUI(balance) {
             document.getElementById('balance').innerText = '৳' + Number(balance).toFixed(2);
-            const botUsername = "YourTelegramBotUsername"; // আপনার বটের ইউজারনেম এখানে বসাবেন
+            const botUsername = "TakaPay_Bot"; // আপনার বটের ইউজারনেম
             const refUrl = `https://t.me/${botUsername}?start=${userId}`;
             document.getElementById('refLink').innerText = refUrl;
         }
 
         function copyRefLink() {
             const refText = document.getElementById('refLink').innerText;
+            if(!refText) {
+                alert('লিংক তৈরি হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন।');
+                return;
+            }
             navigator.clipboard.writeText(refText);
             alert('রেফারেল লিংক কপি করা হয়েছে!');
         }
