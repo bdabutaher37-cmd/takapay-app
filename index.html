@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TakaPay Mini App Pro v4.0</title>
+    <title>TakaPay Mini App Pro v5.0</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Supabase JS SDK -->
@@ -219,17 +219,33 @@
         document.getElementById('userName').innerText = userName;
         document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${userId}`;
 
-        // লোকাল স্টোরেজ ও ডাটাবেজ থেকে সেফ ব্যালেন্স সিংক্রোনাইজেশন
+        // ইউজার ডাটা এবং দৈনিক অ্যাড কাউন্টার পার্মানেন্টলি লোড করা
         async function loadUserData() {
-            // ১. প্রথমে ব্রাউজারের নিজস্ব লোকাল মেমোরি থেকে ইনস্ট্যান্ট ব্যালেন্স তুলবে
-            let storageKey = 'takapay_secure_bal_' + userId;
-            let savedBal = localStorage.getItem(storageKey);
-            if (savedBal !== null) {
-                userBalance = parseFloat(savedBal) || 0.00;
-                updateUI();
+            let todayDate = new Date().toISOString().slice(0, 10); // বর্তমান তারিখ (যেমন: 2026-10-12)
+            let dateKey = 'takapay_date_' + userId;
+            let savedDate = localStorage.getItem(dateKey);
+
+            // যদি দিন পরিবর্তন হয়ে থাকে, তবে কাউন্টার অটো জিরো হয়ে যাবে
+            if (savedDate !== todayDate) {
+                localStorage.setItem(dateKey, todayDate);
+                localStorage.setItem('takapay_ads_' + userId, '0');
+                adsWatchedToday = 0;
+            } else {
+                let savedAds = localStorage.getItem('takapay_ads_' + userId);
+                if (savedAds !== null) {
+                    adsWatchedToday = parseInt(savedAds) || 0;
+                }
             }
 
-            // ২. এরপর ব্যাকগ্রাউন্ডে Supabase থেকে লেটেস্ট ব্যালেন্স মিলিয়ে নেবে
+            // ব্যালেন্স লোড
+            let balanceKey = 'takapay_secure_bal_' + userId;
+            let savedBal = localStorage.getItem(balanceKey);
+            if (savedBal !== null) {
+                userBalance = parseFloat(savedBal) || 0.00;
+            }
+            updateUI();
+
+            // ডাটাবেজ থেকে সিঙ্ক করা
             try {
                 let { data: user, error } = await supabaseClient.from('users').select('*').eq('id', userId).maybeSingle();
                 if (!user) {
@@ -239,7 +255,7 @@
                         let dbBal = parseFloat(user.balance);
                         if (dbBal >= userBalance) {
                             userBalance = dbBal;
-                            localStorage.setItem(storageKey, userBalance);
+                            localStorage.setItem(balanceKey, userBalance);
                         }
                     }
                 }
@@ -297,12 +313,12 @@
                 adsWatchedToday++;
                 userBalance = parseFloat((userBalance + 2.00).toFixed(2));
 
-                // লোকাল স্টোরেজে ইনস্ট্যান্ট সেভ
-                let storageKey = 'takapay_secure_bal_' + userId;
-                localStorage.setItem(storageKey, userBalance);
+                // লোকাল স্টোরেজে কাউন্টার ও ব্যালেন্স পার্মানেন্টলি সেভ
+                localStorage.setItem('takapay_ads_' + userId, adsWatchedToday);
+                localStorage.setItem('takapay_secure_bal_' + userId, userBalance);
                 updateUI();
 
-                // ডাটাবেজে পার্মানেন্ট আপসার্ট (Upsert)
+                // ডাটাবেজে আপডেট
                 try {
                     await supabaseClient.from('users').upsert([
                         { id: userId, balance: userBalance, plan: 'free' }
@@ -311,7 +327,7 @@
                     console.log("DB Update Error", e);
                 }
 
-                alert("অভিনন্দন! আপনার অ্যাকাউন্টে ৳ ২.০০ রিওয়ার্ড যোগ করা হয়েছে।");
+                alert(`অভিনন্দন! ৳ ২.০০ যোগ হয়েছে। (আজ দেখেছেন: ${adsWatchedToday}/20টি)`);
             };
 
             if (AdController) {
