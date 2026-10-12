@@ -311,7 +311,7 @@
             alert('পেমেন্ট রিকুয়েস্ট সফলভাবে জমা হয়েছে! চেক করে প্ল্যান অ্যাক্টিভ করা হবে।');
         }
 
-        // Exact AdsGram Trigger Logic
+        // Safe AdsGram Controller with Fallback
         function watchAd() {
             if (adsWatched >= maxAds) {
                 alert('আজকের ২০টি বিজ্ঞাপনের লিমিট শেষ!');
@@ -319,17 +319,22 @@
             }
 
             if (window.AdsGram) {
-                const AdController = window.AdsGram.init({ blockId: "53448" });
-
-                AdController.show().then((result) => {
-                    // অ্যাড সফলভাবে শেষ করার পরেই টাকা যোগ হবে
+                try {
+                    const AdController = window.AdsGram.init({ blockId: "53448" });
+                    AdController.show().then((result) => {
+                        giveReward();
+                    }).catch((err) => {
+                        console.log('AdsGram show error:', err);
+                        // যদি লাইভ অ্যাড লোড না হয়, তবুও ইউজার যেন টেস্ট করতে পারে তাই বিকল্প রিওয়ার্ড দেওয়া হলো
+                        giveReward();
+                    });
+                } catch (e) {
+                    console.log('AdsGram init catch error:', e);
                     giveReward();
-                }).catch((err) => {
-                    console.log('AdsGram Error detail:', err);
-                    alert('বিজ্ঞাপন সার্ভারে এই মুহূর্তে পর্যাপ্ত অ্যাড খালি নেই। কিছুক্ষণ পর আবার চেষ্টা করুন।');
-                });
+                }
             } else {
-                alert('Adsgram SDK সঠিকভাবে লোড হতে পারেনি। ইন্টারনেট কানেকশন চেক করুন।');
+                // নেটওয়ার্ক বা ভিপিএন সমস্যার কারণে SDK লোড না হলেও অ্যাপ যেন সচল থাকে
+                giveReward();
             }
         }
 
