@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TakaPay Mini App Pro v3.0</title>
+    <title>TakaPay Mini App Pro v4.0</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Supabase JS SDK -->
@@ -219,29 +219,32 @@
         document.getElementById('userName').innerText = userName;
         document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${userId}`;
 
-        // স্থায়ীভাবে ডাটাবেজ ও লোকাল স্টোরেজ থেকে ব্যালেন্স লোড করার ফাংশন
+        // লোকাল স্টোরেজ ও ডাটাবেজ থেকে সেফ ব্যালেন্স সিংক্রোনাইজেশন
         async function loadUserData() {
-            // প্রথমে লোকাল ব্যাকআপ থেকে দ্রুত লোড করবে যাতে জিরো না দেখায়
-            let localBal = localStorage.getItem('takapay_bal_' + userId);
-            if (localBal !== null) {
-                userBalance = parseFloat(localBal) || 0.00;
+            // ১. প্রথমে ব্রাউজারের নিজস্ব লোকাল মেমোরি থেকে ইনস্ট্যান্ট ব্যালেন্স তুলবে
+            let storageKey = 'takapay_secure_bal_' + userId;
+            let savedBal = localStorage.getItem(storageKey);
+            if (savedBal !== null) {
+                userBalance = parseFloat(savedBal) || 0.00;
                 updateUI();
             }
 
+            // ২. এরপর ব্যাকগ্রাউন্ডে Supabase থেকে লেটেস্ট ব্যালেন্স মিলিয়ে নেবে
             try {
                 let { data: user, error } = await supabaseClient.from('users').select('*').eq('id', userId).maybeSingle();
                 if (!user) {
-                    // নতুন ইউজার হলে ডাটাবেজে এন্ট্রি তৈরি করবে
                     await supabaseClient.from('users').insert([{ id: userId, balance: userBalance, plan: 'free' }]);
                 } else {
-                    // ডাটাবেজের ব্যালেন্স বড় বা আপডেট থাকলে সেটিই প্রাইওরিটি পাবে
                     if (user.balance !== undefined && user.balance !== null) {
-                        userBalance = parseFloat(user.balance);
-                        localStorage.setItem('takapay_bal_' + userId, userBalance);
+                        let dbBal = parseFloat(user.balance);
+                        if (dbBal >= userBalance) {
+                            userBalance = dbBal;
+                            localStorage.setItem(storageKey, userBalance);
+                        }
                     }
                 }
             } catch (err) {
-                console.log("DB Load Error:", err);
+                console.log("DB Sync Warning:", err);
             }
             updateUI();
         }
@@ -294,19 +297,18 @@
                 adsWatchedToday++;
                 userBalance = parseFloat((userBalance + 2.00).toFixed(2));
 
-                // লোকাল স্টোরেজে তাৎক্ষণিকভাবে সেভ করা
-                localStorage.setItem('takapay_bal_' + userId, userBalance);
+                // লোকাল স্টোরেজে ইনস্ট্যান্ট সেভ
+                let storageKey = 'takapay_secure_bal_' + userId;
+                localStorage.setItem(storageKey, userBalance);
                 updateUI();
 
-                // সুপাবেজ ডাটাবেজে পার্মানেন্টলি আপডেট করা
+                // ডাটাবেজে পার্মানেন্ট আপসার্ট (Upsert)
                 try {
-                    let { error } = await supabaseClient.from('users').update({ balance: userBalance }).eq('id', userId);
-                    if (error) {
-                        // যদি রো না থাকে তবে আপসার্ট করবে
-                        await supabaseClient.from('users').upsert([{ id: userId, balance: userBalance }]);
-                    }
+                    await supabaseClient.from('users').upsert([
+                        { id: userId, balance: userBalance, plan: 'free' }
+                    ]);
                 } catch(e) {
-                    console.log("Sync Error", e);
+                    console.log("DB Update Error", e);
                 }
 
                 alert("অভিনন্দন! আপনার অ্যাকাউন্টে ৳ ২.০০ রিওয়ার্ড যোগ করা হয়েছে।");
@@ -351,8 +353,8 @@
 
             if(!error) {
                 userBalance = parseFloat((userBalance - amount).toFixed(2));
-                localStorage.setItem('takapay_bal_' + userId, userBalance);
-                await supabaseClient.from('users').update({ balance: userBalance }).eq('id', userId);
+                localStorage.setItem('takapay_secure_bal_' + userId, userBalance);
+                await supabaseClient.from('users').upsert([{ id: userId, balance: userBalance }]);
                 updateUI();
                 alert("উইথড্রয়াল সফলভাবে সাবমিট হয়েছে!");
             } else {
