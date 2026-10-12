@@ -8,27 +8,30 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- AdsGram SDK -->
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #0b1120; color: #ffffff; padding-bottom: 70px; }
         .container { padding: 15px; max-width: 450px; margin: 0 auto; }
         
-        /* Top Header User Card */
-        .user-header { background: #172033; border-radius: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border: 1px solid #1e293b; }
-        .user-info { display: flex; align-items: center; gap: 10px; }
-        .avatar { width: 40px; height: 40px; background: #6366f1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .user-details span { font-size: 11px; color: #94a3b8; }
-        .user-details h4 { font-size: 14px; letter-spacing: 0.5px; }
-        .plan-badge { background: #f59e0b; color: #000; font-weight: bold; font-size: 12px; padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 4px; }
+        /* Premium Header Design */
+        .welcome-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .welcome-text span { font-size: 13px; color: #94a3b8; }
+        .welcome-text h3 { font-size: 18px; color: #ffffff; }
+        .header-icons { display: flex; gap: 10px; }
+        .icon-btn { background: #172033; border: 1px solid #1e293b; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #f59e0b; }
+
+        /* Green Wallet Balance Card */
+        .wallet-card { background: linear-gradient(135deg, #059669, #047857); border-radius: 20px; padding: 20px; margin-bottom: 15px; box-shadow: 0 8px 20px rgba(5, 150, 105, 0.3); }
+        .wallet-title { font-size: 12px; letter-spacing: 1px; color: #d1fae5; margin-bottom: 8px; font-weight: bold; }
+        .wallet-amount { font-size: 32px; font-weight: 700; margin-bottom: 5px; }
+        .wallet-sub { font-size: 13px; color: #a7f3d0; margin-bottom: 15px; }
+        .wallet-stats { display: flex; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.2); padding-top: 12px; font-size: 12px; color: #ecfdf5; }
 
         /* Navigation Sections */
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-
-        /* Main Balance Card */
-        .balance-card { background: linear-gradient(135deg, #2563eb, #1d4ed8); border-radius: 16px; padding: 25px 15px; text-align: center; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
-        .balance-card p { font-size: 13px; color: #bfdbfe; margin-bottom: 5px; }
-        .balance-card h2 { font-size: 32px; font-weight: 700; }
 
         /* Generic Section Box */
         .card-box { background: #172033; border-radius: 14px; padding: 15px; margin-bottom: 15px; border: 1px solid #1e293b; }
@@ -65,23 +68,29 @@
 <body>
 
     <div class="container">
-        <!-- Top User Header -->
-        <div class="user-header">
-            <div class="user-info">
-                <div class="avatar">👤</div>
-                <div class="user-details">
-                    <span>ইউজার আইডি</span>
-                    <h4 id="displayUserId">---</h4>
-                </div>
+        <!-- Top Welcome Header -->
+        <div class="welcome-header">
+            <div class="welcome-text">
+                <span>শুভ অপরাহ্ন 👋</span>
+                <h3 id="userName">ব্যবহারকারী</h3>
             </div>
-            <div class="plan-badge" id="userPlanBadge">⭐ ফ্রি প্ল্যান</div>
+            <div class="header-icons">
+                <div class="icon-btn" id="userPlanBadge">⭐</div>
+            </div>
         </div>
 
         <!-- 1. HOME TAB -->
         <div id="tab-home" class="tab-content active">
-            <div class="balance-card">
-                <p>মোট ব্যালেন্স</p>
-                <h2>৳ <span id="balance">0.00</span></h2>
+            <!-- Green Wallet Card -->
+            <div class="wallet-card">
+                <div class="wallet-title">TAKAPAY BALANCE</div>
+                <div class="wallet-amount">৳ <span id="balance">0.00</span></div>
+                <div class="wallet-sub" id="displayUserId">ID: ---</div>
+                <div class="wallet-stats">
+                    <span>ফি কাটা হয়েছে: ৳ ০</span>
+                    <span>হিডেন চার্জ: ০%</span>
+                    <span>সেভিংস রেট: ৫%</span>
+                </div>
             </div>
 
             <div class="card-box">
@@ -113,7 +122,7 @@
                     <h4>ভিডিও বিজ্ঞাপন দেখুন</h4>
                     <p>+৳ ২.০০ / অ্যাড (প্রতিদিন ২০টি)</p>
                 </div>
-                <button class="btn-sm" onclick="completeWatchTask()">দেখুন</button>
+                <button class="btn-sm" onclick="showRewardAd()">দেখুন</button>
             </div>
 
             <div class="item-card">
@@ -208,11 +217,16 @@
         tg.expand();
 
         const BOT_USERNAME = "TakaPayAppBot";
-        const userId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : '6293441724';
-        document.getElementById('displayUserId').innerText = userId;
+        const telegramUser = tg.initDataUnsafe?.user;
+        const userId = telegramUser?.id ? String(telegramUser.id) : '6293441724';
+        const userName = telegramUser?.first_name ? telegramUser.first_name : 'রহিম';
 
-        // অ্যাপ চালু হওয়া মাত্রই রেফারেল লিংক ইনস্ট্যান্ট দেখানোর জন্য ইউজার আইডি বসিয়ে দেওয়া হলো
+        document.getElementById('userName').innerText = userName;
+        document.getElementById('displayUserId').innerText = 'ID: ' + userId;
         document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${userId}`;
+
+        // AdsGram ইনিশিয়ালাইজেশন (ব্লক আইডি: 53355)
+        const AdController = window.Adsgram.init({ blockId: "53355" });
 
         function switchTab(tabName, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -226,12 +240,11 @@
         const refBy = urlParams.get('start');
 
         async function initUser() {
-            let { data: user, error } = await supabaseClient.from('users').select('*').eq('id', userId).single();
+            let { data: user } = await supabaseClient.from('users').select('*').eq('id', userId).single();
 
             if (!user) {
                 let referrer = (refBy && refBy !== userId) ? refBy : null;
                 let newUserObj = { id: userId, balance: 10.00, referred_by: referrer, plan: 'free' };
-                
                 await supabaseClient.from('users').insert([newUserObj]);
 
                 if (referrer) {
@@ -248,12 +261,7 @@
 
         function updateUI(user) {
             document.getElementById('balance').innerText = Number(user.balance || 0).toFixed(2);
-            
-            const refUrl = `https://t.me/${BOT_USERNAME}?start=${userId}`;
-            document.getElementById('refLink').innerText = refUrl;
-
-            let currentPlan = user.plan || 'free';
-            updatePlanUI(currentPlan);
+            updatePlanUI(user.plan || 'free');
         }
 
         function updatePlanUI(planName) {
@@ -271,13 +279,8 @@
                 }
             });
 
-            let planNamesBn = {
-                'free': '⭐ ফ্রি প্ল্যান',
-                'silver': '🥈 সিলভার প্ল্যান',
-                'gold': '🥇 গোল্ড প্ল্যান',
-                'diamond': '💎 ডায়মন্ড প্ল্যান'
-            };
-            document.getElementById('userPlanBadge').innerText = planNamesBn[planName] || '⭐ ফ্রি প্ল্যান';
+            let badges = { 'free': '⭐', 'silver': '🥈', 'gold': '🥇', 'diamond': '💎' };
+            document.getElementById('userPlanBadge').innerText = badges[planName] || '⭐';
         }
 
         function copyRefLink() {
@@ -289,10 +292,7 @@
         async function buyPlan(planKey, price) {
             let { data: user } = await supabaseClient.from('users').select('*').eq('id', userId).single();
             
-            if(!user) {
-                alert('ইউজার ডাটা লোড হয়নি, আবার চেষ্টা করুন।');
-                return;
-            }
+            if(!user) return;
 
             if(user.plan === planKey) {
                 alert('এই প্ল্যানটি ইতিমধ্যে আপনার সক্রিয় রয়েছে!');
@@ -316,21 +316,27 @@
             initUser();
         }
 
-        async function completeWatchTask() {
-            let { data: user } = await supabaseClient.from('users').select('balance').eq('id', userId).single();
-            if(user) {
-                let newBal = Number(user.balance) + 2.00;
-                await supabaseClient.from('users').update({ balance: newBal }).eq('id', userId);
-                
-                let currentInc = parseFloat(document.getElementById('todayIncome').innerText) || 0;
-                let currentTasks = parseInt(document.getElementById('completedTasks').innerText) || 0;
-                
-                document.getElementById('todayIncome').innerText = (currentInc + 2.00).toFixed(2);
-                document.getElementById('completedTasks').innerText = currentTasks + 1;
-                
-                alert('বিজ্ঞাপন দেখার জন্য আপনার ব্যালেন্সে ৳ ২.০০ যোগ করা হয়েছে!');
-                initUser();
-            }
+        // Adsgram ভিডিও অ্যাড দেখানোর এবং প্রতি অ্যাড দেখার জন্য ২ টাকা যোগ করার লজিক
+        function showRewardAd() {
+            AdController.show().then(async (result) => {
+                // বিজ্ঞাপন সফলভাবে দেখলে ইউজারের ব্যালেন্সে ২ টাকা যোগ হবে
+                let { data: user } = await supabaseClient.from('users').select('balance').eq('id', userId).single();
+                if(user) {
+                    let newBal = Number(user.balance) + 2.00;
+                    await supabaseClient.from('users').update({ balance: newBal }).eq('id', userId);
+                    
+                    let currentInc = parseFloat(document.getElementById('todayIncome').innerText) || 0;
+                    let currentTasks = parseInt(document.getElementById('completedTasks').innerText) || 0;
+                    
+                    document.getElementById('todayIncome').innerText = (currentInc + 2.00).toFixed(2);
+                    document.getElementById('completedTasks').innerText = currentTasks + 1;
+                    
+                    alert("অভিনন্দন! বিজ্ঞাপন দেখার জন্য আপনার ব্যালেন্সে ৳ ২.০০ যোগ করা হয়েছে।");
+                    initUser();
+                }
+            }).catch((result) => {
+                alert("বিজ্ঞাপন সম্পূর্ণ না দেখলে পয়েন্ট পাবেন না।");
+            });
         }
 
         function joinTelegramChannel() {
