@@ -34,7 +34,7 @@
             </div>
             <div>
                 <p class="text-[10px] text-gray-400">ইউজার আইডি</p>
-                <p id="uid" class="font-bold text-xs text-indigo-200">Loading...</p>
+                <p id="uid" class="font-bold text-xs text-indigo-200">লোড হচ্ছে...</p>
             </div>
         </div>
         <span class="bg-amber-500/20 text-amber-400 text-[11px] px-3 py-1 rounded-full border border-amber-500/30 font-semibold">
@@ -231,24 +231,23 @@
         <button onclick="showTab('withdraw')" id="nav-withdraw" class="nav-btn text-gray-400 text-[11px] font-medium text-center p-1.5"><i class="fa-solid fa-wallet text-base block mb-0.5"></i>উইথড্র</button>
     </div>
 
-    <!-- Script Logic with Persistent Storage -->
+    <!-- Script Logic -->
     <script>
         const tg = window.Telegram?.WebApp;
-        let userId = "guest";
+        let userId = "default_user";
 
         if (tg) {
             tg.ready();
             tg.expand();
-            if (tg.initDataUnsafe?.user) {
-                userId = tg.initDataUnsafe.user.id;
-                document.getElementById('uid').innerText = userId;
-                document.getElementById('refLink').value = `https://t.me/TakaPayBot?start=ref${userId}`;
-            } else {
-                document.getElementById('uid').innerText = "6293441724";
+            if (tg.initDataUnsafe?.user?.id) {
+                userId = String(tg.initDataUnsafe.user.id);
             }
         }
 
-        // Local Storage Keys
+        document.getElementById('uid').innerText = userId;
+        document.getElementById('refLink').value = `https://t.me/TakaPayBot?start=ref${userId}`;
+
+        // Local Storage Keys based on exact User ID
         const balKey = `tp_bal_${userId}`;
         const adsKey = `tp_ads_${userId}`;
 
@@ -271,10 +270,16 @@
             }
         }
 
-        // Init UI on load
         updateUI();
 
-        let AdController = window.AdsGram ? window.AdsGram.init({ blockId: "53448" }) : null;
+        let AdController = null;
+        try {
+            if (window.AdsGram) {
+                AdController = window.AdsGram.init({ blockId: "53448" });
+            }
+        } catch (e) {
+            console.log("AdsGram init error:", e);
+        }
 
         function showTab(tab) {
             document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
@@ -325,7 +330,7 @@
                 AdController.show().then((result) => {
                     giveReward();
                 }).catch((err) => {
-                    console.log('Ad error/fallback:', err);
+                    console.log('Ad fallback triggered due to error:', err);
                     giveReward();
                 });
             } else {
@@ -337,7 +342,6 @@
             balance += 2.00;
             adsWatched += 1;
 
-            // Save to LocalStorage
             localStorage.setItem(balKey, balance);
             localStorage.setItem(adsKey, adsWatched);
 
