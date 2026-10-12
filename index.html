@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>TakaPay Mini App</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -233,20 +236,27 @@
 
         const BOT_USERNAME = "TakaPayAppBot";
         
-        // টেলিগ্রাম থেকে সঠিক ইউজার আইডি ফেচ করা (ফ্ল্যাগ বা ডেমো আইডি দূর করা হয়েছে)
+        // টেলিগ্রাম থেকে সঠিক ইউজার আইডি ফেচ করা
         const telegramUser = tg.initDataUnsafe?.user;
-        const userId = telegramUser?.id ? String(telegramUser.id) : null;
-        const userName = telegramUser?.first_name ? telegramUser.first_name : 'ইউজার';
+        let userId = telegramUser?.id ? String(telegramUser.id) : null;
+        let userName = telegramUser?.first_name ? telegramUser.first_name : null;
 
+        // যদি টেলিগ্রাম থেকে সরাসরি ডাটা না আসে, লোকাল স্টোরেজ বা ফলব্যাক হ্যান্ডেল করা
         if (!userId) {
-            alert('দয়া করে টেলিগ্রাম অ্যাপের ভেতর থেকে মিনি অ্যাপটি ওপেন করুন!');
+            userId = localStorage.getItem('takapay_user_id');
+            if (!userId) {
+                userId = 'user_' + Math.floor(100000 + Math.random() * 900000);
+                localStorage.setItem('takapay_user_id', userId);
+            }
+        }
+
+        if (!userName) {
+            userName = 'ব্যবহারকারী';
         }
 
         document.getElementById('userName').innerText = userName;
-        document.getElementById('displayUserId').innerText = 'আইডি: ' + (userId || '---');
-        if (userId) {
-            document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${userId}`;
-        }
+        document.getElementById('displayUserId').innerText = 'আইডি: ' + userId;
+        document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${userId}`;
 
         let AdController = null;
         try {
@@ -414,14 +424,4 @@
                         document.getElementById('todayIncome').innerText = (currentInc + rewardPerAd).toFixed(2);
                         document.getElementById('completedTasks').innerText = adsWatchedToday;
                         document.getElementById('balance').innerText = newBal.toFixed(2);
-                        
-                        alert(`অভিনন্দন! বিজ্ঞাপন দেখার জন্য আপনার ব্যালেন্সে ৳ ${rewardPerAd.toFixed(2)} যোগ করা হয়েছে।`);
-                        initUser();
-                    } else {
-                        alert("ব্যালেন্স আপডেট করতে সমস্যা হয়েছে: " + error.message);
-                    }
-                }
-            };
-
-            if (AdController) {
-                AdController.show().then(
+             
