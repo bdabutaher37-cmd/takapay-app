@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TakaPay Mini App Pro v10.0</title>
+    <title>TakaPay Mini App Pro v11.0</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Supabase JS SDK -->
@@ -81,7 +81,7 @@
                 <h2>৳ <span id="balance">0.00</span></h2>
             </div>
 
-            <!-- ডেইলি বোনাস বক্স -->
+            <!-- দৈনিক বোনাস বক্স -->
             <div class="daily-bonus-box">
                 <div>
                     <h4>🎁 দৈনিক বোনাস</h4>
@@ -231,6 +231,13 @@
             }
         }
 
+        // যদি টেলিগ্রাম থেকে সরাসরি নাম না আসে, তবে লোকাল স্টোরেজ বা ডিফল্ট নাম ব্যবহার করবে
+        if (!userName || userName === "ইউজার") {
+            userName = localStorage.getItem('takapay_username') || "Abu";
+        } else {
+            localStorage.setItem('takapay_username', userName);
+        }
+
         document.getElementById('displayUserId').innerText = 'আইডি: ' + userId;
         document.getElementById('userName').innerText = userName;
         document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${userId}`;
@@ -378,14 +385,4 @@
 
             if (AdController) {
                 AdController.show().then(async (result) => {
-                    await rewardUser();
-                }).catch((result) => {
-                    alert("বিজ্ঞাপন সম্পূর্ণ না দেখলে পয়েন্ট পাবেন না।");
-                });
-            } else {
-                rewardUser();
-            }
-        }
-
-        function joinTelegramChannel() {
-            if (window.Telegram?.WebApp?.openTeleg
+                    await rewar
