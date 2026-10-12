@@ -2,278 +2,194 @@
 <html lang="bn">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>TakaPay Pro</title>
+<title>TakaPay</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',sans-serif}
-body{background:#05070e;color:#fff;padding-bottom:95px}
+body{background:#05070e;color:#fff;padding-bottom:90px}
 .container{padding:16px;max-width:450px;margin:0 auto}
-.welcome-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;background:linear-gradient(135deg,#181824,#22223b);padding:16px;border-radius:18px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 8px 20px rgba(0,0,0,0.5)}
-.welcome-text span{font-size:11px;color:#f59e0b;font-weight:700;text-transform:uppercase}
-.welcome-text h3{font-size:18px;color:#fff;font-weight:700}
-.plan-badge{background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;font-weight:800;font-size:11px;padding:6px 14px;border-radius:20px;box-shadow:0 4px 15px rgba(245,158,11,0.4)}
-.tab-content{display:none}.tab-content.active{display:block}
-.balance-card{background:linear-gradient(135deg,#f97316,#ea580c,#c2410c);border-radius:22px;padding:28px 15px;text-align:center;margin-bottom:16px;box-shadow:0 12px 30px rgba(249,115,22,0.45);border:1px solid rgba(255,255,255,0.25)}
-.balance-card p{font-size:12px;color:#ffedd5;text-transform:uppercase;letter-spacing:1.2px;font-weight:700}
-.balance-card h2{font-size:38px;font-weight:900;margin-top:6px;text-shadow:0 2px 10px rgba(0,0,0,0.3)}
-.card-box{background:linear-gradient(135deg,#12131c,#1c1e2b);border-radius:18px;padding:18px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.06);box-shadow:0 8px 24px rgba(0,0,0,0.4)}
-.section-title{font-size:15px;font-weight:700;margin-bottom:12px;color:#f8fafc}
-.daily-bonus-box{background:linear-gradient(135deg,#059669,#10b981,#34d399);border-radius:18px;padding:18px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 8px 22px rgba(16,185,129,0.35);border:1px solid rgba(255,255,255,0.2)}
-.daily-bonus-box h4{font-size:15px;color:#fff;font-weight:700;margin-bottom:3px}
-.daily-bonus-box p{font-size:11px;color:#ecfdf5}
-.btn-claim{background:#fff;color:#047857;border:none;padding:10px 18px;border-radius:12px;font-weight:800;font-size:12px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2)}
-.btn-claim-disabled{background:#334155!important;color:#94a3b8!important;cursor:not-allowed;box-shadow:none!important}
-.ref-box{background:#05070e;padding:12px;border-radius:12px;word-break:break-all;color:#f97316;font-size:12px;border:1px dashed #f97316;margin:10px 0;text-align:center;font-family:monospace}
-.btn-blue{background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;border:none;padding:14px;border-radius:14px;font-weight:700;width:100%;cursor:pointer;font-size:14px;box-shadow:0 6px 20px rgba(249,115,22,0.4)}
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.stat-item{background:linear-gradient(135deg,#12131c,#1c1e2b);padding:16px;border-radius:16px;border:1px solid rgba(255,255,255,0.06);box-shadow:0 6px 20px rgba(0,0,0,0.3)}
-.stat-item p{font-size:11px;color:#94a3b8;font-weight:600}
-.stat-item h4{font-size:17px;margin-top:6px;color:#f97316;font-weight:800}
-.progress-container{background:#05070e;border-radius:10px;height:8px;width:100%;margin-top:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.06)}
-.progress-bar{background:linear-gradient(135deg,#10b981,#34d399);height:100%;width:0%;transition:width .4s ease;border-radius:10px}
-.item-card{background:linear-gradient(135deg,#12131c,#1c1e2b);border-radius:16px;padding:16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border:1px solid rgba(255,255,255,0.06);box-shadow:0 6px 20px rgba(0,0,0,0.3)}
-.item-info h4{font-size:14px;font-weight:700;margin-bottom:4px;color:#f8fafc}
-.item-info p{font-size:11px;color:#f97316}
-.btn-sm{background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;border:none;padding:9px 18px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 4px 15px rgba(249,115,22,0.35)}
-.btn-active{background:linear-gradient(135deg,#059669,#10b981)!important;box-shadow:0 4px 15px rgba(16,185,129,0.35)!important}
-.btn-disabled{background:#334155!important;color:#94a3b8!important;cursor:not-allowed;box-shadow:none!important}
-.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(5,7,14,0.85);backdrop-filter:blur(8px);align-items:center;justify-content:center}
-.modal-content{background:#12131c;padding:24px;border-radius:20px;width:90%;max-width:400px;border:1px solid rgba(249,115,22,0.3);box-shadow:0 20px 40px rgba(0,0,0,0.6)}
-input,select{width:100%;padding:13px;margin-bottom:12px;border-radius:12px;border:1px solid #334155;background:#05070e;color:#fff;font-size:14px;outline:none}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(12,13,20,0.98);backdrop-filter:blur(15px);display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid rgba(255,255,255,0.08);max-width:450px;margin:0 auto;z-index:999;box-shadow:0 -10px 25px rgba(0,0,0,0.6)}
-.nav-item{text-align:center;color:#64748b;font-size:11px;cursor:pointer;flex:1;font-weight:600}
-.nav-item.active{color:#f97316;text-shadow:0 0 12px rgba(249,115,22,0.4)}
-.nav-icon{font-size:18px;display:block;margin-bottom:2px}
+.header{display:flex;justify-content:space-between;align-items:center;background:#181824;padding:14px;border-radius:16px;margin-bottom:14px;border:1px solid rgba(255,255,255,0.08)}
+.badge{background:#f59e0b;color:#000;font-weight:800;font-size:10px;padding:4px 10px;border-radius:15px}
+.tab{display:none}.tab.active{display:block}
+.b-card{background:linear-gradient(135deg,#f97316,#ea580c);border-radius:18px;padding:22px;text-align:center;margin-bottom:14px}
+.b-card h2{font-size:34px;font-weight:900;margin-top:4px}
+.box{background:#12131c;border-radius:16px;padding:16px;margin-bottom:14px;border:1px solid rgba(255,255,255,0.06)}
+.title{font-size:14px;font-weight:700;margin-bottom:10px}
+.bonus{background:#059669;border-radius:16px;padding:14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.btn{background:#f97316;color:#fff;border:none;padding:12px;border-radius:12px;font-weight:700;width:100%;cursor:pointer;font-size:14px}
+.btn-sm{background:#f97316;color:#fff;border:none;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer}
+.btn-act{background:#059669!important}
+.btn-dis{background:#334155!important;color:#94a3b8!important;cursor:not-allowed}
+input,select{width:100%;padding:12px;margin-bottom:10px;border-radius:10px;border:1px solid #334155;background:#05070e;color:#fff;font-size:13px;outline:none}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#0c0d14;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid rgba(255,255,255,0.08);max-width:450px;margin:0 auto;z-index:999}
+.nav-i{text-align:center;color:#64748b;font-size:11px;cursor:pointer;flex:1;font-weight:600}
+.nav-i.active{color:#f97316}
+.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(5,7,14,0.85);align-items:center;justify-content:center}
+.m-con{background:#12131c;padding:20px;border-radius:18px;width:90%;max-width:380px;border:1px solid #f97316}
+.ref{background:#05070e;padding:10px;border-radius:10px;word-break:break-all;color:#f97316;font-size:11px;border:1px dashed #f97316;margin:8px 0;text-align:center}
 </style>
 </head>
 <body>
 <div class="container">
-    <div class="welcome-header">
-        <div class="welcome-text"><span id="displayUserId">আইডি: 7862177842</span><h3 id="userName">Abu</h3></div>
-        <div class="plan-badge" id="userPlanBadge">⭐ ফ্রি প্ল্যান</div>
+    <div class="header">
+        <div><span id="uid" style="font-size:10px;color:#f59e0b">আইডি: -</span><h3 id="uname" style="font-size:16px">ইউজার</h3></div>
+        <div class="badge" id="ubadge">ফ্রি প্ল্যান</div>
     </div>
-    <div id="tab-home" class="tab-content active">
-        <div class="balance-card"><p>মোট ব্যালেন্স</p><h2>৳ <span id="balance">0.00</span></h2></div>
-        <div class="daily-bonus-box">
-            <div><h4>🎁 দৈনিক বোনাস</h4><p>প্রতিদিন ফ্রিতে পান ৳ ১০.০০!</p></div>
-            <button class="btn-claim" id="dailyBonusBtn" onclick="claimDailyBonus()">ক্লেইম করুন</button>
+    <div id="t-home" class="tab active">
+        <div class="b-card"><p style="font-size:11px;font-weight:700">মোট ব্যালেন্স</p><h2>৳ <span id="bal">0.00</span></h2></div>
+        <div class="bonus">
+            <div><h4 style="font-size:14px">দৈনিক বোনাস</h4><p style="font-size:10px">প্রতিদিন ৳ ১০!</p></div>
+            <button class="btn-sm" style="background:#fff;color:#047857" id="dbBtn" onclick="claimBonus()">ক্লেইম</button>
         </div>
-        <div class="card-box">
-            <div class="section-title">👥 আপনার রেফারেল লিংক</div>
-            <p style="font-size:11px;color:#94a3b8;text-align:center;">প্রতি রেফারে পাবেন ৳ ১০.০০ বোনাস!</p>
-            <p style="font-size:12px;color:#f97316;text-align:center;margin:6px 0;font-weight:700;">মোট রেফার: <span id="refCount">0</span> জন</p>
-            <div class="ref-box" id="refLink">https://t.me/TakaPayAppBot?start=7862177842</div>
-            <button class="btn-blue" onclick="copyRefLink()">লিংক কপি করুন</button>
+        <div class="box">
+            <div class="title">👥 রেফারেল লিংক</div>
+            <div class="ref" id="rlink">...</div>
+            <button class="btn" onclick="copyRef()">কপি করুন</button>
         </div>
-        <div class="section-title">📊 ড্যাশবোর্ড ওভারভিউ</div>
-        <div class="stats-grid">
-            <div class="stat-item"><p>আজকের আয়</p><h4>৳ <span id="todayIncome">0.00</span></h4></div>
-            <div class="stat-item"><p>সম্পন্ন টাস্ক</p><h4><span id="completedTasks">0</span> / ২০ টি</h4><div class="progress-container"><div class="progress-bar" id="taskProgressBar"></div></div></div>
+        <div class="box">
+            <div class="title">📊 ওভারভিউ</div>
+            <p style="font-size:12px;color:#94a3b8">আজকের আয়: ৳ <span id="inc">0.00</span></p>
+            <p style="font-size:12px;color:#94a3b8;margin-top:4px">সম্পন্ন টাস্ক: <span id="adsCnt">0</span> / 20</p>
         </div>
     </div>
-    <div id="tab-tasks" class="tab-content">
-        <div class="section-title">📋 দৈনিক টাস্কসমূহ</div>
-        <div class="item-card"><div class="item-info"><h4>ভিডিও বিজ্ঞাপন দেখুন</h4><p>প্রতি অ্যাডে ৳ ২.০০ (দেখা হয়েছে: <span id="adCounterText">0</span>/20)</p></div><button class="btn-sm" id="adBtn" onclick="showRewardAd()">দেখুন</button></div>
-        <div class="item-card"><div class="item-info"><h4>অফিসিয়াল টেলিগ্রাম চ্যানেল</h4><p style="color:#10b981;">+৳ ৫.০০ (একবার)</p></div><button class="btn-sm" onclick="joinTelegramChannel()">জয়েন</button></div>
-    </div>
-    <div id="tab-plans" class="tab-content">
-        <div class="section-title">💎 ইনভেস্টমেন্ট প্ল্যান</div>
-        <div class="item-card"><div class="item-info"><h4>ফ্রি প্ল্যান (Free)</h4><p>মূল্য: ৳ ০ | দৈনিক ২০টি অ্যাড</p></div><button class="btn-sm btn-active" id="plan-Free">সক্রিয়</button></div>
-        <div class="item-card"><div class="item-info"><h4>সিলভার প্ল্যান (Silver)</h4><p>মূল্য: ৳ ৩০০ | দৈনিক আয়: ৳ ৫০</p></div><button class="btn-sm" id="plan-Silver" onclick="openDepositModal('Silver', 300)">কিনুন</button></div>
-        <div class="item-card"><div class="item-info"><h4>গোল্ড প্ল্যান (Gold)</h4><p>মূল্য: ৳ ৫০০ | দৈনিক আয়: ৳ ১২০</p></div><button class="btn-sm" id="plan-Gold" onclick="openDepositModal('Gold', 500)">কিনুন</button></div>
-        <div class="item-card"><div class="item-info"><h4>প্লাটিনাম প্ল্যান (Platinum)</h4><p>মূল্য: ৳ ১০০০ | দৈনিক আয়: ৳ ২৫০</p></div><button class="btn-sm" id="plan-Platinum" onclick="openDepositModal('Platinum', 1000)">কিনুন</button></div>
-        <div class="item-card"><div class="item-info"><h4>ডায়মন্ড প্ল্যান (Diamond)</h4><p>মূল্য: ৳ ১৫০০ | দৈনিক আয়: ৳ ৪০০</p></div><button class="btn-sm" id="plan-Diamond" onclick="openDepositModal('Diamond', 1500)">কিনুন</button></div>
-    </div>
-    <div id="tab-withdraw" class="tab-content">
-        <div class="card-box">
-            <div class="section-title">💳 টাকা উত্তোলন (Withdraw)</div>
-            <p style="font-size:11px;color:#fbbf24;margin-bottom:12px;">⚠️ উইথড্র করতে মিনিমাম ১০টি রেফার এবং কমপক্ষে ৳ ৩০০ থাকতে হবে!</p>
-            <select id="method"><option value="bkash">বিকাশ (bKash)</option><option value="nagad">নগদ (Nagad)</option></select>
-            <input type="text" id="account" placeholder="অ্যাকাউন্ট নাম্বার (যেমন: 017XXXXXXXX)">
-            <input type="number" id="amount" placeholder="টাকার পরিমাণ (মিনিমাম ৳ ৩০০)">
-            <button class="btn-blue" onclick="requestWithdrawal()">উইথড্র করুন</button>
+    <div id="t-tasks" class="tab">
+        <div class="title">📋 টাস্কসমূহ</div>
+        <div class="box" style="display:flex;justify-content:space-between;align-items:center">
+            <div><h4 style="font-size:13px">বিজ্ঞাপন দেখুন</h4><p style="font-size:10px;color:#f97316" id="adRate">প্রতি অ্যাড ৳২</p></div>
+            <button class="btn-sm" id="adBtn" onclick="watchAd()">দেখুন</button>
+        </div>
+        <div class="box" style="display:flex;justify-content:space-between;align-items:center">
+            <div><h4 style="font-size:13px">টেলিগ্রাম চ্যানেল</h4><p style="font-size:10px;color:#10b981">+৳৫</p></div>
+            <button class="btn-sm" onclick="joinChan()">জয়েন</button>
         </div>
     </div>
-
-    <!-- সিক্রেট অ্যাডমিন ট্যাব -->
-    <div id="tab-admin" class="tab-content">
-        <div class="card-box" style="border: 1px solid #f97316;">
-            <div class="section-title" style="color:#f97316;">🔐 সিক্রেট অ্যাডমিন প্যানেল</div>
-            <p style="font-size:11px;color:#94a3b8;margin-bottom:12px;">ইউজারের পেমেন্ট যাচাই করে এখান থেকে প্ল্যান বা ব্যালেন্স একটিভ করে দিন:</p>
-            <input type="text" id="targetUserId" placeholder="ইউজারের টেলিগ্রাম আইডি (যেমন: 7862177842)">
-            <select id="targetPlan">
-                <option value="Free">ফ্রি প্ল্যান (Free)</option>
-                <option value="Silver">সিলভার প্ল্যান (Silver)</option>
-                <option value="Gold">গোল্ড প্ল্যান (Gold)</option>
-                <option value="Platinum">প্লাটিনাম প্ল্যান (Platinum)</option>
-                <option value="Diamond">ডায়মন্ড প্ল্যান (Diamond)</option>
-            </select>
-            <input type="number" id="targetBonusBal" placeholder="বোনাস ব্যালেন্স যোগ করতে চাইলে পরিমাণ লিখুন (ঐচ্ছিক)">
-            <button class="btn-blue" onclick="adminActivatePlan()">ইউজারের প্ল্যান একটিভ করুন</button>
+    <div id="t-plans" class="tab">
+        <div class="title">💎 ইনভেস্টমেন্ট প্ল্যান</div>
+        <div class="box" style="display:flex;justify-content:space-between;align-items:center"><div><h4 style="font-size:13px">ফ্রি প্ল্যান</h4><p style="font-size:10px;color:#f97316">৳০ | ২০ অ্যাড</p></div><button class="btn-sm" id="p-Free">কিনুন</button></div>
+        <div class="box" style="display:flex;justify-content:space-between;align-items:center"><div><h4 style="font-size:13px">সিলভার প্ল্যান</h4><p style="font-size:10px;color:#f97316">৳৩০০ | আয়: ৳৫০</p></div><button class="btn-sm" id="p-Silver" onclick="buyPlan('Silver',300)">কিনুন</button></div>
+        <div class="box" style="display:flex;justify-content:space-between;align-items:center"><div><h4 style="font-size:13px">গোল্ড প্ল্যান</h4><p style="font-size:10px;color:#f97316">৳৫০০ | আয়: ৳১২০</p></div><button class="btn-sm" id="p-Gold" onclick="buyPlan('Gold',500)">কিনুন</button></div>
+        <div class="box" style="display:flex;justify-content:space-between;align-items:center"><div><h4 style="font-size:13px">প্লাটিনাম প্ল্যান</h4><p style="font-size:10px;color:#f97316">৳১০০০ | আয়: ৳২৫০</p></div><button class="btn-sm" id="p-Platinum" onclick="buyPlan('Platinum',1000)">কিনুন</button></div>
+        <div class="box" style="display:flex;justify-content:space-between;align-items:center"><div><h4 style="font-size:13px">ডায়মন্ড প্ল্যান</h4><p style="font-size:10px;color:#f97316">৳১৫০০ | আয়: ৳৪০০</p></div><button class="btn-sm" id="p-Diamond" onclick="buyPlan('Diamond',1500)">কিনুন</button></div>
+    </div>
+    <div id="t-with" class="tab">
+        <div class="box">
+            <div class="title">💳 টাকা উত্তোলন</div>
+            <select id="wMethod"><option value="bkash">বিকাশ</option><option value="nagad">নগদ</option></select>
+            <input type="text" id="wAcc" placeholder="নম্বর (017XXXXXXXX)">
+            <input type="number" id="wAmt" placeholder="পরিমাণ (মিনিমাম ৳৩০০)">
+            <button class="btn" onclick="withdraw()">উইথড্র</button>
+        </div>
+    </div>
+    <div id="t-admin" class="tab">
+        <div class="box" style="border:1px solid #f97316">
+            <div class="title" style="color:#f97316">🔐 অ্যাডমিন প্যানেল</div>
+            <input type="text" id="aId" placeholder="ইউজার আইডি">
+            <select id="aPlan"><option value="Free">ফ্রি</option><option value="Silver">সিলভার</option><option value="Gold">গোল্ড</option><option value="Platinum">প্লাটিনাম</option><option value="Diamond">ডায়মন্ড</option></select>
+            <input type="number" id="aBal" placeholder="বোনাস ব্যালেন্স (ঐচ্ছিক)">
+            <button class="btn" onclick="adminAct()">অ্যাক্টিভ করুন</button>
         </div>
     </div>
 </div>
-
-<div id="depositModal" class="modal">
-    <div class="modal-content">
-        <h3 id="modalTitle" style="margin-bottom:10px;font-size:18px;">প্ল্যান কিনুন</h3>
-        <p style="font-size:12px;color:#94a3b8;margin-bottom:14px;">সেন্ড মানি করুন: <strong style="color:#f97316;font-size:15px;">01318774526</strong></p>
-        <input type="text" id="senderNumber" placeholder="আপনার বিকাশ/নগদ নম্বর">
-        <input type="text" id="trxId" placeholder="ট্রানজেকশন আইডি (TrxID)">
-        <button class="btn-blue" onclick="submitDepositPayment()">পেমেন্ট জমা দিন</button>
-        <button class="btn-blue" style="background:linear-gradient(135deg,#dc2626,#ef4444);margin-top:10px;" onclick="closeDepositModal()">বাতিল</button>
+<div id="modal" class="modal">
+    <div class="m-con">
+        <h3 id="mTitle" style="font-size:16px;margin-bottom:8px">পেমেন্ট</h3>
+        <p style="font-size:11px;color:#94a3b8;margin-bottom:10px">সেন্ড মানি করুন: <strong style="color:#f97316">01318774526</strong></p>
+        <input type="text" id="sNum" placeholder="আপনার নম্বর">
+        <input type="text" id="sTrx" placeholder="TrxID">
+        <button class="btn" onclick="subDep()">জমা দিন</button>
+        <button class="btn" style="background:#dc2626;margin-top:8px" onclick="closeModal()">বাতিল</button>
     </div>
 </div>
-
-<div class="bottom-nav" id="bottomNavContainer">
-    <div class="nav-item active" id="nav-home" onclick="switchTab('home')"><span class="nav-icon">🏠</span>হোম</div>
-    <div class="nav-item" id="nav-tasks" onclick="switchTab('tasks')"><span class="nav-icon">📋</span>টাস্ক</div>
-    <div class="nav-item" id="nav-plans" onclick="switchTab('plans')"><span class="nav-icon">💎</span>প্ল্যান</div>
-    <div class="nav-item" id="nav-withdraw" onclick="switchTab('withdraw')"><span class="nav-icon">💳</span>উইথড্র</div>
+<div class="nav" id="navBox">
+    <div class="nav-i active" id="n-home" onclick="goTab('home')">🏠হোম</div>
+    <div class="nav-i" id="n-tasks" onclick="goTab('tasks')">📋টাস্ক</div>
+    <div class="nav-i" id="n-plans" onclick="goTab('plans')">💎প্ল্যান</div>
+    <div class="nav-i" id="n-with" onclick="goTab('with')">💳উইথড্র</div>
 </div>
-
 <script>
-let userId="7862177842",userName="Abu";
-const ADMIN_CHAT_ID = "7862177842";
-const BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"; 
-const MAX_ADS=20,BOT_USERNAME="TakaPayAppBot",OFFICIAL_CHANNEL="https://t.me/takapay_official";
-let selectedPlanName = "";
-
-try{const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand();if(tg.initDataUnsafe?.user?.id){userId=String(tg.initDataUnsafe.user.id);userName=tg.initDataUnsafe.user.first_name||"Abu";}}}catch(e){}
-
-if(userId === ADMIN_CHAT_ID){
-    let navContainer = document.getElementById('bottomNavContainer');
-    let adminNav = document.createElement('div');
-    adminNav.className = 'nav-item';
-    adminNav.id = 'nav-admin';
-    adminNav.onclick = () => switchTab('admin');
-    adminNav.innerHTML = '<span class="nav-icon">🔐</span>অ্যাডমিন';
-    navContainer.appendChild(adminNav);
+let uid="7862177842",uname="Abu",selPlan="",chanUrl="https://t.me/takapay_official";
+const adminId="7862177842",botTok="YOUR_BOT_TOKEN_HERE";
+try{const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand();if(tg.initDataUnsafe?.user?.id){uid=String(tg.initDataUnsafe.user.id);uname=tg.initDataUnsafe.user.first_name||"Abu";}}}catch(e){}
+if(uid===adminId){let n=document.getElementById('navBox');let d=document.createElement('div');d.className='nav-i';d.id='n-admin';d.onclick=()=>goTab('admin');d.innerHTML='🔐অ্যাডমিন';n.appendChild(d);}
+let bal=parseFloat(localStorage.getItem('tp_bal_'+uid))||0;
+let ads=parseInt(localStorage.getItem('tp_ads_'+uid))||0;
+let claimed=localStorage.getItem('tp_bonus_'+uid)==='true';
+let refs=parseInt(localStorage.getItem('tp_refs_'+uid))||0;
+let plan=localStorage.getItem('tp_plan_'+uid)||'ফ্রি প্ল্যান';
+document.getElementById('uid').innerText='আইডি: '+uid;
+document.getElementById('uname').innerText=uname;
+document.getElementById('rlink').innerText=`https://t.me/TakaPayAppBot?start=${uid}`;
+function goTab(t){
+    document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
+    document.querySelectorAll('.nav-i').forEach(e=>e.classList.remove('active'));
+    document.getElementById('t-'+t).classList.add('active');
+    let el=document.getElementById('n-'+t);if(el)el.classList.add('active');
 }
-
-let userBalance=parseFloat(localStorage.getItem('takapay_bal_'+userId))||0;
-let adsWatchedToday=parseInt(localStorage.getItem('takapay_ads_'+userId))||0;
-let isBonusClaimedToday=localStorage.getItem('takapay_bonus_'+userId)==='true';
-let referralCount=parseInt(localStorage.getItem('takapay_refs_'+userId))||0;
-let activePlan = localStorage.getItem('takapay_active_plan_'+userId) || 'ফ্রি প্ল্যান';
-
-document.getElementById('displayUserId').innerText='আইডি: '+userId;
-document.getElementById('userName').innerText=userName;
-document.getElementById('refLink').innerText=`https://t.me/${BOT_USERNAME}?start=${userId}`;
-
-function switchTab(t){
-    document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
-    document.getElementById('tab-'+t).classList.add('active');
-    let navEl = document.getElementById('nav-'+t);
-    if(navEl) navEl.classList.add('active');
+function getRate(){
+    if(plan.includes('Silver'))return 2.5;
+    if(plan.includes('Gold'))return 6;
+    if(plan.includes('Platinum'))return 12.5;
+    if(plan.includes('Diamond'))return 20;
+    return 2;
 }
-
 function updateUI(){
-    userBalance=parseFloat(localStorage.getItem('takapay_bal_'+userId))||userBalance;
-    referralCount=parseInt(localStorage.getItem('takapay_refs_'+userId))||referralCount;
-    activePlan=localStorage.getItem('takapay_active_plan_'+userId) || 'ফ্রি প্ল্যান';
-
-    document.getElementById('balance').innerText=userBalance.toFixed(2);
-    document.getElementById('todayIncome').innerText=userBalance.toFixed(2);
-    document.getElementById('completedTasks').innerText=adsWatchedToday+" / 20";
-    document.getElementById('adCounterText').innerText=adsWatchedToday;
-    document.getElementById('refCount').innerText=referralCount;
-    document.getElementById('userPlanBadge').innerText='⭐ '+activePlan;
-    document.getElementById('taskProgressBar').style.width=((adsWatchedToday/MAX_ADS)*100)+"%";
-
-    // সব প্ল্যান বাটন রিসেট করে 'কিনুন' করা
-    ['Free', 'Silver', 'Gold', 'Platinum', 'Diamond'].forEach(p => {
-        let btn = document.getElementById('plan-' + p);
-        if(btn){
-            if(p === 'Free'){
-                btn.innerText = "সক্রিয়";
-                btn.className = "btn-sm btn-active";
-            } else {
-                btn.innerText = "কিনুন";
-                btn.className = "btn-sm";
-            }
-        }
+    bal=parseFloat(localStorage.getItem('tp_bal_'+uid))||bal;
+    ads=parseInt(localStorage.getItem('tp_ads_'+uid))||ads;
+    plan=localStorage.getItem('tp_plan_'+uid)||'ফ্রি প্ল্যান';
+    let r=getRate();
+    document.getElementById('bal').innerText=bal.toFixed(2);
+    document.getElementById('inc').innerText=bal.toFixed(2);
+    document.getElementById('adsCnt').innerText=ads;
+    document.getElementById('adRate').innerText=`প্রতি অ্যাড ৳${r}`;
+    document.getElementById('ubadge').innerText=plan;
+    ['Free','Silver','Gold','Platinum','Diamond'].forEach(p=>{
+        let b=document.getElementById('p-'+p);
+        if(b){b.innerText="কিনুন";b.className="btn-sm";if(p==='Free')b.removeAttribute('onclick');}
     });
-
-    // বর্তমান অ্যাক্টিভ প্ল্যান অনুযায়ী বাটন সবুজ করা
-    if(activePlan.includes('Silver')) { setPlanActiveBtn('Silver'); }
-    else if(activePlan.includes('Gold')) { setPlanActiveBtn('Gold'); }
-    else if(activePlan.includes('Platinum')) { setPlanActiveBtn('Platinum'); }
-    else if(activePlan.includes('Diamond')) { setPlanActiveBtn('Diamond'); }
-
-    if(adsWatchedToday>=MAX_ADS){let b=document.getElementById('adBtn');if(b){b.innerText="শেষ";b.className="btn-sm btn-disabled";}}
-    let db=document.getElementById('dailyBonusBtn');if(db&&isBonusClaimedToday){db.innerText="গৃহীত হয়েছে";db.className="btn-claim btn-claim-disabled";db.disabled=true;}
+    let cur='Free';
+    if(plan.includes('Silver'))cur='Silver';
+    else if(plan.includes('Gold'))cur='Gold';
+    else if(plan.includes('Platinum'))cur='Platinum';
+    else if(plan.includes('Diamond'))cur='Diamond';
+    let pb=document.getElementById('p-'+cur);
+    if(pb){pb.innerText="সক্রিয়";pb.className="btn-sm btn-act";pb.removeAttribute('onclick');}
+    if(ads>=20){let ab=document.getElementById('adBtn');if(ab){ab.innerText="শেষ";ab.className="btn-sm btn-dis";}}
+    let db=document.getElementById('dbBtn');if(db&&claimed){db.innerText="গৃহীত";db.className="btn-sm btn-dis";db.disabled=true;}
 }
-
-function setPlanActiveBtn(planName){
-    let btn = document.getElementById('plan-' + planName);
-    if(btn){
-        let freeBtn = document.getElementById('plan-Free');
-        if(freeBtn) { freeBtn.innerText = "কিনুন"; freeBtn.className = "btn-sm"; }
-        btn.innerText = "সক্রিয়";
-        btn.className = "btn-sm btn-active";
-    }
-}
-
 updateUI();
-
-function claimDailyBonus(){if(isBonusClaimedToday){alert("ইতিমধ্যে গ্রহণ করা হয়েছে!");return;}isBonusClaimedToday=true;userBalance=parseFloat((userBalance+10).toFixed(2));localStorage.setItem('takapay_bal_'+userId,userBalance);localStorage.setItem('takapay_bonus_'+userId,'true');updateUI();alert("🎉 ১০ টাকা বোনাস পেয়েছেন!");}
-function copyRefLink(){navigator.clipboard.writeText(document.getElementById('refLink').innerText);alert('লিংক কপি হয়েছে!');}
-function openDepositModal(t,p){selectedPlanName = t + ' (৳' + p + ')';document.getElementById('modalTitle').innerText=t+' প্ল্যান (৳'+p+')';document.getElementById('depositModal').style.display='flex';}
-function closeDepositModal(){document.getElementById('depositModal').style.display='none';}
-
-function submitDepositPayment(){
-    let senderNum = document.getElementById('senderNumber').value;
-    let trxId = document.getElementById('trxId').value;
-    if(!senderNum || !trxId){alert("অনুগ্রহ করে আপনার বিকাশ/নগদ নম্বর এবং ট্রানজেকশন আইডি দিন।");return;}
-
-    let message = `📥 নতুন পেমেন্ট রিকোয়েস্ট!\n\n📌 প্ল্যান: ${selectedPlanName}\n👤 ইউজার আইডি: ${userId}\n👤 নাম: ${userName}\n📱 প্রেরক নম্বর: ${senderNum}\n🔑 TrxID: ${trxId}`;
-
-    if(BOT_TOKEN !== "YOUR_BOT_TOKEN_HERE"){
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({chat_id: ADMIN_CHAT_ID, text: message})
-        }).catch(err => console.log(err));
-    }
-
-    closeDepositModal();
-    alert('পেমেন্ট সফলভাবে জমা হয়েছে! অ্যাডমিন যাচাই করে প্ল্যান অ্যাক্টিভ করে দেবেন।');
+function claimBonus(){if(claimed){alert("নিন!");return;}claimed=true;bal+=10;localStorage.setItem('tp_bal_'+uid,bal);localStorage.setItem('tp_bonus_'+uid,'true');updateUI();alert("৳ ১০ বোনাস!");}
+function copyRef(){navigator.clipboard.writeText(document.getElementById('rlink').innerText);alert('কপি!');}
+function buyPlan(t,p){selPlan=t+' (৳'+p+')';document.getElementById('mTitle').innerText=t+' প্ল্যান (৳'+p+')';document.getElementById('modal').style.display='flex';}
+function closeModal(){document.getElementById('modal').style.display='none';}
+function subDep(){
+    let s=document.getElementById('sNum').value,x=document.getElementById('sTrx').value;
+    if(!s||!x){alert("তথ্য দিন");return;}
+    let msg=`📥 পেমেন্ট!\n📌 প্ল্যান: ${selPlan}\n👤 আইডি: ${uid}\n👤 নাম: ${uname}\n📱 নম্বর: ${s}\n🔑 TrxID: ${x}`;
+    if(botTok!=="YOUR_BOT_TOKEN_HERE"){fetch(`https://api.telegram.org/bot${botTok}/sendMessage`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id:adminId,text:msg})}).catch(e=>{});}
+    closeModal();alert('জমা হয়েছে!');
 }
-
-function adminActivatePlan(){
-    let targetId = document.getElementById('targetUserId').value.trim();
-    let plan = document.getElementById('targetPlan').value;
-    let addBal = parseFloat(document.getElementById('targetBonusBal').value) || 0;
-
-    if(!targetId){alert("দয়া করে ইউজারের টেলিগ্রাম আইডি দিন!");return;}
-
-    let planFullName = (plan === 'Free') ? 'ফ্রি প্ল্যান' : (plan + ' প্ল্যান');
-    localStorage.setItem('takapay_active_plan_'+targetId, planFullName);
-    if(addBal > 0){
-        let currentTargetBal = parseFloat(localStorage.getItem('takapay_bal_'+targetId))||0;
-        localStorage.setItem('takapay_bal_'+targetId, currentTargetBal + addBal);
-    }
-
-    if(targetId === userId){
-        updateUI();
-    }
-
-    alert('সফল! আইডি: '+targetId + ' এর জন্য ' + planFullName + ' একটিভ করা হয়েছে।');
-    document.getElementById('targetUserId').value = '';
-    document.getElementById('targetBonusBal').value = '';
+function adminAct(){
+    let id=document.getElementById('aId').value.trim(),pl=document.getElementById('aPlan').value,b=parseFloat(document.getElementById('aBal').value)||0;
+    if(!id){alert("আইডি দিন");return;}
+    let fn=(pl==='Free')?'ফ্রি প্ল্যান':(pl+' প্ল্যান');
+    localStorage.setItem('tp_plan_'+id,fn);
+    if(b>0)localStorage.setItem('tp_bal_'+id,(parseFloat(localStorage.getItem('tp_bal_'+id))||0)+b);
+    if(id===uid)updateUI();
+    alert('সফল!');document.getElementById('aId').value='';document.getElementById('aBal').value='';
 }
-
-function showRewardAd(){if(adsWatchedToday>=MAX_ADS){alert("লিমিট শেষ!");return;}let r=()=>{adsWatchedToday++;userBalance=parseFloat((userBalance+2).toFixed(2));localStorage.setItem('takapay_bal_'+userId,userBalance);localStorage.setItem('takapay_ads_'+userId,adsWatchedToday);updateUI();alert('৳ ২.০০ যোগ হয়েছে ইলেক্ট্রনিক!');};try{if(window.Adsgram){Adsgram.init({blockId:"53522"}).show().then(r).catch(()=>alert("সম্পূর্ণ দেখুন।"));}else{r();}}catch(e){r();}}
-function joinTelegramChannel(){if(window.Telegram?.WebApp?.openTelegramLink){window.Telegram.WebApp.openTelegramLink(OFFICIAL_CHANNEL);}else{window.open(OFFICIAL_CHANNEL,'_blank');}}
-function requestWithdrawal(){
-let a=document.getElementById('account').value,m=parseFloat(document.getElementById('amount').value);
-if(referralCount<10){alert("কমপক্ষে ১০টি রেফার করতে হবে! (হয়েছে: "+referralCount+")");return;}
-if(userBalance<300||userBalance<m){alert("পর্যাপ্ত ব্যালেন্স নেই! (মিনিমাম ৩০০)");return;}
-if(!a||!m){alert("সঠিক তথ্য দিন।");return;}
-userBalance=parseFloat((userBalance-m).toFixed(2));localStorage.setItem('takapay_bal_'+userId,userBalance);updateUI();alert("উইথড্র সফল হয়েছে!");
+function watchAd(){
+    if(ads>=20){alert("শেষ!");return;}
+    let rW=getRate(),r=()=>{ads++;bal+=rW;localStorage.setItem('tp_bal_'+uid,bal);localStorage.setItem('tp_ads_'+uid,ads);updateUI();alert(`৳ ${rW} যোগ!`);};
+    try{if(window.Adsgram){Adsgram.init({blockId:"53522"}).show().then(r).catch(()=>alert("সম্পূর্ণ দেখুন"));}else{r();}}catch(e){r();}
+}
+function joinChan(){if(window.Telegram?.WebApp?.openTelegramLink){window.Telegram.WebApp.openTelegramLink(chanUrl);}else{window.open(chanUrl,'_blank');}}
+function withdraw(){
+    let a=document.getElementById('wAcc').value,m=parseFloat(document.getElementById('wAmt').value);
+    if(refs<10){alert("১০ রেফার লাগবে!");return;}
+    if(bal<300||bal<m){alert("অপর্যাপ্ত ব্যালেন্স!");return;}
+    if(!a||!m){alert("তথ্য দিন");return;}
+    bal-=m;localStorage.setItem('tp_bal_'+uid,bal);updateUI();alert("সফল!");
 }
 </script>
 </body>
