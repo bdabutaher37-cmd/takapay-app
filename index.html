@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TakaPay Mini App Pro v16.0</title>
+    <title>TakaPay Mini App Pro v17.0</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Supabase JS SDK -->
@@ -91,7 +91,7 @@
 
             <div class="card-box">
                 <div class="section-title">👥 আপনার রেফারেল লিংক</div>
-                <p style="font-size: 11px; color: #94a3b8; text-align: center;">প্রতি রেফারে পাবেন ৳ ১০.০০ বোনাস!</p>
+                <p style="font-size: 11px; color: #94a3b8; text-align: center;">প্রতি রেফারে পাবেন ৳ ১০.০০ বোনাস! (মোট রেফার: <span id="refCount">0</span> জন)</p>
                 <div class="ref-box" id="refLink">https://t.me/TakaPayAppBot?start=7862177842</div>
                 <button class="btn-blue" onclick="copyRefLink()">লিংক কপি করুন</button>
             </div>
@@ -208,6 +208,7 @@
         let userBalance = parseFloat(localStorage.getItem('takapay_bal_' + userId)) || 0.00;
         let adsWatchedToday = parseInt(localStorage.getItem('takapay_ads_' + userId)) || 0;
         let isBonusClaimedToday = localStorage.getItem('takapay_bonus_' + userId) === 'true';
+        let referralCount = parseInt(localStorage.getItem('takapay_refs_' + userId)) || 0;
         const MAX_ADS = 20;
 
         const BOT_USERNAME = "TakaPayAppBot";
@@ -222,6 +223,21 @@
                     userId = String(tg.initDataUnsafe.user.id);
                     userName = tg.initDataUnsafe.user.first_name || "Abu";
                 }
+                
+                // টেলিগ্রাম স্টার্ট প্যারামিটার চেক করা (কেউ রেফার লিংকে ঢুকে থাকলে রেফারার আইডি পাওয়া যাবে)
+                let startParam = tg.initDataUnsafe?.start_param;
+                if (startParam && startParam !== userId) {
+                    let refKey = 'takapay_ref_done_' + userId;
+                    if (!localStorage.getItem(refKey)) {
+                        localStorage.setItem(refKey, 'true');
+                        // যিনি রেফার করেছেন তার ব্যালেন্সে ১০ টাকা যোগ করার জন্য লোকাল স্টোরেজ আপডেট
+                        let referrerBal = parseFloat(localStorage.getItem('takapay_bal_' + startParam)) || 0.00;
+                        let referrerRefs = parseInt(localStorage.getItem('takapay_refs_' + startParam)) || 0;
+                        
+                        localStorage.setItem('takapay_bal_' + startParam, referrerBal + 10.00);
+                        localStorage.setItem('takapay_refs_' + startParam, referrerRefs + 1);
+                    }
+                }
             }
         } catch(e) {
             console.log("TG Init Error", e);
@@ -231,7 +247,6 @@
         document.getElementById('userName').innerText = userName;
         document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${userId}`;
 
-        // নিখুঁত ট্যাব সুইচিং ফাংশন
         function switchTab(tabName) {
             try {
                 document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -249,10 +264,16 @@
 
         function updateUI() {
             try {
+                // রিফ্রেশ করে লেটেস্ট ব্যালেন্স ও রেফার কাউন্ট লোকাল স্টোরেজ থেকে তুলে আনা
+                userBalance = parseFloat(localStorage.getItem('takapay_bal_' + userId)) || userBalance;
+                referralCount = parseInt(localStorage.getItem('takapay_refs_' + userId)) || referralCount;
+
                 document.getElementById('balance').innerText = userBalance.toFixed(2);
                 document.getElementById('todayIncome').innerText = userBalance.toFixed(2);
                 document.getElementById('completedTasks').innerText = adsWatchedToday + " / 20";
                 document.getElementById('adCounterText').innerText = adsWatchedToday;
+                document.getElementById('refCount').innerText = referralCount;
+
                 let percentage = (adsWatchedToday / MAX_ADS) * 100;
                 document.getElementById('taskProgressBar').style.width = percentage + "%";
 
@@ -358,21 +379,4 @@
             let account = document.getElementById('account').value;
             let amount = parseFloat(document.getElementById('amount').value);
 
-            if (userBalance < 300 || userBalance < amount) {
-                alert("আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই! (মিনিমাম ৳ ৩০০)");
-                return;
-            }
-
-            if (!account || !amount) {
-                alert("সঠিক অ্যাকাউন্ট নম্বর এবং পরিমাণ দিন।");
-                return;
-            }
-
-            userBalance = parseFloat((userBalance - amount).toFixed(2));
-            localStorage.setItem('takapay_bal_' + userId, userBalance);
-            updateUI();
-            alert("উইথড্রয়াল সফলভাবে সাবমিট হয়েছে!");
-        }
-    </script>
-</body>
-</html>
+      
