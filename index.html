@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TakaPay Mini App Pro v7.0</title>
+    <title>TakaPay Mini App Pro v8.0</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Supabase JS SDK -->
@@ -121,35 +121,35 @@
             <div class="item-card">
                 <div class="item-info">
                     <h4>ফ্রি প্ল্যান (Free)</h4>
-                    <p>মূল্য: ৳ ০ | দৈনিক ২০টি অ্যাড</p>
+                    <p>মূল্য: ৳ ০ | দৈনিক ২০টি অ্যাড | মেয়াদ: আজীবন</p>
                 </div>
                 <button class="btn-sm btn-active">সক্রিয়</button>
             </div>
             <div class="item-card">
                 <div class="item-info">
                     <h4>সিলভার প্ল্যান (Silver)</h4>
-                    <p>মূল্য: ৳ ৩০০ | দৈনিক আয়: ৳ ৫০</p>
+                    <p>মূল্য: ৳ ৩০০ | দৈনিক আয়: ৳ ৫০ | মেয়াদ: ৩০ দিন</p>
                 </div>
                 <button class="btn-sm" onclick="openDepositModal('Silver', 300)">কিনুন</button>
             </div>
             <div class="item-card">
                 <div class="item-info">
                     <h4>গোল্ড প্ল্যান (Gold)</h4>
-                    <p>মূল্য: ৳ ৫০০ | দৈনিক আয়: ৳ ১২০</p>
+                    <p>মূল্য: ৳ ৫০০ | দৈনিক আয়: ৳ ১২০ | মেয়াদ: ৩০ দিন</p>
                 </div>
                 <button class="btn-sm" onclick="openDepositModal('Gold', 500)">কিনুন</button>
             </div>
             <div class="item-card">
                 <div class="item-info">
                     <h4>প্লাটিনাম প্ল্যান (Platinum)</h4>
-                    <p>মূল্য: ৳ ১০০০ | দৈনিক আয়: ৳ ২৫০</p>
+                    <p>মূল্য: ৳ ১০০০ | দৈনিক আয়: ৳ ২৫০ | মেয়াদ: ৩০ দিন</p>
                 </div>
                 <button class="btn-sm" onclick="openDepositModal('Platinum', 1000)">কিনুন</button>
             </div>
             <div class="item-card">
                 <div class="item-info">
                     <h4>ডায়মন্ড প্ল্যান (Diamond)</h4>
-                    <p>মূল্য: ৳ ১৫০০ | দৈনিক আয়: ৳ ৪০০</p>
+                    <p>মূল্য: ৳ ১৫০০ | দৈনিক আয়: ৳ ৪০০ | মেয়াদ: ৩০ দিন</p>
                 </div>
                 <button class="btn-sm" onclick="openDepositModal('Diamond', 1500)">কিনুন</button>
             </div>
@@ -221,14 +221,23 @@
 
         // ডাটাবেজ এবং লোকাল স্টোরেজ থেকে ব্যালেন্স ও অ্যাড কাউন্টার সিঙ্ক করার ফাংশন
         async function loadUserData() {
-            // ১. লোকাল স্টোরেজ থেকে দ্রুত লোড করা
+            let todayDate = new Date().toISOString().slice(0, 10);
+            let dateKey = 'takapay_date_' + userId;
+            let savedDate = localStorage.getItem(dateKey);
+
+            if (savedDate !== todayDate) {
+                localStorage.setItem(dateKey, todayDate);
+                localStorage.setItem('takapay_ads_' + userId, '0');
+                adsWatchedToday = 0;
+            } else {
+                let localAds = localStorage.getItem('takapay_ads_' + userId);
+                if (localAds !== null) adsWatchedToday = parseInt(localAds) || 0;
+            }
+
             let localBal = localStorage.getItem('takapay_bal_' + userId);
-            let localAds = localStorage.getItem('takapay_ads_' + userId);
             if (localBal !== null) userBalance = parseFloat(localBal) || 0.00;
-            if (localAds !== null) adsWatchedToday = parseInt(localAds) || 0;
             updateUI();
 
-            // ২. সুপাবেজ ডাটাবেজ থেকে লেটেস্ট ডাটা মিলিয়ে নেওয়া
             try {
                 let { data: user, error } = await supabaseClient.from('users').select('*').eq('id', userId).maybeSingle();
                 if (!user) {
@@ -297,12 +306,10 @@
                 adsWatchedToday++;
                 userBalance = parseFloat((userBalance + 2.00).toFixed(2));
 
-                // লোকাল স্টোরেজে তাৎক্ষণিকভাবে সেভ করা
                 localStorage.setItem('takapay_bal_' + userId, userBalance);
                 localStorage.setItem('takapay_ads_' + userId, adsWatchedToday);
                 updateUI();
 
-                // সুপাবেজ ডাটাবেজে পার্মানেন্টলি আপডেট করা
                 try {
                     await supabaseClient.from('users').upsert([
                         { id: userId, balance: userBalance, ads_watched: adsWatchedToday, plan: 'free' }
