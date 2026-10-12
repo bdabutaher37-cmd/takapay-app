@@ -38,7 +38,6 @@
         .stat-item p { font-size: 11px; color: #94a3b8; }
         .stat-item h4 { font-size: 16px; margin-top: 4px; color: #38bdf8; font-weight: 700; }
 
-        /* প্রোগ্রেস বার স্টাইল */
         .progress-container { background: #090d16; border-radius: 10px; height: 10px; width: 100%; margin-top: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
         .progress-bar { background: linear-gradient(135deg, #10b981, #059669); height: 100%; width: 0%; transition: width 0.3s ease; }
 
@@ -189,7 +188,8 @@
         let adsWatchedToday = 0;
         const MAX_ADS = 20;
 
-        const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "53355" }) : null;
+        // নতুন Block ID 53522 দিয়ে Adsgram কন্ট্রোলার ইনিশিয়ালাইজ করা হলো
+        const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "53522" }) : null;
 
         const tg = window.Telegram?.WebApp;
         if (tg) {
@@ -269,23 +269,21 @@
             if (AdController) {
                 AdController.show().then(async (result) => {
                     adsWatchedToday++;
-                    userBalance += 2.00;
+                    userBalance += 2.00; // প্রতি অ্যাডে ২ টাকা রিওয়ার্ড
 
+                    // ডাটাবেজে আপডেট করা
                     await supabaseClient.from('users').update({ balance: userBalance }).eq('id', userId);
 
                     document.getElementById('balance').innerText = userBalance.toFixed(2);
                     document.getElementById('todayIncome').innerText = userBalance.toFixed(2);
                     updateProgressUI();
 
-                    alert(`অভিনন্দন! ৳ ২.০০ যোগ হয়েছে। (আজ দেখেছেন: ${adsWatchedToday}/20টি)`);
+                    alert("অভিনন্দন! আপনার অ্যাকাউন্টে ৳ ২.০০ রিওয়ার্ড যোগ করা হয়েছে।");
                 }).catch((result) => {
                     alert("বিজ্ঞাপন সম্পূর্ণ না দেখলে পয়েন্ট পাবেন না।");
                 });
             } else {
-                adsWatchedToday++;
-                userBalance += 2.00;
-                updateProgressUI();
-                alert(`টেস্টিং মোড: ৳ ২.০০ যোগ হয়েছে (${adsWatchedToday}/20টি)।`);
+                alert("Adsgram SDK লোড হয়নি!");
             }
         }
 
