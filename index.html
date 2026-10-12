@@ -350,13 +350,11 @@
                 return;
             }
 
-            // Supabase-এ ডিপোজিট বা প্ল্যান রিকোয়েস্ট সেভ করা
             let { error } = await supabaseClient.from('deposits').insert([
                 { user_id: userId, plan: selectedPlanKey, amount: selectedPlanPrice, sender_number: senderNum, trx_id: trxId, status: 'pending' }
             ]);
 
             if(error) {
-                // যদি deposits টেবিল না থাকে, সরাসরি ইউজারের প্ল্যান আপডেট করে দেওয়া বা অ্যালার্ট দেওয়া
                 let { err } = await supabaseClient.from('users').update({ plan: selectedPlanKey }).eq('id', userId);
                 if(err) {
                     alert('ত্রুটি: ' + err.message);
@@ -419,4 +417,12 @@
                 AdController.show().then(async (result) => {
                     await grantReward();
                 }).catch((result) => {
-                 
+                    grantReward();
+                });
+            } else {
+                grantReward();
+            }
+        }
+
+        function joinTelegramChannel() {
+            
