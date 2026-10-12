@@ -38,6 +38,10 @@
         .stat-item p { font-size: 11px; color: #94a3b8; }
         .stat-item h4 { font-size: 16px; margin-top: 4px; color: #38bdf8; font-weight: 700; }
 
+        /* প্রোগ্রেস বার স্টাইল */
+        .progress-container { background: #090d16; border-radius: 10px; height: 10px; width: 100%; margin-top: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+        .progress-bar { background: linear-gradient(135deg, #10b981, #059669); height: 100%; width: 0%; transition: width 0.3s ease; }
+
         .item-card { background: rgba(15, 23, 42, 0.8); border-radius: 14px; padding: 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); }
         .item-info h4 { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
         .item-info p { font-size: 11px; color: #10b981; }
@@ -88,6 +92,9 @@
                 <div class="stat-item">
                     <p>সম্পন্ন টাস্ক</p>
                     <h4><span id="completedTasks">0</span> / ২০ টি</h4>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="taskProgressBar"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -97,7 +104,7 @@
             <div class="item-card">
                 <div class="item-info">
                     <h4>ভিডিও বিজ্ঞাপন দেখুন</h4>
-                    <p id="adRewardText">+৳ ২.০০ / অ্যাড (প্রতিদিন ২০টি)</p>
+                    <p id="adRewardText">প্রতি অ্যাডে ৳ ২.০০ (দেখা হয়েছে: <span id="adCounterText">0</span>/20)</p>
                 </div>
                 <button class="btn-sm" id="adBtn" onclick="showRewardAd()">দেখুন</button>
             </div>
@@ -182,16 +189,8 @@
         let adsWatchedToday = 0;
         const MAX_ADS = 20;
 
-        let AdController = null;
-        try {
-            if (window.Adsgram) {
-                AdController = window.Adsgram.init({ blockId: "53355" });
-            }
-        } catch (e) {
-            console.log("Adsgram init error:", e);
-        }
+        const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "53355" }) : null;
 
-        // টেলিগ্রাম ইউজার ডাটা রিড করা
         const tg = window.Telegram?.WebApp;
         if (tg) {
             tg.ready();
@@ -207,12 +206,10 @@
         document.getElementById('userName').innerText = userName;
         document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${userId}`;
 
-        // ডাটাবেজ থেকে ইউজারের ব্যালেন্স লোড করার ফাংশন
         async function loadUserData() {
             try {
                 let { data: user, error } = await supabaseClient.from('users').select('*').eq('id', userId).single();
                 if (!user) {
-                    // নতুন ইউজার হলে ডাটাবেজে এন্ট্রি তৈরি করবে
                     let newUser = { id: userId, balance: 0.00, plan: 'free' };
                     await supabaseClient.from('users').insert([newUser]);
                     userBalance = 0.00;
@@ -221,12 +218,26 @@
                 }
                 document.getElementById('balance').innerText = userBalance.toFixed(2);
                 document.getElementById('todayIncome').innerText = userBalance.toFixed(2);
+                updateProgressUI();
             } catch (err) {
                 console.log("DB Load Error:", err);
             }
         }
 
         loadUserData();
+
+        function updateProgressUI() {
+            document.getElementById('completedTasks').innerText = adsWatchedToday + " / 20";
+            document.getElementById('adCounterText').innerText = adsWatchedToday;
+            let percentage = (adsWatchedToday / MAX_ADS) * 100;
+            document.getElementById('taskProgressBar').style.width = percentage + "%";
+
+            if (adsWatchedToday >= MAX_ADS) {
+                let btn = document.getElementById('adBtn');
+                btn.innerText = "শেষ";
+                btn.className = "btn-sm btn-disabled";
+            }
+        }
 
         function switchTab(tabName, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -249,45 +260,32 @@
             document.getElementById('depositModal').style.display = 'none';
         }
 
-        // অ্যাড দেখানোর এবং ব্যালেন্স ডাটাবেজে সেভ করার ফাংশন
-        async function showRewardAd() {
+        function showRewardAd() {
             if (adsWatchedToday >= MAX_ADS) {
                 alert("আজকের আপনার ২০টি অ্যাড দেখার দৈনিক লিমিট শেষ হয়ে গেছে!");
-                let btn = document.getElementById('adBtn');
-                btn.innerText = "শেষ";
-                btn.className = "btn-sm btn-disabled";
                 return;
             }
 
-            const rewardAction = async () => {
-                adsWatchedToday++;
-                userBalance += 2.00;
-
-                // ডাটাবেজে নতুন ব্যালেন্স আপডেট করা
-                await supabaseClient.from('users').update({ balance: userBalance }).eq('id', userId);
-
-                document.getElementById('balance').innerText = userBalance.toFixed(2);
-                document.getElementById('todayIncome').innerText = userBalance.toFixed(2);
-                document.getElementById('completedTasks').innerText = adsWatchedToday + " / 20";
-
-                alert(`অভিনন্দন! আপনার অ্যাকাউন্টে ৳ ২.০০ যোগ করা হয়েছে। (আজ দেখেছেন: ${adsWatchedToday}/20টি)`);
-
-                if (adsWatchedToday >= MAX_ADS) {
-                    let btn = document.getElementById('adBtn');
-                    btn.innerText = "শেষ";
-                    btn.className = "btn-sm btn-disabled";
-                }
-            };
-
             if (AdController) {
-                AdController.show().then(() => {
-                    rewardAction();
-                }).catch(() => {
-                    alert("বিজ্ঞাপন সম্পূর্ণ দেখতে হবে, অন্যথায় রিওয়ার্ড যোগ হবে না।");
+                AdController.show().then(async (result) => {
+                    adsWatchedToday++;
+                    userBalance += 2.00;
+
+                    await supabaseClient.from('users').update({ balance: userBalance }).eq('id', userId);
+
+                    document.getElementById('balance').innerText = userBalance.toFixed(2);
+                    document.getElementById('todayIncome').innerText = userBalance.toFixed(2);
+                    updateProgressUI();
+
+                    alert(`অভিনন্দন! ৳ ২.০০ যোগ হয়েছে। (আজ দেখেছেন: ${adsWatchedToday}/20টি)`);
+                }).catch((result) => {
+                    alert("বিজ্ঞাপন সম্পূর্ণ না দেখলে পয়েন্ট পাবেন না।");
                 });
             } else {
-                // ব্রাউজারে টেস্ট করার জন্য ফলব্যাক
-                rewardAction();
+                adsWatchedToday++;
+                userBalance += 2.00;
+                updateProgressUI();
+                alert(`টেস্টিং মোড: ৳ ২.০০ যোগ হয়েছে (${adsWatchedToday}/20টি)।`);
             }
         }
 
