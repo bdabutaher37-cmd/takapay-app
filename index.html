@@ -6,6 +6,8 @@
     <title>TakaPay - Telegram Mini App</title>
     <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- AdsGram SDK Integration -->
+    <script src="https://sad.adsgram.ai/js/sad-b3.js"></script>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -133,6 +135,26 @@
             font-size: 32px;
             font-weight: bold;
         }
+        /* Referral Box */
+        .refer-box {
+            background: var(--card-bg);
+            border: 1px border-color;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .refer-input {
+            width: 100%;
+            padding: 10px;
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            color: #3b82f6;
+            border-radius: 8px;
+            font-size: 13px;
+            text-align: center;
+            margin: 10px 0;
+        }
         /* Form Inputs */
         .form-group {
             margin-bottom: 15px;
@@ -202,6 +224,15 @@
                 <h2>মোট ব্যালেন্স</h2>
                 <h1 id="balanceDisplay">৳ 0.00</h1>
             </div>
+
+            <!-- Referral Link Card -->
+            <div class="refer-box">
+                <h4>👥 আপনার রেফারেল লিংক</h4>
+                <p style="font-size: 12px; color: #94a3b8; margin-top: 4px;">প্রতি রেফারে পাবেন ৳ ৫.০০ বোনাস!</p>
+                <input type="text" id="refLinkInput" class="refer-input" readonly value="https://t.me/TakaPayBot?start=7862177842">
+                <button class="action-btn" style="width: 100%;" onclick="copyReferralLink()">লিংক কপি করুন</button>
+            </div>
+
             <h3>📊 ড্যাশবোর্ড ওভারভিউ</h3>
             <div class="card">
                 <div class="card-details">
@@ -221,13 +252,13 @@
         <div id="taskSection" class="section">
             <h3>📋 দৈনিক টাস্কসমূহ</h3>
             
-            <!-- Video Ad Task -->
+            <!-- Video Ad Task with AdsGram SDK -->
             <div class="card">
                 <div class="card-details">
                     <h4>ভিডিও বিজ্ঞাপন দেখুন</h4>
                     <p>+৳ 2.00 / অ্যাড (প্রতিদিন ২০টি)</p>
                 </div>
-                <button class="action-btn" onclick="watchAd()">দেখুন</button>
+                <button class="action-btn" id="adBtn" onclick="watchAd()">দেখুন</button>
             </div>
 
             <!-- Official Channel Task -->
@@ -236,7 +267,6 @@
                     <h4>অফিসিয়াল টেলিগ্রাম চ্যানেল</h4>
                     <p>+৳ 5.00 (একবার)</p>
                 </div>
-                <!-- এখানে সঠিক ফাংশন রিডাইরেক্ট দেওয়া হয়েছে -->
                 <button class="action-btn" id="channelBtn" onclick="openOfficialChannel()">জয়েন</button>
             </div>
         </div>
@@ -317,8 +347,21 @@
     <script>
         // Telegram WebApp Initialization
         let tg = window.Telegram ? window.Telegram.WebApp : null;
+        let userId = '7862177842';
+
         if (tg) {
             tg.expand();
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                userId = tg.initDataUnsafe.user.id;
+                document.getElementById('userIdDisplay').innerText = userId;
+                document.getElementById('refLinkInput').value = `https://t.me/TakaPayBot?start=${userId}`;
+            }
+        }
+
+        // AdsGram Controller Setup (Block ID: 53355)
+        let AdController = null;
+        if (window.Adsgram) {
+            AdController = window.Adsgram.init({ blockId: "53355" });
         }
 
         // Local Storage State Management
@@ -337,11 +380,6 @@
             }
         }
 
-        // Set User ID if available from Telegram
-        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            document.getElementById('userIdDisplay').innerText = tg.initDataUnsafe.user.id;
-        }
-
         // Tab Switching Logic
         function switchTab(tabName, element) {
             document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
@@ -355,30 +393,43 @@
             element.classList.add('active');
         }
 
-        // Watch Ad Logic (AdsGram SDK Simulation)
+        // Real AdsGram Video Ad Watch Function
         function watchAd() {
-            alert('বিজ্ঞাপন লোড হচ্ছে...');
-            setTimeout(() => {
-                userBalance += 2.00;
-                todayEarned += 2.00;
-                saveData();
-                updateUI();
-                alert('অভিনন্দন! আপনি ২.০০ টাকা অর্জন করেছেন।');
-            }, 1500);
+            if (AdController) {
+                AdController.show().then((result) => {
+                    // Ad completed successfully
+                    userBalance += 2.00;
+                    todayEarned += 2.00;
+                    saveData();
+                    updateUI();
+                    alert('অভিনন্দন! বিজ্ঞাপনটি দেখার জন্য আপনি ২.০০ টাকা পেয়েছেন।');
+                }).catch((result) => {
+                    // Ad error or skipped
+                    alert('বিজ্ঞাপনটি লোড হতে সমস্যা হয়েছে অথবা স্কিপ করা হয়েছে। আবার চেষ্টা করুন।');
+                });
+            } else {
+                // Fallback simulation if AdsGram not loaded
+                alert('বিজ্ঞাপন লোড হচ্ছে...');
+                setTimeout(() => {
+                    userBalance += 2.00;
+                    todayEarned += 2.00;
+                    saveData();
+                    updateUI();
+                    alert('অভিনন্দন! আপনি ২.০০ টাকা অর্জন করেছেন।');
+                }, 1500);
+            }
         }
 
-        // Join Official Channel Logic (Fixed Link Action)
+        // Join Official Channel Logic
         function openOfficialChannel() {
             const channelUrl = 'https://t.me/takapay_official';
             
-            // টেলিগ্রাম অ্যাপের ভেতর সরাসরি লিংক ওপেন করবে
             if (window.Telegram && window.Telegram.WebApp) {
                 window.Telegram.WebApp.openTelegramLink(channelUrl);
             } else {
                 window.open(channelUrl, '_blank');
             }
 
-            // Give Reward for joining channel (only once)
             if (!taskCompleted) {
                 setTimeout(() => {
                     userBalance += 5.00;
@@ -398,10 +449,19 @@
             }
         }
 
+        // Copy Referral Link Logic
+        function copyReferralLink() {
+            let copyText = document.getElementById("refLinkInput");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value);
+            alert("রেফারেল লিংক কপি করা হয়েছে!");
+        }
+
         // Buy Plan Logic
         function buyPlan(planName, price) {
             if (userBalance < price) {
-                alert('আপনার পর্যাপ্ত ব্যালেন্স নেই! বিজ্ঞাপন দেখে বা ইনভেস্ট করে ব্যালেন্স বাড়ান।');
+                alert('আপনার পর্যাপ্ত ব্যালেন্স নেই! ইনভেস্ট বা অ্যাড দেখে ব্যালেন্স বাড়ান।');
                 return;
             }
             userBalance -= price;
@@ -425,7 +485,7 @@
                 return;
             }
             if (userBalance < amount) {
-                alert('আপনার মূল অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!');
+                alert('আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!');
                 return;
             }
 
