@@ -275,15 +275,16 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const BOT_USERNAME = "TakaPayAppBot";
-        const OFFICIAL_CHANNEL_LINK = "https://t.me/takapay_official"; // আপনার দেওয়া চ্যানেল লিংক
+        const OFFICIAL_CHANNEL_LINK = "https://t.me/takapay_official";
 
         let userId = "7862177842";
         let userName = "Abu";
 
-        if (window.Telegram && window.Telegram.WebApp) {
-            window.Telegram.WebApp.ready();
-            window.Telegram.WebApp.expand();
-            let tgUserData = window.Telegram.WebApp.initDataUnsafe?.user;
+        let tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            let tgUserData = tg.initDataUnsafe?.user;
             if (tgUserData && tgUserData.id) {
                 userId = String(tgUserData.id);
                 userName = tgUserData.first_name || "Abu";
@@ -294,7 +295,6 @@
         document.getElementById('userName').innerText = userName;
         document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=${userId}`;
 
-        // Adsgram Controller Initialize
         let AdController = null;
         function initAdsgram() {
             if (window.Adsgram) {
@@ -412,8 +412,7 @@
                 AdController.show().then(() => {
                     grantReward();
                 }).catch((err) => {
-                    console.log("Ad Error / Blocked", err);
-                    grantReward(); // অ্যাড লোড হতে সমস্যা হলেও ইউজারকে টেস্ট বোনাস দেবে
+                    grantReward();
                 });
             } else {
                 grantReward();
@@ -421,5 +420,11 @@
         }
 
         function joinTelegramChannel() {
-            if(window.Telegram && window.Telegram.WebApp) {
-         
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
+                window.Telegram.WebApp.openTelegramLink(OFFICIAL_CHANNEL_LINK);
+            } else {
+                window.open(OFFICIAL_CHANNEL_LINK, '_blank');
+            }
+        }
+
+        async func
