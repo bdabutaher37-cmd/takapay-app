@@ -75,7 +75,7 @@
                 <h3 id="userName">ব্যবহারকারী</h3>
             </div>
             <div class="header-icons">
-                <div class="icon-btn" id="userPlanBadge">💎</div>
+                <div class="icon-btn" id="userPlanBadge">⭐</div>
             </div>
         </div>
 
@@ -108,7 +108,7 @@
                 </div>
                 <div class="stat-item">
                     <p>সম্পন্ন টাস্ক</p>
-                    <h4><span id="completedTasks">0</span> টি</h4>
+                    <h4><span id="completedTasks">0</span> / ২০ টি</h4>
                 </div>
             </div>
         </div>
@@ -137,6 +137,14 @@
         <!-- 3. PLANS TAB -->
         <div id="tab-plans" class="tab-content">
             <div class="section-title">💎 ইনভেস্টমেন্ট প্ল্যান</div>
+
+            <div class="item-card">
+                <div class="item-info">
+                    <h4>ফ্রি প্ল্যান (Free)</h4>
+                    <p>মূল্য: ৳ ০ | দৈনিক ২০টি অ্যাড</p>
+                </div>
+                <button class="btn-sm" id="btn-free" onclick="buyPlan('free', 0)">সক্রিয়</button>
+            </div>
 
             <div class="item-card">
                 <div class="item-info">
@@ -225,7 +233,7 @@
             console.log("Adsgram init error", e);
         }
 
-        let currentUserPlan = '';
+        let adsWatchedToday = 0;
 
         function switchTab(tabName, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -243,7 +251,7 @@
 
             if (!user) {
                 let referrer = (refBy && refBy !== userId) ? refBy : null;
-                let newUserObj = { id: userId, balance: 10.00, referred_by: referrer, plan: 'none' };
+                let newUserObj = { id: userId, balance: 10.00, referred_by: referrer, plan: 'free' };
                 await supabaseClient.from('users').insert([newUserObj]);
 
                 if (referrer) {
@@ -260,12 +268,11 @@
 
         function updateUI(user) {
             document.getElementById('balance').innerText = Number(user.balance || 0).toFixed(2);
-            currentUserPlan = user.plan || 'none';
-            updatePlanUI(currentUserPlan);
+            updatePlanUI(user.plan || 'free');
         }
 
         function updatePlanUI(planName) {
-            const plans = ['silver', 'gold', 'diamond'];
+            const plans = ['free', 'silver', 'gold', 'diamond'];
             plans.forEach(p => {
                 const btn = document.getElementById('btn-' + p);
                 if(btn) {
@@ -279,7 +286,7 @@
                 }
             });
 
-            let badges = { 'silver': '🥈', 'gold': '🥇', 'diamond': '💎', 'none': '⭐' };
+            let badges = { 'free': '⭐', 'silver': '🥈', 'gold': '🥇', 'diamond': '💎' };
             document.getElementById('userPlanBadge').innerText = badges[planName] || '⭐';
         }
 
@@ -298,7 +305,7 @@
                 return;
             }
 
-            if(user.balance < price) {
+            if(price > 0 && user.balance < price) {
                 alert('এই প্ল্যানটি কেনার জন্য পর্যাপ্ত ব্যালেন্স নেই!');
                 return;
             }
@@ -315,11 +322,10 @@
             initUser();
         }
 
-        // অ্যাড দেখা এবং ব্যালেন্স যোগ নিশ্চিত করার ফাংশন
+        // অ্যাড দেখা এবং দৈনিক ২০টি লিমি트 চেক করার ফাংশন
         async function showRewardAd() {
-            // প্ল্যান চেক: কোনো প্ল্যান কেনা না থাকলে টাস্ক লক থাকবে
-            if (!currentUserPlan || currentUserPlan === 'none') {
-                alert('টাস্ক করার জন্য প্রথমে যেকোনো একটি ইনভেস্টমেন্ট প্ল্যান (সিলভার, গোল্ড বা ডায়মন্ড) কিনুন!');
+            if (adsWatchedToday >= 20) {
+                alert('আজকের জন্য আপনার ২০টি অ্যাড দেখার লিমিট শেষ হয়েছে!');
                 return;
             }
 
@@ -330,11 +336,11 @@
                     let { error } = await supabaseClient.from('users').update({ balance: newBal }).eq('id', userId);
                     
                     if(!error) {
+                        adsWatchedToday++;
                         let currentInc = parseFloat(document.getElementById('todayIncome').innerText) || 0;
-                        let currentTasks = parseInt(document.getElementById('completedTasks').innerText) || 0;
                         
                         document.getElementById('todayIncome').innerText = (currentInc + 2.00).toFixed(2);
-                        document.getElementById('completedTasks').innerText = currentTasks + 1;
+                        document.getElementById('completedTasks').innerText = adsWatchedToday;
                         
                         alert("অভিনন্দন! বিজ্ঞাপন দেখার জন্য আপনার ব্যালেন্সে ৳ ২.০০ যোগ করা হয়েছে।");
                         initUser();
@@ -348,7 +354,6 @@
                 AdController.show().then(async (result) => {
                     await grantReward();
                 }).catch((result) => {
-                    // যদি কোনো কারণে বিজ্ঞাপন বন্ধ বা স্কিপ হয় তবুও টেস্ট ও অ্যাপের সুবিধার্থে ব্যালেন্স যোগ নিশ্চিত করা হলো
                     grantReward();
                 });
             } else {
@@ -357,10 +362,6 @@
         }
 
         function joinTelegramChannel() {
-            if (!currentUserPlan || currentUserPlan === 'none') {
-                alert('চ্যানেল টাস্ক সম্পন্ন করার জন্য প্রথমে যেকোনো একটি ইনভেস্টমেন্ট প্ল্যান কিনুন!');
-                return;
-            }
             tg.openTelegramLink("https://t.me/" + BOT_USERNAME);
         }
 
@@ -400,7 +401,7 @@
             }
 
             let newBalance = Number(user.balance) - amount;
-            await supabaseClient.from('users`').update({ balance: newBalance }).eq('id', userId);
+            await supabaseClient.from('users').update({ balance: newBalance }).eq('id', userId);
 
             alert('উইথড্রয়াল সফলভাবে সাবমিট হয়েছে!');
             initUser();
