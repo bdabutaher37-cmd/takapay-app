@@ -1,8 +1,8 @@
-
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
+import { createClient } from "@supabase/supabase-js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,6 +21,19 @@ app.use(
   })
 );
 
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY;
+
+const supabase =
+  supabaseUrl && supabaseSecretKey
+    ? createClient(supabaseUrl, supabaseSecretKey, {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false
+        }
+      })
+    : null;
+
 app.get("/", (req, res) => {
   res.json({
     app: "TakaPay Backend",
@@ -32,11 +45,32 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-app.get("/api/db-status", (req, res) => {
-  res.status(503).json({
-    status: "not_configured",
-    message: "Database connection is not configured yet"
-  });
+app.get("/api/db-status", async (req, res) => {
+  if (!supabase) {
+    return res.status(503).json({
+      status: "not_configured"
+    });
+  }
+
+  try {
+    const { error } = await supabase
+      .from("profiles")
+      .select("*", { head: true, count: "exact" });
+
+    if (error) {
+      console.error("Supabase check failed:", error.message);
+      return res.status(503).json({
+        status: "connection_error"
+      });
+    }
+
+    return res.json({ status: "connected" });
+  } catch (error) {
+    console.error("Database check failed:", error.message);
+    return res.status(503).json({
+      status: "connection_error"
+    });
+  }
 });
 
 app.listen(PORT, "0.0.0.0", () => {
