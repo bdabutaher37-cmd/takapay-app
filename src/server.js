@@ -9,39 +9,86 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Read and normalize environment variables.
+const rawUrl = (process.env.SUPABASE_URL || "").trim();
+const SUPABASE_SECRET_KEY =
+  (process.env.SUPABASE_SECRET_KEY || "").trim();
+const TELEGRAM_BOT_TOKEN =
+  (process.env.TELEGRAM_BOT_TOKEN || "").trim();
+
+// Accept a project URL even if /rest/v1 was accidentally appended.
+const SUPABASE_URL = rawUrl
+  .replace(/\/rest\/v1\/?$/i, "")
+  .replace(/\/+$/, "");
+
+let supabase = null;
+let urlValid = false;
+
+try {
+  if (SUPABASE_URL) {
+    const parsed = new URL(SUPABASE_URL);
+
+    urlValid =
+      ["https:", "http:"].includes(parsed.protocol) &&
+      Boolean(parsed.hostname) &&
+      !parsed.username &&
+      !parsed.password;
+
+    if (urlValid && SUPABASE_SECRET_KEY) {
+      supabase = createClient(
+        SUPABASE_URL,
+        SUPABASE_SECRET_KEY,
+        {
+          auth: {
+            persistSession: false,
+            autoRefreshToken: false
+          }
+        }
+      );
+    }
+  }
+} catch (error) {
+  console.error("Supabase configuration could not be initialized.");
+}
+
+console.log("TakaPay configuration:", {
+  supabaseUrlPresent: Boolean(rawUrl),
+  supabaseUrlValid: urlValid,
+  supabaseSecretKeyPresent: Boolean(SUPABASE_SECRET_KEY),
+  telegramBotTokenPresent: Boolean(TELEGRAM_BOT_TOKEN),
+  supabaseClientCreated: Boolean(supabase)
+});
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: "10kb" }));
 
-app.use("/api", rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 100,
-  standardHeaders: true,
-  legacyHeaders: false
-}));
-
-const { SUPABASE_URL, SUPABASE_SECRET_KEY, TELEGRAM_BOT_TOKEN } =
-  process.env;
-
-const supabase =
-  SUPABASE_URL && SUPABASE_SECRET_KEY
-    ? createClient(SUPABASE_URL, SUPABASE_SECRET_KEY, {
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false
-        }
-      })
-    : null;
+app.use(
+  "/api",
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 100,
+    standardHeaders: true,
+    legacyHeaders: false
+  })
+);
 
 function requireConfig(req, res, next) {
   if (!supabase || !TELEGRAM_BOT_TOKEN) {
     return res.status(503).json({
-      error: "server_not_configured"
+      error: "server_not_configured",
+      details: {
+        supabaseUrlValid: urlValid,
+        supabaseSecretKeyPresent: Boolean(SUPABASE_SECRET_KEY),
+        telegramBotTokenPresent: Boolean(TELEGRAM_BOT_TOKEN)
+      }
     });
   }
+
   next();
 }
 
+// Verify Telegram Mini App initData.
 function requireTelegram(req, res, next) {
   try {
     const initData = req.get("X-Telegram-Init-Data");
@@ -66,11 +113,11 @@ function requireTelegram(req, res, next) {
       .map(([key, value]) => `${key}=${value}`)
       .join("\n");
 
-    const secretKey = createHmac("sha256", "WebAppData")
+    const secret = createHmac("sha256", "WebAppData")
       .update(TELEGRAM_BOT_TOKEN)
       .digest();
 
-    const calculatedHash = createHmac("sha256", secretKey)
+    const calculatedHash = createHmac("sha256", secret)
       .update(dataCheckString)
       .digest();
 
@@ -115,97 +162,134 @@ function requireTelegram(req, res, next) {
 }
 
 app.get("/", (req, res) => {
-  res.json({ app: "TakaPay Backend", status: "running" });
+  res.json({
+    app: "TakaPay Backend",
+    status: "running"
+  });
 });
 
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
+// Check database connectivity.
 app.get("/api/db-status", requireConfig, async (req, res) => {
-  const { error } = await supabase
-    .from("profiles")
-    .select("id", { head: true, count: "exact" });
+  try {
+    const { error } = await supabase
+      .from("profiles")
+      .select("id", { head: true, count: "exact" });
 
-  if (error) {
-    console.error("Database check failed:", error.message);
-    return res.status(503).json({ status: "connection_error" });
+    if (error) {
+      console.error("Database check failed:", error.message);
+      return res.status(503).json({
+        status: "connection_error"
+      });
+    }
+
+    return res.json({ status: "connected" });
+  } catch (error) {
+    console.error("Database check failed.");
+    return res.status(503).json({
+      status: "connection_error"
+    });
   }
-
-  res.json({ status: "connected" });
 });
 
-// Verify Telegram and create or update the profile.
+// Authenticate Telegram user and create/update their profile.
 app.post(
   "/api/auth",
   requireConfig,
   requireTelegram,
   async (req, res) => {
-    const { id, username } = req.telegramUser;
+    try {
+      const { id, username } = req.telegramUser;
 
-    const { data, error } = await supabase
-      .from("profiles")
-      .upsert(
-        { telegram_id: id, username },
-        { onConflict: "telegram_id" }
-      )
-      .select("telegram_id, username, balance, created_at")
-      .single();
+      const { data, error } = await supabase
+        .from("profiles")
+        .upsert(
+          { telegram_id: id, username },
+          { onConflict: "telegram_id" }
+        )
+        .select("telegram_id, username, balance, created_at")
+        .single();
 
-    if (error) {
-      console.error("Profile error:", error.message);
-      return res.status(500).json({ error: "profile_failed" });
+      if (error) {
+        console.error("Profile operation failed:", error.message);
+        return res.status(500).json({
+          error: "profile_failed"
+        });
+      }
+
+      return res.json({ profile: data });
+    } catch {
+      return res.status(500).json({
+        error: "profile_failed"
+      });
     }
-
-    res.json({ profile: data });
   }
 );
 
-// Return the authenticated user's profile.
+// Get the authenticated user's profile.
 app.get(
   "/api/me",
   requireConfig,
   requireTelegram,
   async (req, res) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("telegram_id, username, balance, created_at")
-      .eq("telegram_id", req.telegramUser.id)
-      .maybeSingle();
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("telegram_id, username, balance, created_at")
+        .eq("telegram_id", req.telegramUser.id)
+        .maybeSingle();
 
-    if (error) {
-      return res.status(500).json({ error: "profile_failed" });
+      if (error) {
+        return res.status(500).json({
+          error: "profile_failed"
+        });
+      }
+
+      if (!data) {
+        return res.status(404).json({
+          error: "profile_not_found"
+        });
+      }
+
+      return res.json({ profile: data });
+    } catch {
+      return res.status(500).json({
+        error: "profile_failed"
+      });
     }
-
-    if (!data) {
-      return res.status(404).json({ error: "profile_not_found" });
-    }
-
-    res.json({ profile: data });
   }
 );
 
-// Return transaction history for the authenticated user.
+// Get the user's recent transactions.
 app.get(
   "/api/transactions",
   requireConfig,
   requireTelegram,
   async (req, res) => {
-    const { data, error } = await supabase
-      .from("transactions")
-      .select("id, type, amount, status, description, created_at")
-      .eq("telegram_id", req.telegramUser.id)
-      .order("created_at", { ascending: false })
-      .limit(50);
+    try {
+      const { data, error } = await supabase
+        .from("transactions")
+        .select("id, type, amount, status, description, created_at")
+        .eq("telegram_id", req.telegramUser.id)
+        .order("created_at", { ascending: false })
+        .limit(50);
 
-    if (error) {
-      console.error("Transactions error:", error.message);
+      if (error) {
+        console.error("Transactions query failed:", error.message);
+        return res.status(500).json({
+          error: "transactions_failed"
+        });
+      }
+
+      return res.json({ transactions: data });
+    } catch {
       return res.status(500).json({
         error: "transactions_failed"
       });
     }
-
-    res.json({ transactions: data });
   }
 );
 
