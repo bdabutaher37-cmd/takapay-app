@@ -97,10 +97,46 @@ function renderTasks(){
    }
    return;
   }
-  if(category==='Telegram'){
-   note('চ্যানেল জয়েন ও রিওয়ার্ডের বাস্তব যাচাই এখনো সংযুক্ত নয়।');
+  
+if(category==='Telegram'){
+   b.disabled=true;
+   b.textContent='যাচাই হচ্ছে...';
+
+   try{
+    const result=await api('/api/tasks/channel-join',{
+     method:'POST',
+     body:JSON.stringify({})
+    });
+
+    if(result.success){
+     note('অভিনন্দন! চ্যানেল জয়েনের জন্য ৳২০ পেয়েছেন।');
+    }else{
+     note('যাচাই সম্পন্ন হয়নি।');
+    }
+
+    const me=await api('/api/me');
+    setBalance(me.profile?.balance||0);
+
+    const tx=await api('/api/transactions');
+    renderHistory(tx.transactions||[]);
+
+   }catch(err){
+    const message=err.message||'চ্যানেল যাচাই করা যায়নি।';
+
+    if(message.includes('already_claimed')){
+     note('এই রিওয়ার্ড আগে নেওয়া হয়েছে।');
+    }else if(message.includes('channel_not_joined')){
+     note('আগে আমাদের অফিসিয়াল চ্যানেলে যোগ দিন।');
+    }else{
+     note('যাচাই ব্যর্থ হয়েছে। আবার চেষ্টা করুন।');
+    }
+   }finally{
+    b.disabled=false;
+    renderTasks();
+   }
    return;
   }
+
 
   if(category==='Referral'){
    go('referral');
