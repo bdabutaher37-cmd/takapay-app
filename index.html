@@ -1,12 +1,9 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="bn">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TakaPay Bot | Neon Dashboard</title>
+<script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 <style>
 :root{--bg:#020b19;--panel:#061a2c;--panel2:#082238;--cyan:#08e9f2;--blue:#0878ad;--muted:#a5c5ed;--white:#f4f8ff;--orange:#ff8b08;--green:#00e6b0;--red:#ff3155;--line:#087da0}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#0a3452 0,transparent 55%),var(--bg);color:var(--white);font-family:Arial,"Noto Sans Bengali",sans-serif;font-size:14px;padding-bottom:86px}button,input{font:inherit}button{cursor:pointer}.shell{max-width:1050px;margin:auto;padding:0 14px}.top{position:sticky;top:0;z-index:5;background:#031326ed;backdrop-filter:blur(14px);border-bottom:1px solid #087fa0;padding:12px 0}.topin{display:flex;align-items:center;gap:12px}.logo{width:58px;height:58px;flex:none;border:3px solid var(--cyan);border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#075b78,#02172b);box-shadow:0 0 18px #00e5f466;font-size:29px}.brand{flex:1}.brand h1{font-size:clamp(23px,4vw,35px);margin:0;font-weight:800;letter-spacing:-.7px}.brand h1 span{color:var(--cyan)}.brand p{margin:3px 0 0;color:var(--muted);font-weight:700;letter-spacing:.3px}.topbtn{background:none;border:0;color:#91baff;font-size:26px;padding:6px}.page{display:none;padding-top:13px}.page.active{display:block}.card{border:1px solid #087fa5;border-radius:21px;background:linear-gradient(120deg,#062337,#04172a 75%);box-shadow:inset 0 0 18px #00e5f20a,0 4px 14px #0002;margin-bottom:12px;padding:16px}.glow{border:2px solid var(--cyan);box-shadow:0 0 18px #00e5f222,inset 0 0 24px #00e5f20c}.profile{display:flex;align-items:center;gap:14px}.crown{width:82px;height:82px;flex:none;border-radius:50%;border:2px solid var(--cyan);display:grid;place-items:center;background:radial-gradient(circle,#07526a,#031628);font-size:40px}.muted{color:var(--muted)}.tiny{font-size:12px}.online{display:inline-block;color:var(--green);background:#00e6b01c;border:1px solid #00e6b0;border-radius:20px;padding:3px 12px;margin-left:8px}.profile h2{margin:4px 0;font-size:23px}.balance-card{display:flex;align-items:center;gap:14px;padding:20px;background:linear-gradient(110deg,#075064,#061b31 68%,#4a2609);border:2px solid var(--cyan);border-radius:23px;margin-bottom:13px}.wallet{font-size:46px}.balance-card h3{margin:0 0 4px;font-size:17px}.balance{font-size:clamp(28px,5vw,43px);font-weight:900;letter-spacing:.5px}.balance small{font-size:12px;color:var(--cyan)}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:13px}.stat{border:1px solid #075d88;border-radius:17px;background:linear-gradient(145deg,#071c30,#041326);padding:12px;min-width:0}.stat .emoji{font-size:22px}.stat p{margin:8px 0 3px;color:var(--muted);font-size:12px}.stat strong{font-size:clamp(16px,2.8vw,24px);color:var(--cyan)}.refbanner{display:flex;align-items:center;gap:13px;background:linear-gradient(100deg,#062a3c,#061629,#3d210d);border:1px solid var(--cyan);border-radius:19px;padding:15px;margin-bottom:14px}.refbanner .big{font-size:33px;color:var(--cyan)}.refbanner h3{margin:0 0 7px;font-size:17px}.refurl{display:flex;gap:7px;align-items:center}.refurl code{color:var(--cyan);font-size:11px;overflow-wrap:anywhere;flex:1}.btn{border:1px solid #0d7ea3;background:#082941;color:var(--white);border-radius:12px;padding:10px 13px;font-weight:700}.btn.orange{background:linear-gradient(100deg,#ffb000,#ff6500);border:1px solid #ffc044;color:white;box-shadow:0 0 12px #ff870033}.btn.cyan{background:linear-gradient(100deg,#00f2df,#00a8d5);color:#001723;border:0}.section-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:18px 3px 12px}.section-title h2{margin:0;font-size:25px}.filters{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:13px 0}.filters button{padding:10px 4px;border-radius:15px;border:1px solid #075b84;color:#c6dcf7;background:#061b30;font-weight:700}.filters button.active{background:linear-gradient(120deg,#00e9e6,#007f9c);color:#001725;box-shadow:0 0 15px #00e5e566}.task{display:grid;grid-template-columns:70px minmax(0,1fr) auto;align-items:center;gap:12px;padding:13px;border:1px solid #087da0;border-radius:20px;background:linear-gradient(110deg,#06253a,#041426);margin-bottom:10px}.taskicon{width:64px;height:64px;border-radius:50%;border:2px solid var(--cyan);display:grid;place-items:center;background:radial-gradient(circle,#08718b,#04172c);font-size:30px}.task h3{margin:0 0 4px;font-size:16px}.task p{margin:0 0 8px;color:var(--muted);font-size:12px;line-height:1.5}.reward{color:var(--cyan);font-weight:800}.task .right{text-align:right;min-width:125px}.frequency{display:inline-block;border:1px solid var(--green);color:var(--green);border-radius:18px;padding:4px 8px;font-size:11px;margin-bottom:9px}.bottomnav{position:fixed;z-index:8;bottom:8px;left:10px;right:10px;max-width:1030px;margin:auto;display:grid;grid-template-columns:repeat(5,1fr);border:1px solid #075e85;border-radius:23px;background:#031326f5;backdrop-filter:blur(15px);padding:5px;box-shadow:0 0 20px #0008}.bottomnav button{border:0;border-radius:17px;background:transparent;color:#9abbe7;padding:7px 2px 5px;display:grid;justify-items:center;gap:2px;font-weight:700}.bottomnav button .ico{font-size:25px}.bottomnav button span:last-child{font-size:12px}.bottomnav button.active{color:var(--cyan);background:linear-gradient(145deg,#06475a,#041d32);border:1px solid var(--cyan);box-shadow:0 0 15px #00e5e544}.formrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{margin:13px 0}.field label{display:block;color:var(--muted);margin-bottom:7px}.field input,.field select{width:100%;background:#031326;color:white;border:1px solid #087da0;border-radius:12px;padding:13px;outline:none}.methods{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.method{border:1px solid #087da0;background:#04172a;border-radius:14px;padding:13px 5px;text-align:center;font-weight:700}.method .mi{font-size:18px;font-weight:900;display:grid;place-items:center;width:42px;height:42px;margin:0 auto 8px;border-radius:12px;color:#fff;letter-spacing:-1px;box-shadow:0 0 12px #0005}.method[data-method="bKash"] .mi{background:#d71962;border:1px solid #ff4c92}.method[data-method="Nagad"] .mi{background:#f15b2a;border:1px solid #ff9a53}.method[data-method="Rocket"] .mi{background:#8b1aa8;border:1px solid #d75cff}.method[data-method="USDT"] .mi{background:#159b79;border:1px solid #43e0b1;border-radius:50%;font-size:24px}.method.active{border:2px solid var(--cyan);box-shadow:0 0 15px #00e5e544;background:#073043}.historyrow{display:grid;grid-template-columns:60px minmax(0,1fr) minmax(130px,.8fr) 20px;gap:12px;align-items:center;margin-bottom:10px}.historyrow .taskicon{width:56px;height:56px;font-size:22px;font-weight:900;color:#fff}.historyrow .taskicon:has(+ div h3){letter-spacing:-1px}.status{display:inline-block;border-radius:18px;padding:5px 10px;font-size:11px;font-weight:800}.success{color:var(--green);border:1px solid var(--green);background:#00e6b015}.pending{color:#ffbf27;border:1px solid #ffbf27;background:#ffbf2714}.failed{color:#ff5470;border:1px solid #ff3155;background:#ff315514}.plan.selected-plan{border:2px solid var(--cyan);box-shadow:0 0 20px #00e5e566}.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.plan h3{font-size:20px;margin:4px 0}.plan .price{font-size:28px;font-weight:900;color:var(--cyan)}.plan ul{padding-left:18px;color:var(--muted);line-height:2;font-size:12px}.notice{font-size:12px;color:#ffd77a;line-height:1.6;border:1px solid #96651b;background:#4b300b20;border-radius:12px;padding:12px;margin:12px 0}.toast{position:fixed;z-index:20;bottom:100px;left:50%;transform:translateX(-50%);background:#06344a;border:1px solid var(--cyan);color:var(--cyan);padding:12px 16px;border-radius:12px;display:none;max-width:90%;text-align:center}.toast.show{display:block}
@@ -45,9 +42,9 @@
 const API_BASE = 'https://takapay-app.onrender.com';
 const tasks=[
 {icon:'✈️',title:'Telegram Channel Join',desc:'আমাদের অফিসিয়াল Telegram চ্যানেলে যোগ দিন এবং যাচাই সম্পন্ন করুন।',reward:20,time:'৫ মিনিট',frequency:'প্রতিদিন ১ বার',left:'যাচাই প্রয়োজন',category:'Telegram',button:'যোগ দিন'},
-{icon:'▶️',title:'Watch Advertisement',desc:'ডেমো কাউন্টার; আসল বিজ্ঞাপন যাচাই সংযুক্ত নয়।',reward:1,time:'৩০ সেকেন্ড',frequency:'প্রতিদিন সর্বোচ্চ ২০টি',left:'২০/২০',category:'watch',button:'এড দেখুন'},
+{icon:'▶️',title:'Watch Advertisement',desc:'AdsGram Rewarded বিজ্ঞাপন দেখুন; সম্পূর্ণ হলে কাউন্টার আপডেট হবে।',reward:1,time:'৩০ সেকেন্ড',frequency:'প্রতিদিন সর্বোচ্চ ২০টি',left:'২০/২০',category:'watch',button:'এড দেখুন'},
 {icon:'👥',title:'Referral Task',desc:'আপনার রেফারেল লিংক শেয়ার করুন; রেফারেল সার্ভারে যাচাই করতে হবে।',reward:10,time:'১০ মিনিট',frequency:'প্রতিদিন ৫ বার',left:'যাচাই প্রয়োজন',category:'Referral',button:'রেফার করুন'},
-{icon:'🗓️',title:'Daily Check-in',desc:'প্রতিদিন একবার সার্ভার থেকে ৳১০ পুরস্কার নিন।',reward:10,time:'১ মিনিট',frequency:'প্রতিদিন ১ বার',left:'যাচাই প্রয়োজন',category:'daily',button:'চেক-ইন'},
+{icon:'🗓️',title:'Daily Check-in',desc:'ডেমো চেক-ইন; সার্ভার রিওয়ার্ড সংযুক্ত নয়।',reward:10,time:'১ মিনিট',frequency:'প্রতিদিন ১ বার',left:'যাচাই প্রয়োজন',category:'daily',button:'চেক-ইন'},
 {icon:'🛡️',title:'Verification Task',desc:'নির্দিষ্ট কাজ সম্পন্ন করে যাচাই করাতে হবে।',reward:25,time:'১৫ মিনিট',frequency:'প্রতিদিন ২ বার',left:'যাচাই প্রয়োজন',category:'verify',button:'কাজ শুরু করুন'},
 {icon:'⚙️',title:'Admin Task',desc:'অ্যাডমিন কর্তৃক যোগ করা বিশেষ টাস্ক; এখন প্রিভিউ মাত্র।',reward:50,time:'৩০ মিনিট',frequency:'সীমিত সময়',left:'যাচাই প্রয়োজন',category:'verify',button:'বিস্তারিত দেখুন'}];
 let method='bKash',filter='all',toastT;
@@ -58,7 +55,9 @@ document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=
 function getTelegramInitData(){return window.Telegram?.WebApp?.initData || ''}
 function getTelegramUser(){try{return window.Telegram?.WebApp?.initDataUnsafe?.user || null}catch{return null}}
 function setBalance(value){const n=Number(value);document.querySelectorAll('[data-balance]').forEach(el=>el.textContent='৳ '+(Number.isFinite(n)?n:0).toFixed(2))}
-function localDayKey(){return new Date().toISOString().slice(0,10)}
+function localDayKey(){
+ return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Dhaka',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+}
 function watchCount(){return Number(localStorage.getItem('tp_watch_'+localDayKey())||0)}
 function ratesForPlan(plan){return {Free:1,Starter:1,Premium:2,Diamond:4,Gold:7,Platinum:10,VIP:15}[plan]||1}
 function renderTasks(){
@@ -68,87 +67,38 @@ function renderTasks(){
   return `<div class="task"><div class="taskicon">${t.icon}</div><div><h3>${t.title}</h3><p>${t.desc}</p><span class="reward">🪙 ৳ ${reward.toFixed(2)}</span>　<span class="muted tiny">◷ ${t.time}</span></div><div class="right"><span class="frequency">${t.frequency}</span><div class="muted tiny">👥 বাকি: ${left}</div><button class="btn orange task-action" data-title="${t.title}" data-category="${t.category}" style="margin-top:8px">${isWatch&&count>=20?'আজকের সীমা শেষ':t.button} ›</button></div></div>`
  }).join('');
  document.querySelectorAll('.task-action').forEach(b=>b.onclick=async()=>{
-const category=b.dataset.category;
-
-if(category==='watch'){
-let count=watchCount();
-if(count>=20){note('আজকের ডেমো সীমা ২০টি শেষ।');return}
-count++;
-localStorage.setItem('tp_watch_'+localDayKey(),String(count));
-note("ডেমো বিজ্ঞাপন ${count}/20 গণনা হয়েছে। কোনো টাকা ব্যালেন্সে যোগ হয়নি।");
-renderTasks();
-return;
-}
-
-if(category==='Telegram'){
-note('চ্যানেল জয়েন ও রিওয়ার্ডের বাস্তব যাচাই এখনো সংযুক্ত নয়।');
-return;
-}
-
-if(category==='Referral'){
-go('referral');
-note('সফল রেফারেল সার্ভারে যাচাই করতে হবে।');
-return;
-}
-
-if(category==='daily'){
-b.disabled=true;
-b.textContent='যাচাই হচ্ছে...';
-
-try{
-  const result=await api('/api/tasks/daily-checkin',{
-    method:'POST',
-    body:JSON.stringify({})
-  });
-
-  if(result.success===true){
-    b.textContent='আজকের পুরস্কার নেওয়া হয়েছে';
-    note(`অভিনন্দন! ৳${result.reward} Daily Check-in পুরস্কার পেয়েছেন।`);
-
-    document.getElementById('todayBonus').textContent=
-      '৳ '+Number(result.reward||0).toFixed(2);
-
-    try{
-      const me=await api('/api/me');
-      setBalance(me.profile?.balance||0);
-    }catch(e){
-      console.error('Balance refresh failed');
+  const category=b.dataset.category;
+  if(category==='watch'){
+   const count=watchCount();
+   if(count>=20){note('আজকের বিজ্ঞাপনের সীমা ২০টি শেষ।');return}
+   if(!window.Adsgram || typeof window.Adsgram.init!=='function'){
+    note('AdsGram লোড হয়নি। ইন্টারনেট পরীক্ষা করে আবার চেষ্টা করুন।');return;
+   }
+   b.disabled=true;
+   b.textContent='বিজ্ঞাপন লোড হচ্ছে...';
+   try{
+    // AdsGram documents one controller per block ID; init() reuses it.
+    const adController=window.Adsgram.init({blockId:'53522'});
+    const result=await adController.show();
+    if(!result || result.done!==true){
+     note('বিজ্ঞাপন সম্পূর্ণ হয়নি; কাউন্টার আপডেট হয়নি।');return;
     }
-
-    try{
-      const tx=await api('/api/transactions');
-      renderHistory(tx.transactions||[]);
-    }catch(e){
-      console.error('History refresh failed');
-    }
-    return;
+    const newCount=count+1;
+    localStorage.setItem('tp_watch_'+localDayKey(),String(newCount));
+    note(`বিজ্ঞাপন সম্পূর্ণ হয়েছে (${newCount}/20)।`);
+    renderTasks();
+   }catch(error){
+    console.warn('AdsGram rewarded ad error:',error);
+    note('বিজ্ঞাপন দেখানো যায়নি বা মাঝপথে বন্ধ হয়েছে। পরে আবার চেষ্টা করুন।');
+   }finally{
+    renderTasks();
+   }
+   return;
   }
-
-  if(result.error==='already_claimed'){
-    b.textContent='আজকের পুরস্কার নেওয়া হয়েছে';
-    note('আজকের পুরস্কার ইতিমধ্যে নেওয়া হয়েছে।');
-    return;
-  }
-
-  b.disabled=false;
-  b.textContent='চেক-ইন';
-  note('পুরস্কার নিশ্চিত করা যায়নি। আবার চেষ্টা করুন।');
-}catch(err){
-  if(err.message==='already_claimed'){
-    b.textContent='আজকের পুরস্কার নেওয়া হয়েছে';
-    note('আজকের পুরস্কার ইতিমধ্যে নেওয়া হয়েছে।');
-  }else{
-    b.disabled=false;
-    b.textContent='চেক-ইন';
-    note('সার্ভার সমস্যা: '+(err.message||'পরে আবার চেষ্টা করুন'));
-  }
-}
-return;
-
-}
-
-note("${b.dataset.title}: ডেমো মোড — কোনো রিওয়ার্ড যোগ হয়নি।");
-});
+  if(category==='Telegram'){note('চ্যানেল জয়েন ও রিওয়ার্ডের বাস্তব যাচাই এখনো সংযুক্ত নয়。');return}
+  if(category==='Referral'){go('referral');note('রেফারেল লিংক শেয়ার করুন; সফল রেফারেল সার্ভারে যাচাই করতে হবে।');return}
+  note(`${b.dataset.title}: ডেমো মোড — কোনো রিওয়ার্ড যোগ হয়নি।`);
+ });
 }
 document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));renderTasks()}));
 document.getElementById('refresh').onclick=()=>{renderTasks();note('টাস্ক তালিকা রিফ্রেশ হয়েছে।')};
