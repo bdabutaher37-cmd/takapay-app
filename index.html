@@ -196,7 +196,7 @@ async function api(path,options={}){
  const body=await response.json().catch(()=>({}));
  if(!response.ok){
   console.error('TakaPay API error:',response.status,body);
-  throw new Error(body.error||'সার্ভার অনুরোধ ব্যর্থ হয়েছে');
+  throw new Error('HTTP '+response.status+' — '+(body.error||JSON.stringify(body)||'অজানা সার্ভার ত্রুটি'));
  }
  return body;
 }
