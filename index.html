@@ -99,6 +99,9 @@ function renderTasks(){
   }
   
 if(category==='Telegram'){
+ if(window.Telegram?.WebApp?.openTelegramLink){
+  window.Telegram.WebApp.openTelegramLink('https://t.me/takapay_official');
+ }
    b.disabled=true;
    b.textContent='যাচাই হচ্ছে...';
 
