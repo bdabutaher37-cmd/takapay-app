@@ -201,10 +201,7 @@ app.get("/", (req, res) => {
 
 // Health check
 app.get("/health", (req, res) => {
-  res.json({
-    app: "TakaPay Backend",
-    status: "running"
-  });
+  res.json({ status: "ok" });
 });
 
 // Database connection check
