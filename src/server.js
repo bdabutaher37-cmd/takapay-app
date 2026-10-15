@@ -1,22 +1,31 @@
-
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
 import { createClient } from "@supabase/supabase-js";
-import { createHmac, timingSafeEqual } from "node:crypto";
+import {
+  createHmac,
+  timingSafeEqual
+} from "node:crypto";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Read and normalize environment variables.
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const INDEX_HTML = resolve(__dirname, "../index.html");
+
+// Environment variables
 const rawUrl = (process.env.SUPABASE_URL || "").trim();
+
 const SUPABASE_SECRET_KEY =
   (process.env.SUPABASE_SECRET_KEY || "").trim();
+
 const TELEGRAM_BOT_TOKEN =
   (process.env.TELEGRAM_BOT_TOKEN || "").trim();
 
-// Accept a project URL even if /rest/v1 was accidentally appended.
+// Normalize Supabase URL
 const SUPABASE_URL = rawUrl
   .replace(/\/rest\/v1\/?$/i, "")
   .replace(/\/+$/, "");
@@ -47,8 +56,10 @@ try {
       );
     }
   }
-} catch (error) {
-  console.error("Supabase configuration could not be initialized.");
+} catch {
+  console.error(
+    "Supabase configuration could not be initialized."
+  );
 }
 
 console.log("TakaPay configuration:", {
@@ -59,6 +70,7 @@ console.log("TakaPay configuration:", {
   supabaseClientCreated: Boolean(supabase)
 });
 
+// Middleware
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: "10kb" }));
@@ -73,22 +85,18 @@ app.use(
   })
 );
 
+// Configuration validation
 function requireConfig(req, res, next) {
   if (!supabase || !TELEGRAM_BOT_TOKEN) {
     return res.status(503).json({
-      error: "server_not_configured",
-      details: {
-        supabaseUrlValid: urlValid,
-        supabaseSecretKeyPresent: Boolean(SUPABASE_SECRET_KEY),
-        telegramBotTokenPresent: Boolean(TELEGRAM_BOT_TOKEN)
-      }
+      error: "server_not_configured"
     });
   }
 
   next();
 }
 
-// Verify Telegram Mini App initData.
+// Telegram Mini App authentication
 function requireTelegram(req, res, next) {
   try {
     const initData = req.get("X-Telegram-Init-Data");
@@ -102,8 +110,13 @@ function requireTelegram(req, res, next) {
     const params = new URLSearchParams(initData);
     const receivedHash = params.get("hash");
 
-    if (!receivedHash || !/^[a-f0-9]{64}$/i.test(receivedHash)) {
-      return res.status(401).json({ error: "invalid_auth" });
+    if (
+      !receivedHash ||
+      !/^[a-f0-9]{64}$/i.test(receivedHash)
+    ) {
+      return res.status(401).json({
+        error: "invalid_auth"
+      });
     }
 
     params.delete("hash");
@@ -127,7 +140,9 @@ function requireTelegram(req, res, next) {
       suppliedHash.length !== calculatedHash.length ||
       !timingSafeEqual(suppliedHash, calculatedHash)
     ) {
-      return res.status(401).json({ error: "invalid_auth" });
+      return res.status(401).json({
+        error: "invalid_auth"
+      });
     }
 
     const authDate = Number(params.get("auth_date"));
@@ -138,13 +153,23 @@ function requireTelegram(req, res, next) {
       authDate > now + 60 ||
       now - authDate > 86400
     ) {
-      return res.status(401).json({ error: "auth_expired" });
+      return res.status(401).json({
+        error: "auth_expired"
+      });
     }
 
-    const user = JSON.parse(params.get("user") || "null");
+    const user = JSON.parse(
+      params.get("user") || "null"
+    );
 
-    if (!user || !Number.isSafeInteger(user.id) || user.id <= 0) {
-      return res.status(401).json({ error: "invalid_user" });
+    if (
+      !user ||
+      !Number.isSafeInteger(user.id) ||
+      user.id <= 0
+    ) {
+      return res.status(401).json({
+        error: "invalid_user"
+      });
     }
 
     req.telegramUser = {
@@ -157,45 +182,67 @@ function requireTelegram(req, res, next) {
 
     next();
   } catch {
-    return res.status(401).json({ error: "invalid_auth" });
+    return res.status(401).json({
+      error: "invalid_auth"
+    });
   }
 }
 
+// Frontend: serve index.html from repository root
 app.get("/", (req, res) => {
+  res.sendFile(INDEX_HTML, (error) => {
+    if (error && !res.headersSent) {
+      res.status(500).send(
+        "TakaPay frontend could not be loaded. Check index.html."
+      );
+    }
+  });
+});
+
+// Health check
+app.get("/health", (req, res) => {
   res.json({
     app: "TakaPay Backend",
     status: "running"
   });
 });
 
-app.get("/health", (req, res) => {
-  res.json({ status: "ok" });
-});
+// Database connection check
+app.get(
+  "/api/db-status",
+  requireConfig,
+  async (req, res) => {
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .select("id", {
+          head: true,
+          count: "exact"
+        });
 
-// Check database connectivity.
-app.get("/api/db-status", requireConfig, async (req, res) => {
-  try {
-    const { error } = await supabase
-      .from("profiles")
-      .select("id", { head: true, count: "exact" });
+      if (error) {
+        console.error(
+          "Database check failed:",
+          error.message
+        );
 
-    if (error) {
-      console.error("Database check failed:", error.message);
+        return res.status(503).json({
+          status: "connection_error"
+        });
+      }
+
+      return res.json({
+        status: "connected"
+      });
+    } catch {
       return res.status(503).json({
         status: "connection_error"
       });
     }
-
-    return res.json({ status: "connected" });
-  } catch (error) {
-    console.error("Database check failed.");
-    return res.status(503).json({
-      status: "connection_error"
-    });
   }
-});
+);
 
-// Authenticate Telegram user and create/update their profile.
+// Authenticate Telegram user and create/update profile
 app.post(
   "/api/auth",
   requireConfig,
@@ -207,20 +254,33 @@ app.post(
       const { data, error } = await supabase
         .from("profiles")
         .upsert(
-          { telegram_id: id, username },
-          { onConflict: "telegram_id" }
+          {
+            telegram_id: id,
+            username
+          },
+          {
+            onConflict: "telegram_id"
+          }
         )
-        .select("telegram_id, username, balance, created_at")
+        .select(
+          "telegram_id, username, balance, created_at"
+        )
         .single();
 
       if (error) {
-        console.error("Profile operation failed:", error.message);
+        console.error(
+          "Profile operation failed:",
+          error.message
+        );
+
         return res.status(500).json({
           error: "profile_failed"
         });
       }
 
-      return res.json({ profile: data });
+      return res.json({
+        profile: data
+      });
     } catch {
       return res.status(500).json({
         error: "profile_failed"
@@ -229,7 +289,7 @@ app.post(
   }
 );
 
-// Get the authenticated user's profile.
+// Get authenticated user's profile
 app.get(
   "/api/me",
   requireConfig,
@@ -238,8 +298,13 @@ app.get(
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("telegram_id, username, balance, created_at")
-        .eq("telegram_id", req.telegramUser.id)
+        .select(
+          "telegram_id, username, balance, created_at"
+        )
+        .eq(
+          "telegram_id",
+          req.telegramUser.id
+        )
         .maybeSingle();
 
       if (error) {
@@ -254,7 +319,9 @@ app.get(
         });
       }
 
-      return res.json({ profile: data });
+      return res.json({
+        profile: data
+      });
     } catch {
       return res.status(500).json({
         error: "profile_failed"
@@ -263,7 +330,7 @@ app.get(
   }
 );
 
-// Get the user's recent transactions.
+// Get authenticated user's recent transactions
 app.get(
   "/api/transactions",
   requireConfig,
@@ -272,19 +339,32 @@ app.get(
     try {
       const { data, error } = await supabase
         .from("transactions")
-        .select("id, type, amount, status, description, created_at")
-        .eq("telegram_id", req.telegramUser.id)
-        .order("created_at", { ascending: false })
+        .select(
+          "id, type, amount, status, description, created_at"
+        )
+        .eq(
+          "telegram_id",
+          req.telegramUser.id
+        )
+        .order("created_at", {
+          ascending: false
+        })
         .limit(50);
 
       if (error) {
-        console.error("Transactions query failed:", error.message);
+        console.error(
+          "Transactions query failed:",
+          error.message
+        );
+
         return res.status(500).json({
           error: "transactions_failed"
         });
       }
 
-      return res.json({ transactions: data });
+      return res.json({
+        transactions: data
+      });
     } catch {
       return res.status(500).json({
         error: "transactions_failed"
@@ -293,6 +373,9 @@ app.get(
   }
 );
 
+// Start server
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`TakaPay backend listening on port ${PORT}`);
+  console.log(
+    `TakaPay backend listening on port ${PORT}`
+  );
 });
