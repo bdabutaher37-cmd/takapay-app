@@ -1,3 +1,4 @@
+
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
@@ -16,16 +17,12 @@ const PORT = process.env.PORT || 3000;
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const INDEX_HTML = resolve(__dirname, "../index.html");
 
-// Environment variables
 const rawUrl = (process.env.SUPABASE_URL || "").trim();
-
 const SUPABASE_SECRET_KEY =
   (process.env.SUPABASE_SECRET_KEY || "").trim();
-
 const TELEGRAM_BOT_TOKEN =
   (process.env.TELEGRAM_BOT_TOKEN || "").trim();
 
-// Normalize Supabase URL
 const SUPABASE_URL = rawUrl
   .replace(/\/rest\/v1\/?$/i, "")
   .replace(/\/+$/, "");
@@ -57,9 +54,7 @@ try {
     }
   }
 } catch {
-  console.error(
-    "Supabase configuration could not be initialized."
-  );
+  console.error("Supabase configuration could not be initialized.");
 }
 
 console.log("TakaPay configuration:", {
@@ -85,7 +80,7 @@ app.use(
   })
 );
 
-// Configuration validation
+// Server configuration check
 function requireConfig(req, res, next) {
   if (!supabase || !TELEGRAM_BOT_TOKEN) {
     return res.status(503).json({
@@ -96,7 +91,7 @@ function requireConfig(req, res, next) {
   next();
 }
 
-// Telegram Mini App authentication
+// Verify Telegram Mini App authentication
 function requireTelegram(req, res, next) {
   try {
     const initData = req.get("X-Telegram-Init-Data");
@@ -158,9 +153,7 @@ function requireTelegram(req, res, next) {
       });
     }
 
-    const user = JSON.parse(
-      params.get("user") || "null"
-    );
+    const user = JSON.parse(params.get("user") || "null");
 
     if (
       !user ||
@@ -188,7 +181,7 @@ function requireTelegram(req, res, next) {
   }
 }
 
-// Frontend: serve index.html from repository root
+// Frontend
 app.get("/", (req, res) => {
   res.sendFile(INDEX_HTML, (error) => {
     if (error && !res.headersSent) {
@@ -205,39 +198,32 @@ app.get("/health", (req, res) => {
 });
 
 // Database connection check
-app.get(
-  "/api/db-status",
-  requireConfig,
-  async (req, res) => {
-    try {
-      const { error } = await supabase
-        .from("profiles")
-        .select("id", {
-          head: true,
-          count: "exact"
-        });
-
-      if (error) {
-        console.error(
-          "Database check failed:",
-          error.message
-        );
-
-        return res.status(503).json({
-          status: "connection_error"
-        });
-      }
-
-      return res.json({
-        status: "connected"
+app.get("/api/db-status", requireConfig, async (req, res) => {
+  try {
+    const { error } = await supabase
+      .from("profiles")
+      .select("id", {
+        head: true,
+        count: "exact"
       });
-    } catch {
+
+    if (error) {
+      console.error("Database check failed:", error.message);
+
       return res.status(503).json({
         status: "connection_error"
       });
     }
+
+    return res.json({
+      status: "connected"
+    });
+  } catch {
+    return res.status(503).json({
+      status: "connection_error"
+    });
   }
-);
+});
 
 // Authenticate Telegram user and create/update profile
 app.post(
@@ -259,16 +245,11 @@ app.post(
             onConflict: "telegram_id"
           }
         )
-        .select(
-          "telegram_id, username, balance, created_at"
-        )
+        .select("telegram_id, username, balance, created_at")
         .single();
 
       if (error) {
-        console.error(
-          "Profile operation failed:",
-          error.message
-        );
+        console.error("Profile operation failed:", error.message);
 
         return res.status(500).json({
           error: "profile_failed"
@@ -295,13 +276,8 @@ app.get(
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select(
-          "telegram_id, username, balance, created_at"
-        )
-        .eq(
-          "telegram_id",
-          req.telegramUser.id
-        )
+        .select("telegram_id, username, balance, created_at")
+        .eq("telegram_id", req.telegramUser.id)
         .maybeSingle();
 
       if (error) {
@@ -339,20 +315,14 @@ app.get(
         .select(
           "id, type, amount, status, description, created_at"
         )
-        .eq(
-          "telegram_id",
-          req.telegramUser.id
-        )
+        .eq("telegram_id", req.telegramUser.id)
         .order("created_at", {
           ascending: false
         })
         .limit(50);
 
       if (error) {
-        console.error(
-          "Transactions query failed:",
-          error.message
-        );
+        console.error("Transactions query failed:", error.message);
 
         return res.status(500).json({
           error: "transactions_failed"
@@ -370,9 +340,62 @@ app.get(
   }
 );
 
+// Daily Check-in: claim reward once per Bangladesh calendar day
+app.post(
+  "/api/tasks/daily-checkin",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      const { data, error } = await supabase.rpc(
+        "claim_daily_checkin",
+        {
+          p_telegram_id: req.telegramUser.id
+        }
+      );
+
+      if (error) {
+        console.error(
+          "Daily check-in failed:",
+          error.message
+        );
+
+        return res.status(500).json({
+          error: "checkin_failed"
+        });
+      }
+
+      if (data?.success === true) {
+        return res.json({
+          success: true,
+          reward: data.reward
+        });
+      }
+
+      if (data?.error === "already_claimed") {
+        return res.status(409).json({
+          error: "already_claimed"
+        });
+      }
+
+      if (data?.error === "profile_not_found") {
+        return res.status(404).json({
+          error: "profile_not_found"
+        });
+      }
+
+      return res.status(500).json({
+        error: "checkin_failed"
+      });
+    } catch {
+      return res.status(500).json({
+        error: "checkin_failed"
+      });
+    }
+  }
+);
+
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(
-    `TakaPay backend listening on port ${PORT}`
-  );
+  console.log(`TakaPay backend listening on port ${PORT}`);
 });
