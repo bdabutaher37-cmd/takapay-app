@@ -103,6 +103,7 @@ if(category==='Telegram'){
    b.textContent='যাচাই হচ্ছে...';
 
    try{
+    console.log('Channel Join button clicked');
     const result=await api('/api/tasks/channel-join',{
      method:'POST',
      body:JSON.stringify({})
