@@ -396,6 +396,70 @@ app.post(
   }
 );
 
+app.post(
+  "/api/tasks/channel-join",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      const telegramId = String(req.telegramUser.id);
+
+      const response = await fetch(
+        `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getChatMember?chat_id=@takapay_official&user_id=${telegramId}`
+      );
+
+      const result = await response.json();
+
+      if (!response.ok || !result.ok) {
+        console.error("Channel membership check failed");
+        return res.status(503).json({
+          error: "membership_check_failed"
+        });
+      }
+
+      const member = result.result;
+      const joined =
+        member.status === "creator" ||
+        member.status === "administrator" ||
+        member.status === "member" ||
+        (member.status === "restricted" && member.is_member === true);
+
+      if (!joined) {
+        return res.status(403).json({
+          error: "channel_not_joined"
+        });
+      }
+
+      const { data, error } = await supabase.rpc(
+        "claim_channel_join_reward",
+        { p_telegram_id: telegramId }
+      );
+
+      if (error) {
+        console.error("Channel reward failed:", error.message);
+        return res.status(500).json({ error: "reward_failed" });
+      }
+
+      if (data?.success === true) {
+        return res.json({ success: true, reward: 20 });
+      }
+
+      if (data?.error === "already_claimed") {
+        return res.status(409).json({ error: "already_claimed" });
+      }
+
+      if (data?.error === "profile_not_found") {
+        return res.status(404).json({ error: "profile_not_found" });
+      }
+
+      return res.status(500).json({ error: "reward_failed" });
+    } catch (error) {
+      console.error("Channel task failed:", error.message);
+      return res.status(500).json({ error: "channel_task_failed" });
+    }
+  }
+);
+
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`TakaPay backend listening on port ${PORT}`);
