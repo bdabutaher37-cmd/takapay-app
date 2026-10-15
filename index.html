@@ -192,7 +192,10 @@ async function api(path,options={}){
  if(!initData)throw new Error('Telegram Mini App থেকে অ্যাপটি খুলুন; সাধারণ ব্রাউজারে Telegram লগইন নেই।');
  const response=await fetch(API_BASE+path,{...options,headers:{'Content-Type':'application/json','X-Telegram-Init-Data':initData,...(options.headers||{})}});
  const body=await response.json().catch(()=>({}));
- if(!response.ok)throw new Error(body.error||'সার্ভার অনুরোধ ব্যর্থ হয়েছে');
+ if(!response.ok){
+  console.error('TakaPay API error:',response.status,body);
+  throw new Error(body.error||'সার্ভার অনুরোধ ব্যর্থ হয়েছে');
+ }
  return body;
 }
 async function loadAccount(){
