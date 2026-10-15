@@ -129,7 +129,9 @@ if(category==='Telegram'){
     }else if(message.includes('channel_not_joined')){
      note('আগে আমাদের অফিসিয়াল চ্যানেলে যোগ দিন।');
     }else{
-     note('যাচাই ব্যর্থ হয়েছে। আবার চেষ্টা করুন।');
+     
+     note('Error: '+message);
+  
     }
    }finally{
     b.disabled=false;
