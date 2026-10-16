@@ -4,10 +4,13 @@ import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
 import { createClient } from "@supabase/supabase-js";
+
 import {
   createHmac,
-  timingSafeEqual
+  timingSafeEqual,
+  randomUUID
 } from "node:crypto";
+
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
@@ -23,6 +26,10 @@ const SUPABASE_SECRET_KEY =
   (process.env.SUPABASE_SECRET_KEY || "").trim();
 const TELEGRAM_BOT_TOKEN =
   (process.env.TELEGRAM_BOT_TOKEN || "").trim();
+
+const POSTBACK_SECRET =
+  (process.env.POSTBACK_SECRET || "").trim();
+
 
 const SUPABASE_URL = rawUrl
   .replace(/\/rest\/v1\/?$/i, "")
@@ -460,6 +467,114 @@ app.post(
   }
 );
 
+app.post("/api/monetag/start", requireConfig, requireTelegram, async (req, res) => {
+  try {
+    const ymid = randomUUID();
+    const telegramId = String(req.telegramUser.id);
+
+    const { error } = await supabase
+      .from("monetag_ad_views")
+      .insert({
+        ymid,
+        telegram_id: telegramId,
+        zone_id: "12005665",
+        reward_amount: 1.00
+      });
+
+    if (error) {
+      console.error("Monetag start failed:", error.message);
+      return res.status(500).json({ error: "ad_start_failed" });
+    }
+
+    return res.json({
+      success: true,
+      ymid,
+      zoneId: "12005665"
+    });
+  } catch (error) {
+    console.error("Monetag start error:", error.message);
+    return res.status(500).json({ error: "ad_start_failed" });
+  }
+});
+
+app.get("/postback", async (req, res) => {
+  try {
+    const receivedSecret = String(req.query.secret || "");
+    const expectedSecret = POSTBACK_SECRET;
+
+    if (!receivedSecret || !expectedSecret) {
+      return res.status(403).send("Forbidden");
+    }
+
+    const a = Buffer.from(receivedSecret);
+    const b = Buffer.from(expectedSecret);
+
+    if (a.length !== b.length || !timingSafeEqual(a, b)) {
+      return res.status(403).send("Forbidden");
+    }
+
+    const ymid = String(req.query.ymid || "");
+    const zoneId = String(req.query.zone_id || "");
+    const eventType = String(req.query.event_type || "");
+    const rewardType = String(req.query.reward_event_type || "");
+
+    if (
+      !ymid ||
+      ymid.length > 200 ||
+      zoneId !== "12005665" ||
+      !["impression", "click"].includes(eventType) ||
+      !["valued", "non_valued"].includes(rewardType)
+    ) {
+      return res.status(400).send("Invalid postback");
+    }
+
+    if (rewardType !== "valued") {
+      return res.status(200).send("Non-valued event");
+    }
+
+    const { data: ad, error: lookupError } = await supabase
+      .from("monetag_ad_views")
+      .select("ymid, telegram_id, zone_id, rewarded_at")
+      .eq("ymid", ymid)
+      .maybeSingle();
+
+    if (lookupError) {
+      console.error("Monetag lookup failed:", lookupError.message);
+      return res.status(500).send("Lookup failed");
+    }
+
+    if (!ad || ad.zone_id !== zoneId) {
+      return res.status(404).send("Ad view not found");
+    }
+
+    const { data, error } = await supabase.rpc(
+      "reward_monetag_ad",
+      {
+        p_ymid: ymid,
+        p_telegram_id: ad.telegram_id,
+        p_reward_amount: 1.00,
+        p_zone_id: zoneId
+      }
+    );
+
+    if (error) {
+      if (error.message?.includes("already_rewarded")) {
+        return res.status(200).send("Already rewarded");
+      }
+
+      console.error("Monetag reward failed:", error.message);
+      return res.status(500).send("Reward failed");
+    }
+
+    return res.status(200).send(
+      data?.success ? "Rewarded" : "Already processed"
+    );
+  } catch (error) {
+    console.error("Monetag postback error:", error.message);
+    return res.status(500).send("Postback error");
+  }
+});
+  
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`TakaPay backend listening on port ${PORT}`);
