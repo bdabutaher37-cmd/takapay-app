@@ -471,7 +471,19 @@ app.post("/api/monetag/start", requireConfig, requireTelegram, async (req, res) 
   try {
     const ymid = randomUUID();
     const telegramId = String(req.telegramUser.id);
+const { data: allowed, error: limitError } = await supabase.rpc(
+  "can_start_monetag_ad",
+  { p_telegram_id: telegramId }
+);
 
+if (limitError) {
+  console.error("Monetag daily limit check failed:", limitError.message);
+  return res.status(500).json({ error: "daily_limit_check_failed" });
+}
+
+if (allowed !== true) {
+  return res.status(429).json({ error: "daily_ad_limit_reached" });
+}
     const { error } = await supabase
       .from("monetag_ad_views")
       .insert({
