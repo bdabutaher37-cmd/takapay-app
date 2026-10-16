@@ -72,34 +72,59 @@ function renderTasks(){
  }).join('');
  document.querySelectorAll('.task-action').forEach(b=>b.onclick=async()=>{
   const category=b.dataset.category;
-  if(category==='watch'){
-   const count=watchCount();
-   if(count>=20){note('আজকের বিজ্ঞাপনের সীমা ২০টি শেষ।');return}
-   if(!window.Adsgram || typeof window.Adsgram.init!=='function'){
-    note('AdsGram লোড হয়নি। ইন্টারনেট পরীক্ষা করে আবার চেষ্টা করুন।');return;
-   }
-   b.disabled=true;
-   b.textContent='বিজ্ঞাপন লোড হচ্ছে...';
-   try{
-    // AdsGram documents one controller per block ID; init() reuses it.
-    const adController=window.Adsgram.init({blockId:'53522'});
-    const result=await adController.show();
-    if(!result || result.done!==true){
-     note('বিজ্ঞাপন সম্পূর্ণ হয়নি; কাউন্টার আপডেট হয়নি।');return;
+
+if(category==='watch'){
+  const count=watchCount();
+
+  if(count>=20){
+    note('আজকের বিজ্ঞাপনের সীমা ২০টি শেষ।');
+    return;
+  }
+
+  if(typeof window.show_12005665!=='function'){
+    note('Monetag লোড হয়নি। ইন্টারনেট পরীক্ষা করে আবার চেষ্টা করুন।');
+    return;
+  }
+
+  b.disabled=true;
+  b.textContent='বিজ্ঞাপন লোড হচ্ছে...';
+
+  try{
+    const start=await api('/api/monetag/start',{
+      method:'POST',
+      body:JSON.stringify({})
+    });
+
+    if(!start.success || !start.ymid){
+      throw new Error('বিজ্ঞাপন সেশন তৈরি হয়নি।');
     }
+
+    await window.show_12005665({
+      ymid:start.ymid,
+      requestVar:'watch-ad'
+    });
+
+    note('বিজ্ঞাপন চালু হয়েছে। সার্ভার যাচাই করলে রিওয়ার্ড যোগ হবে।');
+
     const newCount=count+1;
     localStorage.setItem('tp_watch_'+localDayKey(),String(newCount));
-    note(`বিজ্ঞাপন সম্পূর্ণ হয়েছে (${newCount}/20)।`);
+
+    try{
+      const me=await api('/api/me');
+      setBalance(me.profile?.balance||0);
+    }catch(refreshError){
+      console.warn('Balance refresh:',refreshError);
+    }
+
+  }catch(error){
+    console.error('Monetag ad error:',error);
+    note('বিজ্ঞাপন চালু হয়নি। আবার চেষ্টা করুন।');
+  }finally{
     renderTasks();
-   }catch(error){
-    console.warn('AdsGram rewarded ad error:',error);
-    note('বিজ্ঞাপন দেখানো যায়নি বা মাঝপথে বন্ধ হয়েছে। পরে আবার চেষ্টা করুন।');
-   }finally{
-    renderTasks();
-   }
-   return;
   }
-  
+
+  return;
+}
 if(category==='Telegram'){
  if(window.Telegram?.WebApp?.openTelegramLink){
   window.Telegram.WebApp.openTelegramLink('https://t.me/takapay_official');
