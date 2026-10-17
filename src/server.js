@@ -1,4 +1,4 @@
-
+ইস
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
@@ -581,6 +581,10 @@ app.get("/postback", async (req, res) => {
 
     if (data?.error === "already_rewarded") {
       return res.status(200).send("Already rewarded");
+    }
+    if (data?.error === "daily_limit_reached") {
+  console.log("Monetag daily limit reached:", ad.telegram_id);
+  return res.status(200).send("Daily limit reached");
     }
     console.log("Monetag reward result:", JSON.stringify(data));
 
