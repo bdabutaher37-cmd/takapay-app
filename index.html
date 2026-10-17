@@ -99,23 +99,26 @@ if(category==='watch'){
       throw new Error('বিজ্ঞাপন সেশন তৈরি হয়নি।');
     }
 
-    await window.show_12005665({
-      ymid:start.ymid,
-      requestVar:'watch-ad'
-    });
+    
+const adResult = await window.show_12005665({
+  ymid: start.ymid,
+  requestVar: 'watch-ad'
+});
 
-    note('বিজ্ঞাপন চালু হয়েছে।');
-    const newCount=count+1;
-    localStorage.setItem('tp_watch_'+localDayKey(),String(newCount));
+if (adResult?.reward_event_type === 'valued') {
+  note('বিজ্ঞাপন সম্পন্ন হয়েছে। রিওয়ার্ড যাচাই হচ্ছে।');
+} else {
+  note('বিজ্ঞাপন দেখা হয়েছে, রিওয়ার্ড এখনো নিশ্চিত হয়নি।');
+}
 
-    try{
-      const me=await api('/api/me');
-      setBalance(me.profile?.balance||0);
-    }catch(refreshError){
-      console.warn('Balance refresh:',refreshError);
-    }
-
-  }catch(error){
+try {
+  const me = await api('/api/me');
+  setBalance(me.profile?.balance || 0);
+} catch (refreshError) {
+  console.warn('Balance refresh:', refreshError);
+}
+  }
+}catch(error){
     console.error('Monetag ad error:',error);
     note('বিজ্ঞাপন চালু হয়নি। আবার চেষ্টা করুন।');
   }finally{
