@@ -119,10 +119,19 @@ try {
 }
   
 } catch(error) {
-    console.error('Monetag ad error:',error);
+  console.error('Monetag ad error:', error);
+
+  const message = error.message || '';
+
+  if (message.includes('daily_ad_limit_reached')) {
+    note('আজকের সর্বোচ্চ ২০টি বিজ্ঞাপন দেখা হয়েছে। আগামীকাল আবার চেষ্টা করুন।');
+  } else if (message.includes('daily_limit_check_failed')) {
+    note('দৈনিক সীমা যাচাই করা যায়নি। একটু পরে আবার চেষ্টা করুন।');
+  } else {
     note('বিজ্ঞাপন চালু হয়নি। আবার চেষ্টা করুন।');
-  }finally{
-    renderTasks();
+  }
+} finally {
+  renderTasks();
   }
 
   return;
