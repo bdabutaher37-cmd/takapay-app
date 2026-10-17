@@ -543,7 +543,6 @@ app.get("/postback", async (req, res) => {
     }
 
     return res.status(200).send("Rewards temporarily paused");
-      return res.status(200).send("Non-valued event");
     }
 
     const { data: ad, error: lookupError } = await supabase
