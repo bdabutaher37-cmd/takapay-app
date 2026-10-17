@@ -561,7 +561,16 @@ app.get("/postback", async (req, res) => {
       return res.status(404).send("Ad view not found");
     }
 
-        if (error) {
+      const { data, error } = await supabase.rpc(
+  "reward_monetag_ad",
+  {
+    p_ymid: ymid,
+    p_telegram_id: ad.telegram_id,
+    p_reward_amount: 1.00,
+    p_zone_id: zoneId
+  }
+);
+    if (error) {
       if (error.message?.includes("already_rewarded")) {
         return res.status(200).send("Already rewarded");
       }
