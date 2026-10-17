@@ -105,11 +105,7 @@ const adResult = await window.show_12005665({
   requestVar: 'watch-ad'
 });
 
-if (adResult?.reward_event_type === 'valued') {
-  note('বিজ্ঞাপন সম্পন্ন হয়েছে। রিওয়ার্ড যাচাই হচ্ছে।');
-} else {
-  note('বিজ্ঞাপন দেখা হয়েছে, রিওয়ার্ড এখনো নিশ্চিত হয়নি।');
-}
+note('বিজ্ঞাপনের রিওয়ার্ড সার্ভারে যাচাই হচ্ছে।');
 
 try {
   const me = await api('/api/me');
