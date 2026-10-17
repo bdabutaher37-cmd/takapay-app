@@ -117,8 +117,8 @@ try {
 } catch (refreshError) {
   console.warn('Balance refresh:', refreshError);
 }
-  }
-}catch(error){
+  
+} catch(error) {
     console.error('Monetag ad error:',error);
     note('বিজ্ঞাপন চালু হয়নি। আবার চেষ্টা করুন।');
   }finally{
@@ -244,6 +244,7 @@ async function loadAccount(){
  }catch(err){note(err.message||'সার্ভারের সঙ্গে সংযোগ হয়নি।');setBalance(0);renderHistory([])}
 }
 renderReferralCounts();renderTasks();renderHistory([]);
+ loadAccount();
 document.querySelectorAll('[data-method]').forEach(b=>b.onclick=()=>{method=b.dataset.method;document.querySelectorAll('[data-method]').forEach(x=>x.classList.toggle('active',x===b))});
 document.getElementById('withdrawForm').onsubmit=async e=>{
  e.preventDefault();
