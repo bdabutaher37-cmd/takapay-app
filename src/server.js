@@ -578,6 +578,7 @@ app.get("/postback", async (req, res) => {
       console.error("Monetag reward failed:", error.message);
       return res.status(500).send("Reward failed");
     }
+    console.log("Monetag reward result:", JSON.stringify(data));
 
     return res.status(200).send(
       data?.success ? "Rewarded" : "Already processed"
