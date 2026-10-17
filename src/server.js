@@ -15,6 +15,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
 const app = express();
+app.use(express.json());
 app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3000;
 
@@ -589,6 +590,121 @@ app.get("/postback", async (req, res) => {
   }
 });
   
+/* TakaPay: Submit withdrawal request */
+app.post(
+  "/api/withdraw",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      const amount = Number(req.body?.amount);
+      const method = String(req.body?.method || "");
+      const accountNumber = String(req.body?.account_number || "").trim();
+
+      if (
+        !Number.isFinite(amount) ||
+        amount < 400 ||
+        amount > 1000000 ||
+        !["bKash", "Nagad", "Rocket", "Upay"].includes(method) ||
+        accountNumber.length < 8 ||
+        accountNumber.length > 32
+      ) {
+        return res.status(400).json({
+          error: "invalid_withdrawal_request",
+          message: "ন্যূনতম উইথড্র ৳400 এবং তথ্য সঠিকভাবে দিন।"
+        });
+      }
+
+      const { data, error } = await supabase.rpc(
+        "request_withdrawal",
+        {
+          p_telegram_id: req.telegramUser.id,
+          p_amount: amount,
+          p_method: method,
+          p_account_number: accountNumber
+        }
+      );
+
+      if (error) {
+        console.error("Withdrawal request failed:", error.message);
+
+        return res.status(400).json({
+          error: "withdrawal_failed",
+          message: "উইথড্র অনুরোধ জমা হয়নি।"
+        });
+      }
+
+      return res.json({ success: true, withdrawal: data });
+    } catch (error) {
+      console.error("Withdrawal API error:", error.message);
+
+      return res.status(500).json({
+        error: "server_error"
+      });
+    }
+  }
+);
+
+/* TakaPay: Admin review of withdrawal */
+app.post(
+  "/api/admin/withdrawal/review",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      const requestId = Number(req.body?.request_id);
+      const status = String(req.body?.status || "");
+
+      if (
+        !Number.isSafeInteger(requestId) ||
+        requestId <= 0 ||
+        !["approved", "rejected"].includes(status)
+      ) {
+        return res.status(400).json({
+          error: "invalid_review_request"
+        });
+      }
+
+      const { data: admin, error: adminError } = await supabase
+        .from("takapay_admins")
+        .select("telegram_id")
+        .eq("telegram_id", req.telegramUser.id)
+        .maybeSingle();
+
+      if (adminError || !admin) {
+        return res.status(403).json({
+          error: "admin_only"
+        });
+      }
+
+      const { data, error } = await supabase.rpc(
+        "admin_review_withdrawal",
+        {
+          p_request_id: requestId,
+          p_status: status,
+          p_admin_telegram_id: req.telegramUser.id
+        }
+      );
+
+      if (error) {
+        console.error("Admin withdrawal review failed:", error.message);
+
+        return res.status(400).json({
+          error: "review_failed"
+        });
+      }
+
+      return res.json({ success: true, result: data });
+    } catch (error) {
+      console.error("Admin review API error:", error.message);
+
+      return res.status(500).json({
+        error: "server_error"
+      });
+    }
+  }
+);
+        
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`TakaPay backend listening on port ${PORT}`);
