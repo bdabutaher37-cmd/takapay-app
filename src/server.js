@@ -543,7 +543,6 @@ app.get("/postback", async (req, res) => {
     }
 
     return res.status(200).send("Rewards temporarily paused");
-    }
 
     const { data: ad, error: lookupError } = await supabase
       .from("monetag_ad_views")
