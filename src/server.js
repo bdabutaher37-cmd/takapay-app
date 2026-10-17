@@ -542,7 +542,7 @@ app.get("/postback", async (req, res) => {
       return res.status(400).send("Invalid postback");
     }
 
-    if (rewardType !== "valued") {
+    return res.status(200).send("Rewards temporarily paused");
       return res.status(200).send("Non-valued event");
     }
 
