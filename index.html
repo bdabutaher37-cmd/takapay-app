@@ -261,7 +261,18 @@ document.getElementById('withdrawForm').onsubmit=async e=>{
  const amount=Number(document.getElementById('amount').value),account=document.getElementById('account').value.trim();
  if(!Number.isFinite(amount)||amount<400){note('উইথড্রের সর্বনিম্ন পরিমাণ ৳৪০০।');return}
  if(!account){note('পেমেন্ট অ্যাকাউন্ট লিখুন।');return}
- try{
+
+if(!['bKash','Nagad','Rocket','Upay'].includes(method)){
+ note('আগে bKash, Nagad, Rocket অথবা Upay নির্বাচন করুন।');
+ return;
+}
+
+if(account.length<8||account.length>32){
+ note('সঠিক পেমেন্ট অ্যাকাউন্ট নম্বর লিখুন।');
+ return;
+}
+
+try{
   
 const result=await api('/api/withdraw',{method:'POST',body:JSON.stringify({amount,method,account_number:account})});
   note(result.message||'উইথড্র অনুরোধ জমা হয়েছে।');
