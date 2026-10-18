@@ -262,8 +262,8 @@ document.getElementById('withdrawForm').onsubmit=async e=>{
  if(!Number.isFinite(amount)||amount<400){note('উইথড্রের সর্বনিম্ন পরিমাণ ৳৪০০।');return}
  if(!account){note('পেমেন্ট অ্যাকাউন্ট লিখুন।');return}
 
-if(!['bKash','Nagad','Rocket','Upay'].includes(method)){
- note('আগে bKash, Nagad, Rocket অথবা Upay নির্বাচন করুন।');
+if(!['bKash','Nagad','Rocket','USDT (TRC20)'].includes(method)){
+ note('আগে একটি পেমেন্ট পদ্ধতি নির্বাচন করুন।');
  return;
 }
 
