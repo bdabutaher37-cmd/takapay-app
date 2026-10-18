@@ -106,7 +106,10 @@ const adResult = await window.show_12005665({
 });
    console.log('Monetag ad result:', adResult);
 
-note('Ad result: ' + JSON.stringify(adResult, null, 2));
+
+note('Event: ' + String(adResult?.event_type) +
+  ' | Reward: ' + String(adResult?.reward_event_type));
+
    
 note('Ad result: ' + JSON.stringify(adResult));
 
