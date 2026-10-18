@@ -610,7 +610,7 @@ app.post(
         !Number.isFinite(amount) ||
         amount < 400 ||
         amount > 1000000 ||
-        !["bKash", "Nagad", "Rocket", "USDT (TRC20)"].includes(method) || 
+        !["bKash", "Nagad", "Rocket", "USDT"].includes(method) ||
         accountNumber.length < 8 ||
         accountNumber.length > 32
       ) {
