@@ -375,6 +375,39 @@ document.getElementById('export').onclick=()=>{
  const csv='Transaction\n'+rows.map(x=>'"'+x.replace(/"/g,'""')+'"').join('\n');
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='takapay-history.csv';a.click();URL.revokeObjectURL(a.href);
 };
-document.getElementById('addTask').onclick=()=>{const n=document.getElementById('newTask').value.trim(),r=Number(document.getElementById('newReward').value);if(!n||!Number.isFinite(r)||r<0){note('টাস্কের নাম ও সঠিক রিওয়ার্ড লিখুন।');return}note(`টাস্ক প্রিভিউ: ${n} · ৳${r.toFixed(2)} — সংরক্ষণ হয়নি।`)};
+
+document.getElementById('addTask').onclick = async () => {
+  const n = document.getElementById('newTask').value.trim();
+  const r = Number(document.getElementById('newReward').value);
+  const btn = document.getElementById('addTask');
+
+  if (!n || n.length > 200 || !Number.isFinite(r) || r <= 0) {
+    note('টাস্কের নাম এবং ০-এর বেশি সঠিক রিওয়ার্ড লিখুন।');
+    return;
+  }
+
+  try {
+    btn.disabled = true;
+    note('টাস্ক সংরক্ষণ হচ্ছে...');
+
+    const result = await api('/api/admin/tasks', {
+      method: 'POST',
+      body: JSON.stringify({ title: n, reward: r })
+    });
+
+    if (!result?.success) {
+      throw new Error(result?.error || 'task_save_failed');
+    }
+
+    document.getElementById('newTask').value = '';
+    document.getElementById('newReward').value = '';
+    note(`টাস্ক সংরক্ষিত হয়েছে: ${result.task.title} · ৳${Number(result.task.reward).toFixed(2)}`);
+  } catch (error) {
+    console.error('Task save error:', error);
+    note('টাস্ক সংরক্ষণ হয়নি। অ্যাডমিন যাচাই ও API পরীক্ষা করতে হবে।');
+  } finally {
+    btn.disabled = false;
+  }
+};
 if(window.Telegram?.WebApp){window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();loadAccount()}
 </script></body></html>
