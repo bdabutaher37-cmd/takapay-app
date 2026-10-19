@@ -276,7 +276,7 @@ app.post(
   }
 );
 
-// Get authenticated user's profile
+/* Get authenticated user's profile */
 app.get(
   "/api/me",
   requireConfig,
@@ -299,7 +299,19 @@ app.get(
         return res.status(404).json({
           error: "profile_not_found"
         });
-        
+      }
+
+      return res.json({
+        profile: data
+      });
+    } catch {
+      return res.status(500).json({
+        error: "profile_failed"
+      });
+    }
+  }
+);
+
 /* Admin API: Get total member count */
 app.get(
   "/api/admin/members/count",
@@ -340,19 +352,7 @@ app.get(
     }
   }
 );
-        
-      }
 
-      return res.json({
-        profile: data
-      });
-    } catch {
-      return res.status(500).json({
-        error: "profile_failed"
-      });
-    }
-  }
-);
 
 // Get authenticated user's recent transactions
 app.get(
