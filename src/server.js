@@ -796,6 +796,75 @@ app.get(
   }
 );
 
+/* Admin API: Save a new task */
+app.post(
+  "/api/admin/tasks",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      const telegramId = String(req.telegramUser.id);
+      const title = String(req.body?.title || "").trim();
+      const reward = Number(req.body?.reward);
+
+      if (
+        !title ||
+        title.length > 200 ||
+        !Number.isFinite(reward) ||
+        reward <= 0 ||
+        reward > 100000
+      ) {
+        return res.status(400).json({
+          success: false,
+          error: "invalid_task"
+        });
+      }
+
+      const { data: admin, error: adminError } = await supabase
+        .from("takapay_admins")
+        .select("telegram_id")
+        .eq("telegram_id", telegramId)
+        .maybeSingle();
+
+      if (adminError || !admin) {
+        return res.status(403).json({
+          success: false,
+          error: "admin_only"
+        });
+      }
+
+      const { data: task, error } = await supabase
+        .from("tasks")
+        .insert({
+          title,
+          reward,
+          is_active: true
+        })
+        .select("id, title, reward, is_active, created_at")
+        .single();
+
+      if (error) {
+        console.error("Task save failed:", error.message);
+        return res.status(500).json({
+          success: false,
+          error: "task_save_failed"
+        });
+      }
+
+      return res.status(201).json({
+        success: true,
+        task
+      });
+    } catch (error) {
+      console.error("Admin task API error:", error.message);
+      return res.status(500).json({
+        success: false,
+        error: "server_error"
+      });
+    }
+  }
+);
+
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`TakaPay backend listening on port ${PORT}`);
