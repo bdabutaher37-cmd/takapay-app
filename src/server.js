@@ -751,7 +751,51 @@ app.post(
     }
   }
 );
-        
+
+/* Admin API: Get pending withdrawal count */
+app.get(
+  "/api/admin/withdrawal/pending-count",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      const { data: admin, error: adminError } = await supabase
+        .from("takapay_admins")
+        .select("telegram_id")
+        .eq("telegram_id", String(req.telegramUser.id))
+        .maybeSingle();
+
+      if (adminError || !admin) {
+        return res.status(403).json({
+          error: "admin_only"
+        });
+      }
+
+      const { count, error } = await supabase
+        .from("withdrawal_requests")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "pending");
+
+      if (error) {
+        console.error("Pending withdrawal count failed:", error.message);
+        return res.status(500).json({
+          error: "pending_count_failed"
+        });
+      }
+
+      return res.json({
+        success: true,
+        pending_count: count ?? 0
+      });
+    } catch (error) {
+      console.error("Pending count API error:", error.message);
+      return res.status(500).json({
+        error: "server_error"
+      });
+    }
+  }
+);
+
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`TakaPay backend listening on port ${PORT}`);
