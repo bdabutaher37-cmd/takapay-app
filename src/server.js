@@ -299,6 +299,48 @@ app.get(
         return res.status(404).json({
           error: "profile_not_found"
         });
+        
+/* Admin API: Get total member count */
+app.get(
+  "/api/admin/members/count",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      const { data: admin, error: adminError } = await supabase
+        .from("takapay_admins")
+        .select("telegram_id")
+        .eq("telegram_id", req.telegramUser.id)
+        .maybeSingle();
+
+      if (adminError || !admin) {
+        return res.status(403).json({
+          error: "admin_only"
+        });
+      }
+
+      const { count, error } = await supabase
+        .from("profiles")
+        .select("id", { count: "exact", head: true });
+
+      if (error) {
+        return res.status(500).json({
+          error: "member_count_failed"
+        });
+      }
+
+      return res.json({
+        success: true,
+        total_members: count ?? 0
+      });
+    } catch {
+      return res.status(500).json({
+        error: "member_count_failed"
+      });
+    }
+  }
+);
+        
       }
 
       return res.json({
