@@ -324,7 +324,7 @@ document.getElementById('more').onclick = async () => {
   try {
     const result = await api('/api/admin/members/count');
     document.getElementById('adminMemberCount').textContent =
-      result.count ?? result.total ?? '—';
+  result.count ?? result.total ?? result.total_members ?? '—';
     document.getElementById('adminStatus').textContent = 'Admin Verified';
     document.getElementById('adminNotice').textContent =
       'অ্যাডমিন অনুমতি যাচাই সফল হয়েছে।';
