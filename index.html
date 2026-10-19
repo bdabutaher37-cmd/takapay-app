@@ -404,7 +404,7 @@ document.getElementById('addTask').onclick = async () => {
     note(`টাস্ক সংরক্ষিত হয়েছে: ${result.task.title} · ৳${Number(result.task.reward).toFixed(2)}`);
   } catch (error) {
     console.error('Task save error:', error);
-    note('টাস্ক সংরক্ষণ হয়নি। অ্যাডমিন যাচাই ও API পরীক্ষা করতে হবে।');
+    note('সমস্যা: ' + (error.message || 'অজানা Error'));
   } finally {
     btn.disabled = false;
   }
