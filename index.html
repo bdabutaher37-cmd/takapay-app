@@ -320,7 +320,19 @@ async function copyText(s){try{await navigator.clipboard.writeText(s);note('ক�
 document.getElementById('copy').onclick=()=>copyText(document.getElementById('ref').textContent);
 document.getElementById('copy2').onclick=()=>copyText(document.getElementById('ref2').textContent);
 document.getElementById('bell').onclick=()=>note('নতুন নোটিফিকেশন নেই।');
-document.getElementById('more').onclick=()=>go('admin');
+document.getElementById('more').onclick = async () => {
+  try {
+    const result = await api('/api/admin/members/count');
+    document.getElementById('adminMemberCount').textContent =
+      result.count ?? result.total ?? '—';
+    document.getElementById('adminStatus').textContent = 'Admin Verified';
+    document.getElementById('adminNotice').textContent =
+      'অ্যাডমিন অনুমতি যাচাই সফল হয়েছে।';
+    go('admin');
+  } catch (err) {
+    note('অ্যাডমিন অনুমতি নেই অথবা যাচাই করা যায়নি।');
+  }
+};
 const planPrices={Premium:199,Diamond:499,Gold:799,Platinum:1199,VIP:1999};
 function openCheckout(plan){localStorage.setItem('tp_pending_plan',plan);document.getElementById('checkoutPlan').textContent=plan;document.getElementById('checkoutPrice').textContent='৳ '+(planPrices[plan]||0).toLocaleString('en-US');document.getElementById('payOverlay').classList.add('show')}
 function closeCheckout(){document.getElementById('payOverlay').classList.remove('show')}
