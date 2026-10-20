@@ -536,42 +536,79 @@ app.post(
   }
 );
 
+
 app.post("/api/monetag/start", requireConfig, requireTelegram, async (req, res) => {
   try {
     const ymid = randomUUID();
     const telegramId = String(req.telegramUser.id);
-      const zoneId = "12005665";
-      const { data: allowed, error: limitError } =
-        await supabase.rpc("start_monetag_ad", {
-          p_ymid: ymid,
-          p_telegram_id: telegramId,
-          p_zone_id: zoneId,
-          p_reward_amount: 1.00
-        });
+    const zoneId = "12005665";
 
-      if (limitError) {
-        console.error("Monetag daily limit failed:", limitError.message);
-        return res.status(500).json({
-          error: "daily_limit_check_failed"
-        });
-      }
+    // Get the user's current plan from Supabase
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("active_plan")
+      .eq("telegram_id", telegramId)
+      .maybeSingle();
 
-      if (allowed !== true) {
-        return res.status(429).json({
-          error: "daily_ad_limit_reached"
-        });
-      }
+    if (profileError || !profile) {
+      console.error("Monetag profile lookup failed:", profileError?.message);
+      return res.status(404).json({ error: "profile_not_found" });
+    }
+
+    // Normalize plan name: free and Free both work
+    const plan = String(profile.active_plan || "free")
+      .trim()
+      .toLowerCase();
+
+    const rewards = {
+      free: 1,
+      starter: 1,
+      premium: 2,
+      diamond: 4,
+      gold: 7,
+      platinum: 10,
+      vip: 15
+    };
+
+    const rewardAmount = rewards[plan];
+
+    if (rewardAmount === undefined) {
+      console.error("Unknown Monetag plan:", plan);
+      return res.status(400).json({ error: "invalid_plan" });
+    }
+
+    const { data: allowed, error: limitError } =
+      await supabase.rpc("start_monetag_ad", {
+        p_ymid: ymid,
+        p_telegram_id: telegramId,
+        p_zone_id: zoneId,
+        p_reward_amount: rewardAmount
+      });
+
+    if (limitError) {
+      console.error("Monetag daily limit failed:", limitError.message);
+      return res.status(500).json({
+        error: "daily_limit_check_failed"
+      });
+    }
+
+    if (allowed !== true) {
+      return res.status(429).json({
+        error: "daily_ad_limit_reached"
+      });
+    }
 
     return res.json({
       success: true,
       ymid,
-      zoneId: "12005665"
+      zoneId
     });
   } catch (error) {
     console.error("Monetag start error:", error.message);
     return res.status(500).json({ error: "ad_start_failed" });
   }
 });
+
 
 app.get("/postback", async (req, res) => {
   try {
@@ -610,11 +647,15 @@ app.get("/postback", async (req, res) => {
       return res.status(400).send("Invalid postback");
     }
 
-    return res.status(200).send("Rewards temporarily paused");
+    
+    if (rewardType !== "valued") {
+  console.log("Monetag reward skipped:", rewardType);
+  return res.status(200).send("Not a valued reward");
+    }
 
     const { data: ad, error: lookupError } = await supabase
       .from("monetag_ad_views")
-      .select("ymid, telegram_id, zone_id, rewarded_at")
+      .select("ymid, telegram_id, zone_id, rewarded_at, reward_amount")
       .eq("ymid", ymid)
       .maybeSingle();
 
@@ -632,7 +673,7 @@ app.get("/postback", async (req, res) => {
   {
     p_ymid: ymid,
     p_telegram_id: ad.telegram_id,
-    p_reward_amount: 1.00,
+    p_reward_amount: Number(ad.reward_amount),
     p_zone_id: zoneId
   }
 );
