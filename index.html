@@ -7,7 +7,6 @@
 <title>TakaPay Bot | Neon Dashboard</title>
 <script src="https://libtl.com/sdk.js" data-zone="12005665" data-sdk="show_12005665"></script>
 <style>
- 
 :root{--bg:#020b19;--panel:#061a2c;--panel2:#082238;--cyan:#08e9f2;--blue:#0878ad;--muted:#a5c5ed;--white:#f4f8ff;--orange:#ff8b08;--green:#00e6b0;--red:#ff3155;--line:#087da0}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#0a3452 0,transparent 55%),var(--bg);color:var(--white);font-family:Arial,"Noto Sans Bengali",sans-serif;font-size:14px;padding-bottom:86px}button,input{font:inherit}button{cursor:pointer}.shell{max-width:1050px;margin:auto;padding:0 14px}.top{position:sticky;top:0;z-index:5;background:#031326ed;backdrop-filter:blur(14px);border-bottom:1px solid #087fa0;padding:12px 0}.topin{display:flex;align-items:center;gap:12px}.logo{width:58px;height:58px;flex:none;border:3px solid var(--cyan);border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#075b78,#02172b);box-shadow:0 0 18px #00e5f466;font-size:29px}.brand{flex:1}.brand h1{font-size:clamp(23px,4vw,35px);margin:0;font-weight:800;letter-spacing:-.7px}.brand h1 span{color:var(--cyan)}.brand p{margin:3px 0 0;color:var(--muted);font-weight:700;letter-spacing:.3px}.topbtn{background:none;border:0;color:#91baff;font-size:26px;padding:6px}.page{display:none;padding-top:13px}.page.active{display:block}.card{border:1px solid #087fa5;border-radius:21px;background:linear-gradient(120deg,#062337,#04172a 75%);box-shadow:inset 0 0 18px #00e5f20a,0 4px 14px #0002;margin-bottom:12px;padding:16px}.glow{border:2px solid var(--cyan);box-shadow:0 0 18px #00e5f222,inset 0 0 24px #00e5f20c}.profile{display:flex;align-items:center;gap:14px}.crown{width:82px;height:82px;flex:none;border-radius:50%;border:2px solid var(--cyan);display:grid;place-items:center;background:radial-gradient(circle,#07526a,#031628);font-size:40px}.muted{color:var(--muted)}.tiny{font-size:12px}.online{display:inline-block;color:var(--green);background:#00e6b01c;border:1px solid #00e6b0;border-radius:20px;padding:3px 12px;margin-left:8px}.profile h2{margin:4px 0;font-size:23px}.balance-card{display:flex;align-items:center;gap:14px;padding:20px;background:linear-gradient(110deg,#075064,#061b31 68%,#4a2609);border:2px solid var(--cyan);border-radius:23px;margin-bottom:13px}.wallet{font-size:46px}.balance-card h3{margin:0 0 4px;font-size:17px}.balance{font-size:clamp(28px,5vw,43px);font-weight:900;letter-spacing:.5px}.balance small{font-size:12px;color:var(--cyan)}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:13px}.stat{border:1px solid #075d88;border-radius:17px;background:linear-gradient(145deg,#071c30,#041326);padding:12px;min-width:0}.stat .emoji{font-size:22px}.stat p{margin:8px 0 3px;color:var(--muted);font-size:12px}.stat strong{font-size:clamp(16px,2.8vw,24px);color:var(--cyan)}.refbanner{display:flex;align-items:center;gap:13px;background:linear-gradient(100deg,#062a3c,#061629,#3d210d);border:1px solid var(--cyan);border-radius:19px;padding:15px;margin-bottom:14px}.refbanner .big{font-size:33px;color:var(--cyan)}.refbanner h3{margin:0 0 7px;font-size:17px}.refurl{display:flex;gap:7px;align-items:center}.refurl code{color:var(--cyan);font-size:11px;overflow-wrap:anywhere;flex:1}.btn{border:1px solid #0d7ea3;background:#082941;color:var(--white);border-radius:12px;padding:10px 13px;font-weight:700}.btn.orange{background:linear-gradient(100deg,#ffb000,#ff6500);border:1px solid #ffc044;color:white;box-shadow:0 0 12px #ff870033}.btn.cyan{background:linear-gradient(100deg,#00f2df,#00a8d5);color:#001723;border:0}.section-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:18px 3px 12px}.section-title h2{margin:0;font-size:25px}.filters{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:13px 0}.filters button{padding:10px 4px;border-radius:15px;border:1px solid #075b84;color:#c6dcf7;background:#061b30;font-weight:700}.filters button.active{background:linear-gradient(120deg,#00e9e6,#007f9c);color:#001725;box-shadow:0 0 15px #00e5e566}.task{display:grid;grid-template-columns:70px minmax(0,1fr) auto;align-items:center;gap:12px;padding:13px;border:1px solid #087da0;border-radius:20px;background:linear-gradient(110deg,#06253a,#041426);margin-bottom:10px}.taskicon{width:64px;height:64px;border-radius:50%;border:2px solid var(--cyan);display:grid;place-items:center;background:radial-gradient(circle,#08718b,#04172c);font-size:30px}.task h3{margin:0 0 4px;font-size:16px}.task p{margin:0 0 8px;color:var(--muted);font-size:12px;line-height:1.5}.reward{color:var(--cyan);font-weight:800}.task .right{text-align:right;min-width:125px}.frequency{display:inline-block;border:1px solid var(--green);color:var(--green);border-radius:18px;padding:4px 8px;font-size:11px;margin-bottom:9px}.bottomnav{position:fixed;z-index:8;bottom:8px;left:10px;right:10px;max-width:1030px;margin:auto;display:grid;grid-template-columns:repeat(5,1fr);border:1px solid #075e85;border-radius:23px;background:#031326f5;backdrop-filter:blur(15px);padding:5px;box-shadow:0 0 20px #0008}.bottomnav button{border:0;border-radius:17px;background:transparent;color:#9abbe7;padding:7px 2px 5px;display:grid;justify-items:center;gap:2px;font-weight:700}.bottomnav button .ico{font-size:25px}.bottomnav button span:last-child{font-size:12px}.bottomnav button.active{color:var(--cyan);background:linear-gradient(145deg,#06475a,#041d32);border:1px solid var(--cyan);box-shadow:0 0 15px #00e5e544}.formrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{margin:13px 0}.field label{display:block;color:var(--muted);margin-bottom:7px}.field input,.field select{width:100%;background:#031326;color:white;border:1px solid #087da0;border-radius:12px;padding:13px;outline:none}.methods{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.method{border:1px solid #087da0;background:#04172a;border-radius:14px;padding:13px 5px;text-align:center;font-weight:700}.method .mi{font-size:18px;font-weight:900;display:grid;place-items:center;width:42px;height:42px;margin:0 auto 8px;border-radius:12px;color:#fff;letter-spacing:-1px;box-shadow:0 0 12px #0005}.method[data-method="bKash"] .mi{background:#d71962;border:1px solid #ff4c92}.method[data-method="Nagad"] .mi{background:#f15b2a;border:1px solid #ff9a53}.method[data-method="Rocket"] .mi{background:#8b1aa8;border:1px solid #d75cff}.method[data-method="USDT"] .mi{background:#159b79;border:1px solid #43e0b1;border-radius:50%;font-size:24px}.method.active{border:2px solid var(--cyan);box-shadow:0 0 15px #00e5e544;background:#073043}.historyrow{display:grid;grid-template-columns:60px minmax(0,1fr) minmax(130px,.8fr) 20px;gap:12px;align-items:center;margin-bottom:10px}.historyrow .taskicon{width:56px;height:56px;font-size:22px;font-weight:900;color:#fff}.historyrow .taskicon:has(+ div h3){letter-spacing:-1px}.status{display:inline-block;border-radius:18px;padding:5px 10px;font-size:11px;font-weight:800}.success{color:var(--green);border:1px solid var(--green);background:#00e6b015}.pending{color:#ffbf27;border:1px solid #ffbf27;background:#ffbf2714}.failed{color:#ff5470;border:1px solid #ff3155;background:#ff315514}.plan.selected-plan{border:2px solid var(--cyan);box-shadow:0 0 20px #00e5e566}.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.plan h3{font-size:20px;margin:4px 0}.plan .price{font-size:28px;font-weight:900;color:var(--cyan)}.plan ul{padding-left:18px;color:var(--muted);line-height:2;font-size:12px}.notice{font-size:12px;color:#ffd77a;line-height:1.6;border:1px solid #96651b;background:#4b300b20;border-radius:12px;padding:12px;margin:12px 0}.toast{position:fixed;z-index:20;bottom:100px;left:50%;transform:translateX(-50%);background:#06344a;border:1px solid var(--cyan);color:var(--cyan);padding:12px 16px;border-radius:12px;display:none;max-width:90%;text-align:center}.toast.show{display:block}
 @media(max-width:650px){.shell{padding:0 10px}.top{padding:10px 0}.logo{width:52px;height:52px;font-size:25px}.brand h1{font-size:25px}.brand p{font-size:12px}.topbtn{font-size:23px}.card{padding:13px;border-radius:18px}.profile .crown{width:68px;height:68px;font-size:33px}.profile h2{font-size:20px}.stats{grid-template-columns:repeat(2,1fr)}.stat{padding:12px}.task{grid-template-columns:54px minmax(0,1fr);gap:10px;padding:11px}.taskicon{width:50px;height:50px;font-size:23px}.task .right{grid-column:2;display:flex;align-items:center;justify-content:space-between;text-align:left;min-width:0;gap:8px}.frequency{margin:0}.task .right .btn{padding:9px 10px}.filters{grid-template-columns:repeat(3,1fr)}.filters button{font-size:12px}.historyrow{grid-template-columns:48px minmax(0,1fr) auto;gap:9px;padding:10px}.historyrow .taskicon{width:44px;height:44px;font-size:20px}.historyrow .date{grid-column:2;color:var(--muted);font-size:11px}.historyrow .amount{grid-column:3;grid-row:1}.historyrow .status{grid-column:3;grid-row:2}.historyrow .chev{display:none}.plan-grid{grid-template-columns:1fr}.balance-card{padding:15px}.wallet{font-size:36px}.refbanner{align-items:flex-start}.formrow{grid-template-columns:1fr}.methods{grid-template-columns:repeat(2,1fr)}}
@@ -70,7 +69,13 @@
   <label>টাস্কের লিংক</label>
   <input id="newTaskUrl" type="url" placeholder="https://t.me/...">
 </div>
-
+<div class="field">
+  <label>রিওয়ার্ড (৳)</label>
+  <input id="newReward" type="number" min="0.01" step="0.01" placeholder="20">
+</div>
+<button class="btn orange" id="addTask" type="button" style="width:100%">টাস্ক সংরক্ষণ করুন</button>
+<p class="muted tiny">লিংকে ক্লিক করলেই রিওয়ার্ড স্বয়ংক্রিয়ভাবে দেওয়া হবে না; আলাদা যাচাই দরকার।</p>
+</div>
 </section>
 </main>
 <div class="payoverlay" id="payOverlay" role="dialog" aria-modal="true" aria-labelledby="payTitle"><div class="paymodal"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><h2 id="payTitle" style="margin:0">🔐 প্ল্যান পেমেন্ট</h2><button class="btn" id="closePay" aria-label="বন্ধ করুন">✕</button></div><p class="muted">নির্বাচিত প্ল্যান: <strong id="checkoutPlan">—</strong></p><div class="balance-card" style="margin:10px 0;padding:14px"><div style="flex:1"><div class="muted">পরিশোধযোগ্য টাকা</div><div class="balance" id="checkoutPrice">৳ ০</div></div></div><p class="muted">পেমেন্ট পদ্ধতি</p><div class="paychoice active" data-paymethod="bKash"><span class="mi" style="background:#e2136e;color:#fff">bK</span><div><strong>bKash Personal</strong><div class="muted tiny">Send Money করুন</div></div></div><div class="field" style="margin-top:12px"><label>bKash নম্বর</label><div style="display:flex;gap:8px"><input id="bkashNumber" value="01318774526" readonly style="flex:1;min-width:0"><button class="btn" id="copyBkash" type="button">কপি</button></div></div><div class="notice">১. উপরের নম্বরে নির্বাচিত প্ল্যানের সঠিক টাকা Send Money করুন।<br>২. নিচে আপনার bKash নম্বর ও Transaction ID লিখুন।<br>৩. অ্যাডমিন লেনদেন যাচাই করে অনুমোদন করলে প্ল্যান চালু হবে।</div><div class="field"><label>যে নম্বর থেকে টাকা পাঠিয়েছেন</label><input id="payerNumber" inputmode="numeric" placeholder="01XXXXXXXXX" maxlength="11"></div><div class="field"><label>bKash Transaction ID</label><input id="transactionId" placeholder="যেমন: 8N7ABC1234" maxlength="30"></div><button class="btn orange" id="startGateway" style="width:100%;padding:14px">পেমেন্ট যাচাইয়ের জন্য জমা দিন</button><p class="muted tiny" style="margin-bottom:0">এই পেজ একা লেনদেন যাচাই করতে পারে না। জমা দিলে কেবল ডেমো অনুরোধ তৈরি হবে; যাচাই না হওয়া পর্যন্ত প্ল্যান চালু হবে না।</p></div></div>
@@ -84,6 +89,7 @@ const tasks=[
 {icon:'🗓️',title:'Daily Check-in',desc:'ডেমো চেক-ইন; সার্ভার রিওয়ার্ড সংযুক্ত নয়।',reward:10,time:'১ মিনিট',frequency:'প্রতিদিন ১ বার',left:'যাচাই প্রয়োজন',category:'daily',button:'চেক-ইন'},
 {icon:'🛡️',title:'Verification Task',desc:'নির্দিষ্ট কাজ সম্পন্ন করে যাচাই করাতে হবে।',reward:25,time:'১৫ মিনিট',frequency:'প্রতিদিন ২ বার',left:'যাচাই প্রয়োজন',category:'verify',button:'কাজ শুরু করুন'},
 {icon:'⚙️',title:'Admin Task',desc:'অ্যাডমিন কর্তৃক যোগ করা বিশেষ টাস্ক; এখন প্রিভিউ মাত্র।',reward:50,time:'৩০ মিনিট',frequency:'সীমিত সময়',left:'যাচাই প্রয়োজন',category:'verify',button:'বিস্তারিত দেখুন'}];
+let savedAdminTasks = [];
 let method='bKash',filter='all',toastT;
 const toast=document.getElementById('toast');
 function note(t){toast.textContent=t;toast.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>toast.classList.remove('show'),3000)}
@@ -99,12 +105,32 @@ function watchCount(){return Number(localStorage.getItem('tp_watch_'+localDayKey
 function ratesForPlan(plan){return {Free:1,Starter:1,Premium:2,Diamond:4,Gold:7,Platinum:10,VIP:15}[plan]||1}
 function renderTasks(){
  const plan=localStorage.getItem('tp_plan')||'Free';
- document.getElementById('taskList').innerHTML=tasks.filter(t=>filter==='all'||t.category===filter).map(t=>{
-  const isWatch=t.category==='watch',count=isWatch?watchCount():0,reward=isWatch?ratesForPlan(plan):t.reward,left=isWatch?`${Math.max(0,20-count)}/20`:t.left;
-  return `<div class="task"><div class="taskicon">${t.icon}</div><div><h3>${t.title}</h3><p>${t.desc}</p><span class="reward">🪙 ৳ ${reward.toFixed(2)}</span>　<span class="muted tiny">◷ ${t.time}</span></div><div class="right"><span class="frequency">${t.frequency}</span><div class="muted tiny">👥 বাকি: ${left}</div><button class="btn orange task-action" data-title="${t.title}" data-category="${t.category}" style="margin-top:8px">${isWatch&&count>=20?'আজকের সীমা শেষ':t.button} ›</button></div></div>`
+ const allTasks=[...tasks,...savedAdminTasks.map(t=>({
+  icon:'📌',title:t.title,desc:'অ্যাডমিনের যোগ করা টাস্ক',reward:Number(t.reward)||0,
+  time:'নির্ধারিত',frequency:'অ্যাডমিন টাস্ক',left:'যাচাই প্রয়োজন',
+  category:'admin',button:'লিংক খুলুন',url:t.url||''
+ }))];
+ document.getElementById('taskList').innerHTML=allTasks.filter(t=>filter==='all'||t.category===filter).map(t=>{
+  const isWatch=t.category==='watch',count=isWatch?watchCount():0,reward=isWatch?ratesForPlan(plan):Number(t.reward)||0,left=isWatch?`${Math.max(0,20-count)}/20`:t.left;
+  return `<div class="task"><div class="taskicon">${escapeHtml(t.icon)}</div><div><h3>${escapeHtml(t.title)}</h3><p>${escapeHtml(t.desc)}</p><span class="reward">🪙 ৳ ${reward.toFixed(2)}</span>　<span class="muted tiny">◷ ${escapeHtml(t.time)}</span></div><div class="right"><span class="frequency">${escapeHtml(t.frequency)}</span><div class="muted tiny">👥 বাকি: ${escapeHtml(left)}</div><button class="btn orange task-action" data-title="${escapeHtml(t.title)}" data-category="${escapeHtml(t.category)}" data-url="${escapeHtml(t.url||'')}" style="margin-top:8px">${isWatch&&count>=20?'আজকের সীমা শেষ':escapeHtml(t.button)} ›</button></div></div>`
  }).join('');
  document.querySelectorAll('.task-action').forEach(b=>b.onclick=async()=>{
   const category=b.dataset.category;
+
+  if(category==='admin'){
+   const taskUrl=b.dataset.url||'';
+   if(!/^https:\/\//i.test(taskUrl)){
+    note('এই টাস্কের সঠিক HTTPS লিংক নেই।');
+    return;
+   }
+   if(window.Telegram?.WebApp?.openLink){
+    window.Telegram.WebApp.openLink(taskUrl);
+   }else{
+    window.open(taskUrl,'_blank','noopener,noreferrer');
+   }
+   note('টাস্কের লিংক খোলা হয়েছে। রিওয়ার্ড পেতে আলাদা যাচাই দরকার।');
+   return;
+  }
 
 if(category==='watch'){
   const count=watchCount();
@@ -215,7 +241,7 @@ if(category==='Telegram'){
    return;
   }
 
-
+ 
   if(category==='Referral'){
    go('referral');
    note('রেফারেল লিংক শেয়ার করুন; সফল রেফারেল সার্ভারে যাচাই করতে হবে।');
@@ -275,6 +301,17 @@ async function api(path,options={}){
  }
  return body;
 }
+async function loadAdminTasks(){
+ try{
+  const result=await api('/api/tasks');
+  if(result.success&&Array.isArray(result.tasks)){
+   savedAdminTasks=result.tasks;
+   renderTasks();
+  }
+ }catch(error){
+  console.warn('Admin tasks load failed:',error.message);
+ }
+}
 async function loadAccount(){
  const user=getTelegramUser();
  if(user){document.getElementById('profileName').textContent=user.first_name||user.username||'User';document.getElementById('profileId').textContent=String(user.id);document.getElementById('ref').textContent=`https://t.me/TakaPayBot?start=${user.id}`;document.getElementById('ref2').textContent=`https://t.me/TakaPayBot?start=${user.id}`}
@@ -288,6 +325,7 @@ async function loadAccount(){
 }
 renderReferralCounts();renderTasks();renderHistory([]);
  loadAccount();
+ loadAdminTasks();
 document.querySelectorAll('[data-method]').forEach(b=>b.onclick=()=>{method=b.dataset.method;document.querySelectorAll('[data-method]').forEach(x=>x.classList.toggle('active',x===b))});
 document.getElementById('withdrawForm').onsubmit=async e=>{
  e.preventDefault();
@@ -384,6 +422,10 @@ document.getElementById('addTask').onclick = async () => {
     note('টাস্কের নাম এবং ০-এর বেশি সঠিক রিওয়ার্ড লিখুন।');
     return;
   }
+  if (!url || !/^https:\/\//i.test(url)) {
+    note('সঠিক HTTPS টাস্ক লিংক লিখুন।');
+    return;
+  }
 
   try {
     btn.disabled = true;
@@ -400,7 +442,9 @@ document.getElementById('addTask').onclick = async () => {
 
     document.getElementById('newTask').value = '';
     document.getElementById('newReward').value = '';
-const url = document.getElementById('newTaskUrl').value.trim();   note(`টাস্ক সংরক্ষিত হয়েছে: ${result.task.title} · ৳${Number(result.task.reward).toFixed(2)}`);
+    document.getElementById('newTaskUrl').value = '';
+    await loadAdminTasks();
+    note(`টাস্ক সংরক্ষিত হয়েছে: ${result.task.title} · ৳${Number(result.task.reward).toFixed(2)}`);
   } catch (error) {
     console.error('Task save error:', error);
     note('সমস্যা: ' + (error.message || 'অজানা Error'));
