@@ -806,6 +806,7 @@ app.post(
       const telegramId = String(req.telegramUser.id);
       const title = String(req.body?.title || "").trim();
       const reward = Number(req.body?.reward);
+      const url = String(req.body?.url || "").trim();
 
       if (
         !title ||
@@ -834,12 +835,13 @@ app.post(
       }
 
       const { data: task, error } = await supabase
-        .from("tasks")
-        .insert({
-          title,
-          reward,
-          is_active: true
-        })
+.from("tasks")
+.insert({
+  title,
+  reward,
+  url,
+  is_active: true
+})
         .select("id, title, reward, is_active, created_at")
         .single();
 
@@ -865,6 +867,42 @@ app.post(
   }
 );
 
+/* Public API: Get active tasks */
+app.get(
+  "/api/tasks",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      const { data: tasks, error } = await supabase
+        .from("tasks")
+        .select("id, title, reward, url, created_at")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Load tasks failed:", error.message);
+        return res.status(500).json({
+          success: false,
+          error: "tasks_load_failed"
+        });
+      }
+
+      return res.json({
+        success: true,
+        tasks: tasks || []
+      });
+    } catch (error) {
+      console.error("Tasks API error:", error.message);
+      return res.status(500).json({
+        success: false,
+        error: "server_error"
+      });
+    }
+  }
+);
+
+      
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`TakaPay backend listening on port ${PORT}`);
