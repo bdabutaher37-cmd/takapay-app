@@ -283,9 +283,22 @@ if(category==='Telegram'){
     const tx=await api('/api/transactions');
     renderHistory(tx.transactions||[]);
 
-   }catch(err){
-    note(err.message||'চেক-ইন সম্পন্ন হয়নি।');
-   }finally{
+
+} catch(err){
+  const message = String(err.message || '');
+
+  if (
+    message.includes('409') ||
+    message.includes('already_claimed') ||
+    message.includes('already claimed')
+  ) {
+    note('❤️ আজকের Daily Check-in রিওয়ার্ড তুমি ইতিমধ্যে নিয়েছো। আগামীকাল আবার আসবে!');
+  } else {
+    note('চেক-ইন সম্পন্ন হয়নি। আবার চেষ্টা করো।');
+    console.error('Daily Check-in error:', err);
+  }
+} finally {
+
     b.disabled=false;
     renderTasks();
    }
