@@ -806,6 +806,98 @@ app.post(
   }
 );
 
+/* Admin API: List withdrawal requests */
+app.get(
+  "/api/admin/withdrawals",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      const { data: admin, error: adminError } = await supabase
+        .from("takapay_admins")
+        .select("telegram_id")
+        .eq("telegram_id", String(req.telegramUser.id))
+        .maybeSingle();
+
+      if (adminError || !admin) {
+        return res.status(403).json({
+          error: "admin_only"
+        });
+      }
+
+      const { data, error } = await supabase
+        .from("withdrawal_requests")
+        .select(`
+          id,
+          telegram_id,
+          amount,
+          method,
+          account_number,
+          status,
+          created_at
+        `)
+        .order("created_at", { ascending: false })
+        .limit(100);
+
+      if (error) {
+        console.error("Withdrawal list failed:", error.message);
+        return res.status(500).json({
+          error: "withdrawal_list_failed"
+        });
+      }
+
+      const ids = [...new Set(
+        (data || []).map(item => String(item.telegram_id))
+      )];
+
+      let profiles = [];
+
+      if (ids.length) {
+        const result = await supabase
+          .from("profiles")
+          .select("telegram_id, full_name, username")
+          .in("telegram_id", ids);
+
+        if (result.error) {
+          console.error("Profile lookup failed:", result.error.message);
+          return res.status(500).json({
+            error: "profile_lookup_failed"
+          });
+        }
+
+        profiles = result.data || [];
+      }
+
+      const profileMap = new Map(
+        profiles.map(profile => [
+          String(profile.telegram_id),
+          profile
+        ])
+      );
+
+      return res.json({
+        success: true,
+        withdrawals: (data || []).map(item => {
+          const profile = profileMap.get(
+            String(item.telegram_id)
+          );
+
+          return {
+            ...item,
+            full_name: profile?.full_name || "নাম পাওয়া যায়নি",
+            username: profile?.username || null
+          };
+        })
+      });
+    } catch (error) {
+      console.error("Withdrawal list API error:", error.message);
+      return res.status(500).json({
+        error: "server_error"
+      });
+    }
+  }
+);
+
 /* Admin API: Get pending withdrawal count */
 app.get(
   "/api/admin/withdrawal/pending-count",
