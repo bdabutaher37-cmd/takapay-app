@@ -265,21 +265,23 @@ app.post(
   requireTelegram,
   async (req, res) => {
     try {
-      const { id, username } = req.telegramUser;
-
+      const { id, username, first_name, last_name } = req.telegramUser;
+const fullName = [first_name, last_name]
+  .filter(Boolean)
+  .join(" ");
       const { data, error } = await supabase
         .from("profiles")
         .upsert(
-          {
-            telegram_id: id,
-            username
-          },
+{
+  telegram_id: id,
+username: username || null,
+full_name: fullName || username || "Telegram User"
+},
           {
             onConflict: "telegram_id"
           }
         )
-        .select("telegram_id, username, balance, created_at")
-        .single();
+        .select("telegram_id, username, full_name, balance, created_at")   .single();
 
       if (error) {
         console.error("Profile operation failed:", error.message);
