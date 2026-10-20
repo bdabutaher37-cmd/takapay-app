@@ -65,14 +65,12 @@
       <label>টাস্কের নাম</label>
       <input id="newTask" placeholder="টাস্কের নাম লিখুন">
     </div>
-    <div class="field">
-      <label>রিওয়ার্ড (৳)</label>
-      <input id="newReward" type="number" min="0" step="0.01" placeholder="20">
-    </div>
-<button class="btn orange" id="addTask" type="button">
-  টাস্ক সংরক্ষণ করুন
-    </button>
-  </div>
+
+<div class="field">
+  <label>টাস্কের লিংক</label>
+  <input id="newTaskUrl" type="url" placeholder="https://t.me/...">
+</div>
+
 </section>
 </main>
 <div class="payoverlay" id="payOverlay" role="dialog" aria-modal="true" aria-labelledby="payTitle"><div class="paymodal"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><h2 id="payTitle" style="margin:0">🔐 প্ল্যান পেমেন্ট</h2><button class="btn" id="closePay" aria-label="বন্ধ করুন">✕</button></div><p class="muted">নির্বাচিত প্ল্যান: <strong id="checkoutPlan">—</strong></p><div class="balance-card" style="margin:10px 0;padding:14px"><div style="flex:1"><div class="muted">পরিশোধযোগ্য টাকা</div><div class="balance" id="checkoutPrice">৳ ০</div></div></div><p class="muted">পেমেন্ট পদ্ধতি</p><div class="paychoice active" data-paymethod="bKash"><span class="mi" style="background:#e2136e;color:#fff">bK</span><div><strong>bKash Personal</strong><div class="muted tiny">Send Money করুন</div></div></div><div class="field" style="margin-top:12px"><label>bKash নম্বর</label><div style="display:flex;gap:8px"><input id="bkashNumber" value="01318774526" readonly style="flex:1;min-width:0"><button class="btn" id="copyBkash" type="button">কপি</button></div></div><div class="notice">১. উপরের নম্বরে নির্বাচিত প্ল্যানের সঠিক টাকা Send Money করুন।<br>২. নিচে আপনার bKash নম্বর ও Transaction ID লিখুন।<br>৩. অ্যাডমিন লেনদেন যাচাই করে অনুমোদন করলে প্ল্যান চালু হবে।</div><div class="field"><label>যে নম্বর থেকে টাকা পাঠিয়েছেন</label><input id="payerNumber" inputmode="numeric" placeholder="01XXXXXXXXX" maxlength="11"></div><div class="field"><label>bKash Transaction ID</label><input id="transactionId" placeholder="যেমন: 8N7ABC1234" maxlength="30"></div><button class="btn orange" id="startGateway" style="width:100%;padding:14px">পেমেন্ট যাচাইয়ের জন্য জমা দিন</button><p class="muted tiny" style="margin-bottom:0">এই পেজ একা লেনদেন যাচাই করতে পারে না। জমা দিলে কেবল ডেমো অনুরোধ তৈরি হবে; যাচাই না হওয়া পর্যন্ত প্ল্যান চালু হবে না।</p></div></div>
@@ -379,6 +377,7 @@ document.getElementById('export').onclick=()=>{
 document.getElementById('addTask').onclick = async () => {
   const n = document.getElementById('newTask').value.trim();
   const r = Number(document.getElementById('newReward').value);
+ const url = document.getElementById('newTaskUrl').value.trim();
   const btn = document.getElementById('addTask');
 
   if (!n || n.length > 200 || !Number.isFinite(r) || r <= 0) {
@@ -392,7 +391,7 @@ document.getElementById('addTask').onclick = async () => {
 
     const result = await api('/api/admin/tasks', {
       method: 'POST',
-      body: JSON.stringify({ title: n, reward: r })
+      body: JSON.stringify({ title: n, reward: r, url })
     });
 
     if (!result?.success) {
@@ -401,7 +400,7 @@ document.getElementById('addTask').onclick = async () => {
 
     document.getElementById('newTask').value = '';
     document.getElementById('newReward').value = '';
-    note(`টাস্ক সংরক্ষিত হয়েছে: ${result.task.title} · ৳${Number(result.task.reward).toFixed(2)}`);
+const url = document.getElementById('newTaskUrl').value.trim();   note(`টাস্ক সংরক্ষিত হয়েছে: ${result.task.title} · ৳${Number(result.task.reward).toFixed(2)}`);
   } catch (error) {
     console.error('Task save error:', error);
     note('সমস্যা: ' + (error.message || 'অজানা Error'));
