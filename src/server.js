@@ -190,6 +190,30 @@ function requireTelegram(req, res, next) {
   }
 }
 
+ // Verify membership in the withdrawal updates channel
+async function isMemberOfWithdrawChannel(telegramId) {
+  const url = new URL(
+    `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getChatMember`
+  );
+
+  url.searchParams.set("chat_id", "@TakaPayWithdrawUpdates");
+  url.searchParams.set("user_id", telegramId);
+
+  const response = await fetch(url);
+  const result = await response.json();
+
+  if (!response.ok || !result.ok || !result.result) {
+    throw new Error("channel_membership_check_failed");
+  }
+
+  const member = result.result;
+
+  return (
+    ["creator", "administrator", "member"].includes(member.status) ||
+    (member.status === "restricted" && member.is_member === true)
+  );
+}
+
 // Frontend
 app.get("/", (req, res) => {
   res.sendFile(INDEX_HTML, (error) => {
@@ -662,6 +686,34 @@ app.post(
         });
       }
 
+      let joined;
+
+      try {
+        joined = await isMemberOfWithdrawChannel(
+          req.telegramUser.id
+        );
+      } catch (error) {
+        console.error(
+          "Withdraw channel membership check failed:",
+          error.message
+        );
+
+        return res.status(503).json({
+          error: "channel_check_unavailable",
+          message: "চ্যানেলের সদস্যপদ যাচাই করা যাচ্ছে না। একটু পরে আবার চেষ্টা করুন।"
+        });
+      }
+
+
+      if (!joined) {
+        return res.status(403).json({
+          error: "withdraw_channel_required",
+          message: "উইথড্র করার আগে TakaPay Withdraw Updates চ্যানেলে Join করুন।",
+          channel_url: "https://t.me/TakaPayWithdrawUpdates"
+        });
+      }
+
+      
       const { data, error } = await supabase.rpc(
         "request_withdrawal",
         {
