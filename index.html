@@ -59,6 +59,21 @@
   </div>
 
   <div class="card">
+    <h3>💸 উইথড্র অনুরোধ</h3>
+    <button
+      class="btn orange"
+      id="loadWithdrawals"
+      type="button"
+      style="width:100%"
+    >
+      উইথড্র তালিকা দেখুন
+    </button>
+    <div id="withdrawalList" style="margin-top:12px">
+      <p class="muted">তালিকা দেখতে উপরের বাটনে চাপ দিন।</p>
+    </div>
+  </div>
+  
+  <div class="card">
     <h3>নতুন টাস্কের প্রিভিউ</h3>
     <div class="field">
       <label>টাস্কের নাম</label>
@@ -452,5 +467,101 @@ document.getElementById('addTask').onclick = async () => {
     btn.disabled = false;
   }
 };
+  
+document.getElementById('loadWithdrawals').onclick = async function () {
+  const btn = this;
+  const list = document.getElementById('withdrawalList');
+
+  btn.disabled = true;
+  list.textContent = 'উইথড্র তালিকা লোড হচ্ছে...';
+
+  try {
+    const result = await api('/api/admin/withdrawals');
+
+    if (!result.success || !Array.isArray(result.withdrawals)) {
+      throw new Error('তালিকা পাওয়া যায়নি');
+    }
+
+    list.replaceChildren();
+
+    if (result.withdrawals.length === 0) {
+      list.textContent = 'এখনো কোনো উইথড্র অনুরোধ নেই।';
+      return;
+    }
+
+    result.withdrawals.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.marginTop = '10px';
+
+      const details = document.createElement('p');
+      details.style.whiteSpace = 'pre-line';
+      details.textContent =
+        'নাম: ' + (item.full_name || 'নাম পাওয়া যায়নি') +
+        '\nTelegram ID: ' + item.telegram_id +
+        '\nপরিমাণ: ৳' + Number(item.amount).toFixed(2) +
+        '\nপদ্ধতি: ' + (item.method || 'দেওয়া নেই') +
+        '\nঅ্যাকাউন্ট: ' + (item.account_number || 'দেওয়া নেই') +
+        '\nস্ট্যাটাস: ' + (item.status || 'অজানা');
+
+      card.appendChild(details);
+
+      if (item.status === 'pending') {
+        ['approved', 'rejected'].forEach(status => {
+          const action = document.createElement('button');
+          action.type = 'button';
+          action.className = 'btn';
+          action.style.marginRight = '8px';
+          action.style.marginTop = '8px';
+          action.textContent =
+            status === 'approved' ? 'Approve' : 'Reject';
+
+          action.onclick = async () => {
+            if (!confirm(
+              status === 'approved'
+                ? 'এই উইথড্র অনুমোদন করবেন?'
+                : 'এই উইথড্র বাতিল করবেন?'
+            )) return;
+
+            action.disabled = true;
+
+            try {
+              await api('/api/admin/withdrawal/review', {
+                method: 'POST',
+                body: JSON.stringify({
+                  request_id: item.id,
+                  status
+                })
+              });
+
+              note('উইথড্র স্ট্যাটাস আপডেটের অনুরোধ সফল হয়েছে।');
+              document.getElementById('adminPendingCount').textContent =
+                Math.max(
+                  0,
+                  Number(document.getElementById('adminPendingCount').textContent) - 1
+                );
+              btn.click();
+            } catch (err) {
+              note('স্ট্যাটাস পরিবর্তন হয়নি: ' + (err.message || 'সমস্যা হয়েছে'));
+              action.disabled = false;
+            }
+          };
+
+          card.appendChild(action);
+        });
+      }
+
+      list.appendChild(card);
+    });
+
+  } catch (err) {
+    list.textContent =
+      'তালিকা লোড হয়নি। অ্যাডমিন অনুমতি ও সার্ভার পরীক্ষা করুন।';
+    console.error('Withdrawal list error:', err);
+  } finally {
+    btn.disabled = false;
+  }
+};
+  
 if(window.Telegram?.WebApp){window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();loadAccount()}
 </script></body></html>
