@@ -174,13 +174,23 @@ function requireTelegram(req, res, next) {
       });
     }
 
-    req.telegramUser = {
-      id: String(user.id),
-      username:
-        typeof user.username === "string"
-          ? user.username.slice(0, 64)
-          : null
-    };
+
+req.telegramUser = {
+  id: String(user.id),
+  username:
+    typeof user.username === "string"
+      ? user.username.slice(0, 64)
+      : null,
+  first_name:
+    typeof user.first_name === "string"
+      ? user.first_name.slice(0, 128)
+      : "",
+  last_name:
+    typeof user.last_name === "string"
+      ? user.last_name.slice(0, 128)
+      : ""
+};
+
 
     next();
   } catch {
