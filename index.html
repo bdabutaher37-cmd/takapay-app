@@ -130,7 +130,7 @@ id:t.id,icon:'📌',title:t.title,desc:'অ্যাডমিনের যোগ
 
 <button class="btn orange task-action" data-title="${escapeHtml(t.title)}" data-category="${escapeHtml(t.category)}" data-task-id="${escapeHtml(t.id||'')}" data-url="${escapeHtml(t.url||'')}" style="margin-top:8px">
   ${isWatch&&count>=20?'আজকের সীমা শেষ':escapeHtml(t.button)} ›</button></div></div>`
- }).join('');প
+ }).join('');
  document.querySelectorAll('.task-action').forEach(b=>b.onclick=async()=>{
   const category=b.dataset.category;
 
