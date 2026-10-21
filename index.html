@@ -111,7 +111,18 @@ function note(t){toast.textContent=t;toast.classList.add('show');clearTimeout(to
 function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.bottomnav button').forEach(b=>b.classList.toggle('active',b.dataset.go===id));window.scrollTo({top:0,behavior:'smooth'})}
 document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
 function getTelegramInitData(){return window.Telegram?.WebApp?.initData || ''}
-function getTelegramUser(){try{return window.Telegram?.WebApp?.initDataUnsafe?.user || null}catch{return null}}
+
+function getTelegramUser(){
+  try{
+    const tg = window.Telegram?.WebApp;
+    if(!tg) return null;
+    if(tg.initDataUnsafe?.user) return tg.initDataUnsafe.user;
+    return null;
+  }catch(error){
+    console.error('Telegram user error:', error);
+    return null;
+  }
+}
 function setBalance(value){const n=Number(value);document.querySelectorAll('[data-balance]').forEach(el=>el.textContent='৳ '+(Number.isFinite(n)?n:0).toFixed(2))}
 function localDayKey(){
  return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Dhaka',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
