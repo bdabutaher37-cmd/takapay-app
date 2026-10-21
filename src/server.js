@@ -995,18 +995,47 @@ app.post(
       const reward = Number(req.body?.reward);
       const url = String(req.body?.url || "").trim();
 
-      if (
-        !title ||
-        title.length > 200 ||
-        !Number.isFinite(reward) ||
-        reward <= 0 ||
-        reward > 100000
-      ) {
-        return res.status(400).json({
-          success: false,
-          error: "invalid_task"
-        });
-      }
+      
+let channelUsername = "";
+
+try {
+  const parsedUrl = new URL(url);
+
+  if (
+    parsedUrl.protocol !== "https:" ||
+    parsedUrl.hostname !== "t.me" ||
+    parsedUrl.pathname.split("/").filter(Boolean).length !== 1
+  ) {
+    throw new Error("invalid_channel_url");
+  }
+
+  channelUsername = parsedUrl.pathname
+    .split("/")
+    .filter(Boolean)[0];
+
+  if (!/^[A-Za-z0-9_]{5,32}$/.test(channelUsername)) {
+    throw new Error("invalid_channel_username");
+  }
+} catch {
+  return res.status(400).json({
+    success: false,
+    error: "invalid_telegram_channel_url"
+  });
+}
+
+if (
+  !title ||
+  title.length > 200 ||
+  !Number.isFinite(reward) ||
+  reward <= 0 ||
+  reward > 100000
+) {
+  return res.status(400).json({
+    success: false,
+    error: "invalid_task"
+  });
+}
+
 
       const { data: admin, error: adminError } = await supabase
         .from("takapay_admins")
@@ -1054,6 +1083,171 @@ app.post(
   }
 );
 
+/* Verify channel membership and reward an admin task */
+app.post(
+  "/api/tasks/claim-channel",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      const telegramId = String(req.telegramUser.id);
+      const taskId = Number(req.body?.task_id);
+
+      if (!Number.isSafeInteger(taskId) || taskId <= 0) {
+        return res.status(400).json({
+          success: false,
+          error: "invalid_task_id"
+        });
+      }
+
+      // Load the task from the database
+      const { data: task, error: taskError } = await supabase
+        .from("tasks")
+        .select("id, title, reward, url, is_active")
+        .eq("id", taskId)
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (taskError) {
+        console.error("Task lookup failed:", taskError.message);
+        return res.status(500).json({
+          success: false,
+          error: "task_lookup_failed"
+        });
+      }
+
+      if (!task) {
+        return res.status(404).json({
+          success: false,
+          error: "task_not_found"
+        });
+      }
+
+      // Accept only public Telegram channel links
+      let channelUsername;
+
+      try {
+        const parsedUrl = new URL(String(task.url || ""));
+        const parts = parsedUrl.pathname.split("/").filter(Boolean);
+
+        if (
+          parsedUrl.protocol !== "https:" ||
+          parsedUrl.hostname !== "t.me" ||
+          parsedUrl.search ||
+          parsedUrl.hash ||
+          parts.length !== 1 ||
+          !/^[A-Za-z0-9_]{5,32}$/.test(parts[0])
+        ) {
+          throw new Error("invalid_channel_url");
+        }
+
+        channelUsername = parts[0];
+      } catch {
+        return res.status(400).json({
+          success: false,
+          error: "invalid_telegram_channel_url"
+        });
+      }
+
+      // Verify actual Telegram membership
+      const telegramApiUrl = new URL(
+        `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getChatMember`
+      );
+
+      telegramApiUrl.searchParams.set(
+        "chat_id",
+        `@${channelUsername}`
+      );
+      telegramApiUrl.searchParams.set("user_id", telegramId);
+
+      const telegramResponse = await fetch(telegramApiUrl);
+      const telegramResult = await telegramResponse.json();
+
+      if (!telegramResponse.ok || !telegramResult.ok) {
+        console.error(
+          "Telegram membership check failed:",
+          telegramResult.description || "unknown error"
+        );
+
+        return res.status(503).json({
+          success: false,
+          error: "membership_check_failed"
+        });
+      }
+
+      const member = telegramResult.result;
+      const joined =
+        member.status === "creator" ||
+        member.status === "administrator" ||
+        member.status === "member" ||
+        (member.status === "restricted" && member.is_member === true);
+
+      if (!joined) {
+        return res.status(403).json({
+          success: false,
+          error: "channel_not_joined"
+        });
+      }
+
+      // Reward only after Telegram confirms membership
+      const { data, error } = await supabase.rpc(
+        "claim_admin_channel_task_reward",
+        {
+          p_telegram_id: telegramId,
+          p_task_id: String(task.id)
+        }
+      );
+
+      if (error) {
+        console.error("Admin task reward failed:", error.message);
+        return res.status(500).json({
+          success: false,
+          error: "reward_failed"
+        });
+      }
+
+      if (data?.success === true) {
+        return res.json({
+          success: true,
+          reward: data.reward
+        });
+      }
+
+      if (data?.error === "already_claimed") {
+        return res.status(409).json({
+          success: false,
+          error: "already_claimed"
+        });
+      }
+
+      if (data?.error === "profile_not_found") {
+        return res.status(404).json({
+          success: false,
+          error: "profile_not_found"
+        });
+      }
+
+      if (data?.error === "task_not_found") {
+        return res.status(404).json({
+          success: false,
+          error: "task_not_found"
+        });
+      }
+
+      return res.status(500).json({
+        success: false,
+        error: "reward_failed"
+      });
+    } catch (error) {
+      console.error("Admin channel task error:", error.message);
+      return res.status(500).json({
+        success: false,
+        error: "server_error"
+      });
+    }
+  }
+);
+          
 /* Public API: Get active tasks */
 app.get(
   "/api/tasks",
