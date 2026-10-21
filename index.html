@@ -121,30 +121,85 @@ function ratesForPlan(plan){return {Free:1,Starter:1,Premium:2,Diamond:4,Gold:7,
 function renderTasks(){
  const plan=localStorage.getItem('tp_plan')||'Free';
  const allTasks=[...tasks,...savedAdminTasks.map(t=>({
-  icon:'📌',title:t.title,desc:'অ্যাডমিনের যোগ করা টাস্ক',reward:Number(t.reward)||0,
-  time:'নির্ধারিত',frequency:'অ্যাডমিন টাস্ক',left:'যাচাই প্রয়োজন',
+id:t.id,icon:'📌',title:t.title,desc:'অ্যাডমিনের যোগ করা টাস্ক',reward:Number(t.reward)||0,  time:'নির্ধারিত',frequency:'অ্যাডমিন টাস্ক',left:'যাচাই প্রয়োজন',
   category:'admin',button:'লিংক খুলুন',url:t.url||''
  }))];
  document.getElementById('taskList').innerHTML=allTasks.filter(t=>filter==='all'||t.category===filter).map(t=>{
   const isWatch=t.category==='watch',count=isWatch?watchCount():0,reward=isWatch?ratesForPlan(plan):Number(t.reward)||0,left=isWatch?`${Math.max(0,20-count)}/20`:t.left;
-  return `<div class="task"><div class="taskicon">${escapeHtml(t.icon)}</div><div><h3>${escapeHtml(t.title)}</h3><p>${escapeHtml(t.desc)}</p><span class="reward">🪙 ৳ ${reward.toFixed(2)}</span>　<span class="muted tiny">◷ ${escapeHtml(t.time)}</span></div><div class="right"><span class="frequency">${escapeHtml(t.frequency)}</span><div class="muted tiny">👥 বাকি: ${escapeHtml(left)}</div><button class="btn orange task-action" data-title="${escapeHtml(t.title)}" data-category="${escapeHtml(t.category)}" data-url="${escapeHtml(t.url||'')}" style="margin-top:8px">${isWatch&&count>=20?'আজকের সীমা শেষ':escapeHtml(t.button)} ›</button></div></div>`
- }).join('');
+  return `<div class="task"><div class="taskicon">${escapeHtml(t.icon)}</div><div><h3>${escapeHtml(t.title)}</h3><p>${escapeHtml(t.desc)}</p><span class="reward">🪙 ৳ ${reward.toFixed(2)}</span>　<span class="muted tiny">◷ ${escapeHtml(t.time)}</span></div><div class="right"><span class="frequency">${escapeHtml(t.frequency)}</span><div class="muted tiny">👥 বাকি: ${escapeHtml(left)}</div>
+
+<button class="btn orange task-action" data-title="${escapeHtml(t.title)}" data-category="${escapeHtml(t.category)}" data-task-id="${escapeHtml(t.id||'')}" data-url="${escapeHtml(t.url||'')}" style="margin-top:8px">
+  ${isWatch&&count>=20?'আজকের সীমা শেষ':escapeHtml(t.button)} ›</button></div></div>`
+ }).join('');প
  document.querySelectorAll('.task-action').forEach(b=>b.onclick=async()=>{
   const category=b.dataset.category;
 
-  if(category==='admin'){
-   const taskUrl=b.dataset.url||'';
-   if(!/^https:\/\//i.test(taskUrl)){
-    note('এই টাস্কের সঠিক HTTPS লিংক নেই।');
+
+if(category==='admin'){
+  const taskUrl=b.dataset.url||'';
+  const taskId=b.dataset.taskId||'';
+
+  if(!/^https:\/\/t\.me\/[A-Za-z0-9_]{5,32}\/?$/.test(taskUrl)){
+    note('এই টাস্কের সঠিক Telegram চ্যানেল লিংক নেই।');
     return;
-   }
-   if(window.Telegram?.WebApp?.openLink){
-    window.Telegram.WebApp.openLink(taskUrl);
-   }else{
-    window.open(taskUrl,'_blank','noopener,noreferrer');
-   }
-   note('টাস্কের লিংক খোলা হয়েছে। রিওয়ার্ড পেতে আলাদা যাচাই দরকার।');
-   return;
+  }
+
+  if(!taskId){
+    note('টাস্কের ID পাওয়া যায়নি। পেজ রিফ্রেশ করে আবার চেষ্টা করুন।');
+    return;
+  }
+
+  if(!b.dataset.opened){
+    b.dataset.opened='1';
+
+    if(window.Telegram?.WebApp?.openTelegramLink){
+      window.Telegram.WebApp.openTelegramLink(taskUrl);
+    }else{
+      window.open(taskUrl,'_blank','noopener,noreferrer');
+    }
+
+    note('চ্যানেলে যোগ দিন। তারপর আবার এই বাটনে চাপ দিয়ে যাচাই করুন।');
+    b.textContent='যাচাই করুন';
+    return;
+  }
+
+  b.disabled=true;
+  b.textContent='যাচাই হচ্ছে...';
+
+  try{
+    const result=await api('/api/tasks/claim-channel',{
+      method:'POST',
+      body:JSON.stringify({task_id:taskId})
+    });
+
+    if(result.success){
+      note('অভিনন্দন! ৳'+Number(result.reward).toFixed(2)+' রিওয়ার্ড পেয়েছেন।');
+
+      const me=await api('/api/me');
+      setBalance(me.profile?.balance||0);
+
+      const tx=await api('/api/transactions');
+      renderHistory(tx.transactions||[]);
+    }else{
+      note('যাচাই সম্পন্ন হয়নি।');
+    }
+  }catch(err){
+    const message=err.message||'';
+    if(message.includes('already_claimed')){
+      note('এই টাস্কের রিওয়ার্ড আগেই নেওয়া হয়েছে।');
+    }else if(message.includes('channel_not_joined')){
+      note('আগে চ্যানেলে যোগ দিন, তারপর আবার যাচাই করুন।');
+    }else{
+      note('যাচাই করা যায়নি। আবার চেষ্টা করুন।');
+    }
+  }finally{
+    b.disabled=false;
+    renderTasks();
+  }
+
+  return;
+}
+
   }
 
 if(category==='watch'){
