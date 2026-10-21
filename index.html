@@ -642,5 +642,15 @@ document.getElementById('loadWithdrawals').onclick = async function () {
   }
 };
   
-if(window.Telegram?.WebApp){window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();loadAccount()}
+
+if(window.Telegram?.WebApp){
+  const tg = window.Telegram.WebApp;
+  tg.ready();
+  tg.expand();
+  console.log('Telegram initData:', tg.initData ? 'পাওয়া গেছে' : 'পাওয়া যায়নি');
+  console.log('Telegram user:', tg.initDataUnsafe?.user || 'পাওয়া যায়নি');
+  loadAccount();
+} else {
+  console.log('Telegram WebApp পাওয়া যায়নি');
+}
 </script></body></html>
