@@ -1409,7 +1409,81 @@ app.delete(
     }
   }
 );
+// Admin API: Activate a user's plan
+app.post(
+  "/api/admin/activate-plan",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      const adminId = String(req.telegramUser.id);
+      const telegramId = String(req.body.telegram_id || "").trim();
+      const plan = String(req.body.plan || "").trim().toLowerCase();
 
+      const allowedPlans = [
+        "premium",
+        "diamond",
+        "gold",
+        "platinum",
+        "vip"
+      ];
+
+      if (!/^\d+$/.test(telegramId) || !allowedPlans.includes(plan)) {
+        return res.status(400).json({
+          success: false,
+          error: "invalid_user_or_plan"
+        });
+      }
+
+      const { data: admin, error: adminError } = await supabase
+        .from("takapay_admins")
+        .select("telegram_id")
+        .eq("telegram_id", adminId)
+        .maybeSingle();
+
+      if (adminError || !admin) {
+        return res.status(403).json({
+          success: false,
+          error: "admin_only"
+        });
+      }
+
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .update({ active_plan: plan })
+        .eq("telegram_id", telegramId)
+        .select("telegram_id, username, active_plan")
+        .maybeSingle();
+
+      if (profileError) {
+        console.error("Plan activation failed:", profileError.message);
+        return res.status(500).json({
+          success: false,
+          error: "plan_activation_failed"
+        });
+      }
+
+      if (!profile) {
+        return res.status(404).json({
+          success: false,
+          error: "profile_not_found"
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: "plan_activated",
+        profile
+      });
+    } catch (error) {
+      console.error("Plan activation error:", error.message);
+      return res.status(500).json({
+        success: false,
+        error: "server_error"
+      });
+    }
+  }
+);
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`TakaPay backend listening on port ${PORT}`);
