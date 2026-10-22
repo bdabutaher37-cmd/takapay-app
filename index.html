@@ -111,6 +111,14 @@
 </div>
 <button class="btn orange" id="addTask" type="button" style="width:100%">টাস্ক সংরক্ষণ করুন</button>
 <p class="muted tiny">লিংকে ক্লিক করলেই রিওয়ার্ড স্বয়ংক্রিয়ভাবে দেওয়া হবে না; আলাদা যাচাই দরকার।</p>
+
+<div class="card" style="margin-top:12px">
+  <h3>📋 যোগ করা টাস্কগুলো</h3>
+  <div id="adminTaskList">
+    <p class="muted">টাস্কের তালিকা লোড হচ্ছে...</p>
+  </div>
+</div>
+    
 </div>
 </section>
 </main>
@@ -414,12 +422,50 @@ async function api(path,options={}){
  }
  return body;
 }
+  function renderAdminTaskList(){
+  const box = document.getElementById('adminTaskList');
+  if(!box) return;
+
+  if(!savedAdminTasks.length){
+    box.innerHTML = '<p class="muted">এখনো কোনো সক্রিয় অ্যাডমিন টাস্ক নেই।</p>';
+    return;
+  }
+
+  box.innerHTML = savedAdminTasks.map(t => `
+    <div class="card" style="margin:8px 0;padding:12px">
+      <strong>${escapeHtml(t.title)}</strong>
+      <p class="muted tiny">রিওয়ার্ড: ৳${(Number(t.reward)||0).toFixed(2)}</p>
+      <button class="btn orange" type="button" data-delete-task="${escapeHtml(t.id)}">
+        টাস্ক বন্ধ করুন
+      </button>
+    </div>
+  `).join('');
+
+  box.querySelectorAll('[data-delete-task]').forEach(btn=>{
+    btn.onclick = async ()=>{
+      if(!confirm('এই টাস্কটি বন্ধ করতে চান?')) return;
+      btn.disabled = true;
+      try{
+        const result = await api('/api/admin/tasks/'+encodeURIComponent(btn.dataset.deleteTask),{
+          method:'DELETE'
+        });
+        if(!result?.success) throw new Error(result?.error||'task_delete_failed');
+        await loadAdminTasks();
+        note('টাস্কটি বন্ধ করা হয়েছে।');
+      }catch(error){
+        note('টাস্ক বন্ধ করা যায়নি: '+(error.message||'সমস্যা হয়েছে'));
+        btn.disabled = false;
+      }
+    };
+  });
+  }
 async function loadAdminTasks(){
  try{
   const result=await api('/api/tasks');
   if(result.success&&Array.isArray(result.tasks)){
    savedAdminTasks=result.tasks;
    renderTasks();
+    renderAdminTaskList();
   }
  }catch(error){
   console.warn('Admin tasks load failed:',error.message);
@@ -566,7 +612,46 @@ document.getElementById('addTask').onclick = async () => {
     btn.disabled = false;
   }
 };
-  
+  function renderAdminTaskList(){
+  const box = document.getElementById('adminTaskList');
+  if(!box) return;
+
+  if(!savedAdminTasks.length){
+    box.innerHTML = '<p class="muted">এখনো কোনো সক্রিয় অ্যাডমিন টাস্ক নেই।</p>';
+    return;
+  }
+
+  box.innerHTML = savedAdminTasks.map(t => `
+    <div class="card" style="margin:8px 0;padding:12px">
+      <strong>${escapeHtml(t.title)}</strong>
+      <p class="muted tiny">রিওয়ার্ড: ৳${(Number(t.reward)||0).toFixed(2)}</p>
+      <button class="btn orange" type="button" data-delete-task="${escapeHtml(t.id)}">
+        টাস্ক বন্ধ করুন
+      </button>
+    </div>
+  `).join('');
+
+  box.querySelectorAll('[data-delete-task]').forEach(btn=>{
+    btn.onclick = async ()=>{
+      if(!confirm('এই টাস্কটি বন্ধ করতে চান?')) return;
+      btn.disabled = true;
+
+      try{
+        const result = await api('/api/admin/tasks/'+encodeURIComponent(btn.dataset.deleteTask),{
+          method:'DELETE'
+        });
+
+        if(!result?.success) throw new Error(result?.error||'task_delete_failed');
+
+        await loadAdminTasks();
+        note('টাস্কটি বন্ধ করা হয়েছে।');
+      }catch(error){
+        note('টাস্ক বন্ধ করা যায়নি: '+(error.message||'সমস্যা হয়েছে'));
+        btn.disabled = false;
+      }
+    };
+  });
+  }
 document.getElementById('loadWithdrawals').onclick = async function () {
   const btn = this;
   const list = document.getElementById('withdrawalList');
