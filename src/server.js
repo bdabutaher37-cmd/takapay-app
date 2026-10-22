@@ -546,6 +546,59 @@ app.post(
   }
 );
 
+/* Daily Check-in: Claim ৳10 once per Dhaka day */
+app.post(
+  "/api/tasks/daily-checkin",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      const telegramId = String(req.telegramUser.id);
+
+      const { data, error } = await supabase.rpc(
+        "claim_daily_checkin",
+        { p_telegram_id: telegramId }
+      );
+
+      if (error) {
+        console.error("Daily check-in failed:", error.message);
+        return res.status(500).json({
+          error: "daily_checkin_failed"
+        });
+      }
+
+      if (data?.success === true) {
+        return res.json({
+          success: true,
+          reward: 10
+        });
+      }
+
+      if (data?.error === "already_claimed") {
+        return res.status(409).json({
+          error: "already_claimed"
+        });
+      }
+
+      if (data?.error === "profile_not_found") {
+        return res.status(404).json({
+          error: "profile_not_found"
+        });
+      }
+
+      return res.status(500).json({
+        error: "daily_checkin_failed"
+      });
+    } catch (error) {
+      console.error("Daily check-in error:", error.message);
+      return res.status(500).json({
+        error: "daily_checkin_failed"
+      });
+    }
+  }
+);
+
+
 
 app.post("/api/monetag/start", requireConfig, requireTelegram, async (req, res) => {
   try {
