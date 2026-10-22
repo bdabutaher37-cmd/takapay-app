@@ -149,7 +149,7 @@ function watchCount(){return Number(localStorage.getItem('tp_watch_'+localDayKey
 function ratesForPlan(plan){return {Free:1,Starter:1,Premium:2,Diamond:4,Gold:7,Platinum:10,VIP:15}[plan]||1}
 function renderTasks(){
  const plan=localStorage.getItem('tp_plan')||'Free';
- const allTasks=[...tasks,
+ const allTasks=[...tasks];
  
  document.getElementById('taskList').innerHTML=allTasks.filter(t=>filter==='all'||t.category===filter).map(t=>{
   const isWatch=t.category==='watch',count=isWatch?watchCount():0,reward=isWatch?ratesForPlan(plan):Number(t.reward)||0,left=isWatch?`${Math.max(0,20-count)}/20`:t.left;
