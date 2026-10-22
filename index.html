@@ -662,6 +662,7 @@ document.getElementById('loadWithdrawals').onclick = async function () {
 if(window.Telegram?.WebApp){
   const tg = window.Telegram.WebApp;
   tg.ready();
+  console.log('Telegram initData:', tg.initData);
   tg.expand();
 
   loadAccount();
