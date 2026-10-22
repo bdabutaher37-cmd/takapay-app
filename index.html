@@ -433,6 +433,7 @@ async function loadAccount(){
   renderHistory(tx.transactions||[]);
  }catch(err){note(err.message||'সার্ভারের সঙ্গে সংযোগ হয়নি।');setBalance(0);renderHistory([])}
 }
+  console.log('TakaPay script reached task rendering');
 renderReferralCounts();renderTasks();renderHistory([]);
  loadAccount();
  loadAdminTasks();
