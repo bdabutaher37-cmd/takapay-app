@@ -121,7 +121,7 @@ const API_BASE = 'https://takapay-app.onrender.com';
 const tasks=[
 {icon:'✈️',title:'Telegram Channel Join',desc:'আমাদের অফিসিয়াল Telegram চ্যানেলে যোগ দিন এবং যাচাই সম্পন্ন করুন।',reward:20,time:'৫ মিনিট',frequency:'প্রতিদিন ১ বার',left:'যাচাই প্রয়োজন',category:'Telegram',button:'যোগ দিন'},
 {icon:'▶️',title:'Watch Advertisement',desc:'Monetag Rewarded বিজ্ঞাপন দেখুন; সম্পূর্ণ হলে যাচাই করে রিওয়ার্ড দেওয়া হবে।',reward:1,time:'৩০ সেকেন্ড',frequency:'প্রতিদিন সর্বোচ্চ ২০টি',left:'২০/২০',category:'watch',button:'এড দেখুন'},{icon:'👥',title:'Referral Task',desc:'আপনার রেফারেল লিংক শেয়ার করুন; রেফারেল সার্ভারে যাচাই করতে হবে।',reward:10,time:'১০ মিনিট',frequency:'প্রতিদিন ৫ বার',left:'যাচাই প্রয়োজন',category:'Referral',button:'রেফার করুন'},
-{icon:'🗓️',title:'Daily Check-in',desc:'প্রতিদিন একবার চেক-ইন করে রিওয়ার্ড নিন।',reward:10,time:'১ মিনিট',frequency:'প্রতিদিন ১ বার',left:'যাচাই প্রয়োজন',category:'daily',button:'চেক-ইন'},{icon:'⚙️',title:'Admin Task',desc:'অ্যাডমিন কর্তৃক যোগ করা বিশেষ টাস্ক; এখন প্রিভিউ মাত্র।',reward:50,time:'৩০ মিনিট',frequency:'সীমিত সময়',left:'যাচাই প্রয়োজন',category:'verify',button:'বিস্তারিত দেখুন'}];
+{icon:'🗓️',title:'Daily Check-in',desc:'প্রতিদিন একবার চেক-ইন করে রিওয়ার্ড নিন।',reward:10,time:'১ মিনিট',frequency:'প্রতিদিন ১ বার',left:'যাচাই প্রয়োজন',category:'daily',button:'চেক-ইন'}];
 let savedAdminTasks = [];
 let method='bKash',filter='all',toastT;
 const toast=document.getElementById('toast');
@@ -149,7 +149,11 @@ function watchCount(){return Number(localStorage.getItem('tp_watch_'+localDayKey
 function ratesForPlan(plan){return {Free:1,Starter:1,Premium:2,Diamond:4,Gold:7,Platinum:10,VIP:15}[plan]||1}
 function renderTasks(){
  const plan=localStorage.getItem('tp_plan')||'Free';
- const allTasks=[...tasks];
+const allTasks=[...tasks,...savedAdminTasks.map(t=>({
+id:t.id,icon:'📌',title:t.title,desc:'অ্যাডমিনের যোগ করা টাস্ক',reward:Number(t.reward)||0,
+time:'নির্ধারিত',frequency:'অ্যাডমিন টাস্ক',left:'যাচাই প্রয়োজন',
+category:'admin',button:'লিংক খুলুন',url:t.url||''
+}))];
  
  document.getElementById('taskList').innerHTML=allTasks.filter(t=>filter==='all'||t.category===filter).map(t=>{
   const isWatch=t.category==='watch',count=isWatch?watchCount():0,reward=isWatch?ratesForPlan(plan):Number(t.reward)||0,left=isWatch?`${Math.max(0,20-count)}/20`:t.left;
