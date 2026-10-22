@@ -1346,7 +1346,70 @@ app.get(
   }
 );
 
-      
+  
+/* Admin API: Delete a task */
+app.delete(
+  "/api/admin/tasks/:id",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      const telegramId = String(req.telegramUser.id);
+      const taskId = Number(req.params.id);
+
+      if (!Number.isSafeInteger(taskId) || taskId <= 0) {
+        return res.status(400).json({
+          success: false,
+          error: "invalid_task_id"
+        });
+      }
+
+      const { data: admin, error: adminError } = await supabase
+        .from("takapay_admins")
+        .select("telegram_id")
+        .eq("telegram_id", telegramId)
+        .maybeSingle();
+
+      if (adminError || !admin) {
+        return res.status(403).json({
+          success: false,
+          error: "admin_only"
+        });
+      }
+
+      const { data: task, error: deleteError } = await supabase
+        .from("tasks")
+        .update({ is_active: false })
+        .eq("id", taskId)
+        .select("id")
+        .maybeSingle();
+
+      if (deleteError) {
+        console.error("Task delete failed:", deleteError.message);
+        return res.status(500).json({
+          success: false,
+          error: "task_delete_failed"
+        });
+      }
+
+      if (!task) {
+        return res.status(404).json({
+          success: false,
+          error: "task_not_found"
+        });
+      }
+
+      return res.json({ success: true });
+    } catch (error) {
+      console.error("Task delete API error:", error.message);
+      return res.status(500).json({
+        success: false,
+        error: "server_error"
+      });
+    }
+  }
+);
+
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`TakaPay backend listening on port ${PORT}`);
