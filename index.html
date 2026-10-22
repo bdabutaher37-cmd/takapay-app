@@ -647,10 +647,19 @@ if(window.Telegram?.WebApp){
   const tg = window.Telegram.WebApp;
   tg.ready();
   tg.expand();
-  console.log('Telegram initData:', tg.initData ? 'পাওয়া গেছে' : 'পাওয়া যায়নি');
-  console.log('Telegram user:', tg.initDataUnsafe?.user || 'পাওয়া যায়নি');
+
+  const user = tg.initDataUnsafe?.user;
+
+  if(!tg.initData){
+    note('পরীক্ষা: Telegram initData পাওয়া যায়নি');
+  }else if(!user){
+    note('পরীক্ষা: Telegram User পাওয়া যায়নি');
+  }else{
+    note('পরীক্ষা: Telegram User পাওয়া গেছে, ID: ' + user.id);
+  }
+
   loadAccount();
-} else {
-  console.log('Telegram WebApp পাওয়া যায়নি');
+}else{
+  note('পরীক্ষা: Telegram WebApp পাওয়া যায়নি');
 }
 </script></body></html>
