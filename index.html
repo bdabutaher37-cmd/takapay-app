@@ -94,6 +94,29 @@
     </div>
   </div>
   
+  
+  <div class="card">
+    <h3>💎 ইউজারের প্ল্যান অ্যাক্টিভ করুন</h3>
+    <div class="field">
+      <label>ইউজারের Telegram ID</label>
+      <input id="activateTelegramId" type="text" inputmode="numeric" placeholder="Telegram ID লিখুন">
+    </div>
+    <div class="field">
+      <label>প্ল্যান নির্বাচন করুন</label>
+      <select id="activatePlan">
+        <option value="premium">Premium — ৳199</option>
+        <option value="diamond">Diamond — ৳499</option>
+        <option value="gold">Gold — ৳799</option>
+        <option value="platinum">Platinum — ৳1,199</option>
+        <option value="vip">VIP — ৳1,999</option>
+      </select>
+    </div>
+    <button class="btn orange" id="activatePlanBtn" type="button" style="width:100%">
+      প্ল্যান অ্যাক্টিভ করুন
+    </button>
+    <p class="muted tiny">পেমেন্ট নিশ্চিত করার পরেই ব্যবহার করুন।</p>
+  </div>
+  
   <div class="card">
     <h3>নতুন টাস্কের প্রিভিউ</h3>
     <div class="field">
@@ -756,4 +779,39 @@ if(window.Telegram?.WebApp){
 
   loadAccount();
 }
+document.getElementById('activatePlanBtn').onclick = async () => {
+  const telegramId = document.getElementById('activateTelegramId').value.trim();
+  const plan = document.getElementById('activatePlan').value;
+  const btn = document.getElementById('activatePlanBtn');
+
+  if (!/^\d+$/.test(telegramId)) {
+    alert('সঠিক Telegram ID লিখুন');
+    return;
+  }
+
+  if (!confirm('পেমেন্ট নিশ্চিত করেছেন? প্ল্যান চালু করবেন?')) return;
+
+  btn.disabled = true;
+
+  try {
+    const result = await api('/api/admin/activate-plan', {
+      method: 'POST',
+      body: JSON.stringify({
+        telegram_id: telegramId,
+        plan: plan
+      })
+    });
+
+    if (!result.success) {
+      throw new Error(result.error || 'প্ল্যান চালু হয়নি');
+    }
+
+    alert('প্ল্যান সফলভাবে চালু হয়েছে!');
+    document.getElementById('activateTelegramId').value = '';
+  } catch (err) {
+    alert('প্ল্যান চালু হয়নি: ' + (err.message || 'সমস্যা হয়েছে'));
+  } finally {
+    btn.disabled = false;
+  }
+};
 </script></body></html>
