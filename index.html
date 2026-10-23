@@ -593,6 +593,7 @@ async function loadAccount(){
   await api('/api/auth',{method:'POST',body:JSON.stringify({})});
   const me=await api('/api/me');
    console.log('PROFILE FROM SERVER:', me.profile);
+   alert('Server Plan: ' + me.profile?.active_plan);
   setBalance(me.profile?.balance||0);
   updatePlanButtons(me.profile?.active_plan||'free');
 window.currentActivePlan=me.profile?.active_plan||'free';   
