@@ -568,18 +568,27 @@ async function loadAdminTasks(){
   console.warn('Admin tasks load failed:',error.message);
  }
 }
+
 function updatePlanButtons(activePlan){
-  const current = String(activePlan || 'free').toLowerCase();
+  const current = String(activePlan || 'free').trim().toLowerCase();
 
   document.querySelectorAll('[data-plan]').forEach(b=>{
-    const plan = String(b.dataset.plan || '').toLowerCase();
+    const plan = String(b.dataset.plan || '').trim().toLowerCase();
     const isCurrent =
       (current === 'free' && plan === 'starter') ||
       current === plan;
 
-        b.classList.toggle('current-plan', isCurrent);
+    b.classList.toggle('current-plan', isCurrent);
     b.setAttribute('aria-pressed', String(isCurrent));
+
+    if(isCurrent){
+      b.textContent = 'বর্তমান প্ল্যান';
+    } else {
+      b.textContent = plan === 'starter' ? 'ফ্রি প্ল্যান' : 'প্ল্যান নিন';
+    }
   });
+}
+
 }
 async function loadAccount(){
  const user=getTelegramUser();
