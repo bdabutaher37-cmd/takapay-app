@@ -636,6 +636,21 @@ const result=await api('/api/withdraw',{method:'POST',body:JSON.stringify({amoun
    return;
  }
 
+ document.querySelectorAll('[data-plan]').forEach(b=>b.onclick=()=>{
+ const plan=b.dataset.plan;
+
+ if(b.textContent.trim()==='বর্তমান প্ল্যান'){
+   note('এটাই আপনার বর্তমান প্ল্যান।');
+   return;
+ }
+
+ if(plan==='Starter'){
+   localStorage.setItem('tp_plan','Free');
+   renderTasks();
+   note('ফ্রি প্ল্যান নির্বাচন হয়েছে।');
+   return;
+ }
+
  openCheckout(plan);
 });
 document.getElementById('export').onclick=()=>{
