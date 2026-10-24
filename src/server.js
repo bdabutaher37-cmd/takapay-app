@@ -724,11 +724,13 @@ app.get("/postback", async (req, res) => {
     const zoneId = String(req.query.zone_id || "");
     const eventType = String(req.query.event_type || "");
     const rewardType = String(req.query.reward_event_type || "");
+    const estimatedPrice = String(req.query.estimated_price || "");
     console.log("Monetag postback received", {
   ymidPresent: Boolean(req.query.ymid),
   zoneId: String(req.query.zone_id || ""),
   eventType: String(req.query.event_type || ""),
   rewardType: String(req.query.reward_event_type || "")
+ estimatedPrice: String(req.query.estimated_price || "")
 });
 
     if (
