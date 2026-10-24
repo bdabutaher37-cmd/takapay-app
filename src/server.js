@@ -1536,6 +1536,8 @@ app.post(
 );
 
 app.post(
+
+app.post(
   "/api/plan-recharge",
   requireConfig,
   requireTelegram,
@@ -1543,12 +1545,15 @@ app.post(
     try {
       const telegramId = String(req.telegramUser.id);
       const amount = Number(req.body.amount);
-      const method = String(req.body.payment_method || "").trim().toLowerCase();
+      const method = String(req.body.payment_method || "")
+        .trim()
+        .toLowerCase();
       const payerNumber = String(req.body.payer_number || "").trim();
       const transactionId = String(req.body.transaction_id || "").trim();
 
       if (
         !Number.isFinite(amount) ||
+        !Number.isInteger(amount) ||
         amount < 199 ||
         amount > 1999 ||
         !["bkash", "nagad"].includes(method)
@@ -1575,13 +1580,16 @@ app.post(
         .from("plan_recharge_requests")
         .insert({
           telegram_id: telegramId,
-          plan: "premium",
+          plan: null,
           amount,
           payment_method: method,
           payer_number: payerNumber,
-          transaction_id: transactionId
+          transaction_id: transactionId,
+          status: "pending"
         })
-        .select("id, plan, amount, payment_method, status, created_at")
+        .select(
+          "id, amount, payment_method, status, created_at"
+        )
         .single();
 
       if (error) {
@@ -1613,7 +1621,6 @@ app.post(
     }
   }
 );
-
 
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
