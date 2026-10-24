@@ -395,6 +395,7 @@ note('Event: ' + String(adResult?.event_type) +
   
 
 try {
+  await refreshWatchCount();
   const me = await api('/api/me');
   setBalance(me.profile?.balance || 0);
 } catch (refreshError) {
@@ -872,6 +873,7 @@ if(window.Telegram?.WebApp){
   tg.expand();
 
   loadAccount();
+  refreshWatchCount();
 }
 document.getElementById('activatePlanBtn').onclick = async () => {
   const telegramId = document.getElementById('activateTelegramId').value.trim();
