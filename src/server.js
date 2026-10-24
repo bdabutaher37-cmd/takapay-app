@@ -1620,7 +1620,6 @@ app.post(
       });
     }
   }
-);
 
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
