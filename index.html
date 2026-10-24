@@ -253,7 +253,25 @@ function setBalance(value){const n=Number(value);document.querySelectorAll('[dat
 function localDayKey(){
  return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Dhaka',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 }
-function watchCount(){return Number(localStorage.getItem('tp_watch_'+localDayKey())||0)}
+
+window.currentWatchCount = 0;
+
+async function refreshWatchCount(){
+  try {
+    const data = await api('/api/monetag/count');
+    if(data && data.success){
+      window.currentWatchCount = Number(data.count) || 0;
+      renderTasks();
+    }
+  } catch(error) {
+    console.error('Watch count refresh failed:', error);
+  }
+}
+
+function watchCount(){
+  return Number(window.currentWatchCount) || 0;
+}
+
 function ratesForPlan(plan){return {free:1,starter:1,premium:2,diamond:4,gold:7,platinum:10,vip:15}[String(plan||'free').trim().toLowerCase()]||1}function renderTasks(){
  const plan=String(window.currentActivePlan||localStorage.getItem('tp_plan')||'free').trim().toLowerCase(); console.log('Active plan:', plan, 'Ad reward:', ratesForPlan(plan)); const allTasks=[...tasks,...savedAdminTasks.map(t=>({id:t.id,icon:'📌',title:t.title,desc:'অ্যাডমিনের যোগ করা টাস্ক',reward:Number(t.reward)||0,
 time:'নির্ধারিত',frequency:'অ্যাডমিন টাস্ক',left:'যাচাই প্রয়োজন',
