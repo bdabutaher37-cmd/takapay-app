@@ -1536,8 +1536,6 @@ app.post(
 );
 
 app.post(
-
-app.post(
   "/api/plan-recharge",
   requireConfig,
   requireTelegram,
@@ -1619,7 +1617,8 @@ app.post(
         error: "server_error"
       });
     }
-  }
+    }
+);
 
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
