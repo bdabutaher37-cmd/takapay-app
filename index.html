@@ -391,8 +391,10 @@ console.log("Monetag SDK result:", adResult);
 
 console.log('Monetag ad result:', adResult);
 
-note('Event: ' + String(adResult?.event_type) +
-  ' | Reward: ' + String(adResult?.reward_event_type));
+note(
+  'SDK ফলাফল: ' +
+  (adResult ? JSON.stringify(adResult) : 'কোনো ফলাফল পাওয়া যায়নি')
+);
 
 try {
   await refreshWatchCount();
