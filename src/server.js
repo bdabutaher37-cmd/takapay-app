@@ -759,8 +759,7 @@ console.log("Monetag event details", {
 
     const { data: ad, error: lookupError } = await supabase
       .from("monetag_ad_views")
-      .select("ymid, telegram_id, zone_id, rewarded_at, reward_amount")
-      .eq("ymid", ymid)
+.select("ymid, telegram_id, zone_id, rewarded_at, reward_amount, created_at")      .eq("ymid", ymid)
       .maybeSingle();
 
     if (lookupError) {
@@ -768,9 +767,19 @@ console.log("Monetag event details", {
       return res.status(500).send("Lookup failed");
     }
 
-    if (!ad || ad.zone_id !== zoneId) {
-      return res.status(404).send("Ad view not found");
-    }
+if (!ad || ad.zone_id !== zoneId) {
+  return res.status(404).send("Ad view not found");
+}
+
+const startedAt = new Date(ad.created_at).getTime();
+const elapsedSeconds = (Date.now() - startedAt) / 1000;
+
+if (!Number.isFinite(startedAt) || elapsedSeconds < 15) {
+  console.log("Monetag reward skipped: under 15 seconds", {
+    elapsedSeconds
+  });
+  return res.status(200).send("Reward skipped: under 15 seconds");
+}
 
       const { data, error } = await supabase.rpc(
   "reward_monetag_ad",
