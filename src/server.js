@@ -1534,6 +1534,84 @@ app.post(
     }
   }
 );
+
+app.post(
+  "/api/plan-recharge",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      const telegramId = String(req.telegramUser.id);
+      const plan = String(req.body.plan || "").trim().toLowerCase();
+      const method = String(req.body.payment_method || "").trim().toLowerCase();
+      const payerNumber = String(req.body.payer_number || "").trim();
+      const transactionId = String(req.body.transaction_id || "").trim();
+
+      const prices = {
+        premium: 199,
+        diamond: 499,
+        gold: 799,
+        platinum: 1199,
+        vip: 1999
+      };
+
+      if (!prices[plan] || !["bkash", "nagad"].includes(method)) {
+        return res.status(400).json({
+          success: false,
+          error: "invalid_plan_or_payment_method"
+        });
+      }
+
+      if (!/^01[3-9]\d{8}$/.test(payerNumber) ||
+          !/^[A-Za-z0-9]{5,30}$/.test(transactionId)) {
+        return res.status(400).json({
+          success: false,
+          error: "invalid_payment_details"
+        });
+      }
+
+      const { data, error } = await supabase
+        .from("plan_recharge_requests")
+        .insert({
+          telegram_id: telegramId,
+          plan,
+          amount: prices[plan],
+          payment_method: method,
+          payer_number: payerNumber,
+          transaction_id: transactionId
+        })
+        .select("id, plan, amount, payment_method, status, created_at")
+        .single();
+
+      if (error) {
+        if (error.code === "23505") {
+          return res.status(409).json({
+            success: false,
+            error: "transaction_already_submitted"
+          });
+        }
+        console.error("Plan recharge request failed:", error.message);
+        return res.status(500).json({
+          success: false,
+          error: "request_failed"
+        });
+      }
+
+      return res.status(201).json({
+        success: true,
+        message: "payment_pending_verification",
+        request: data
+      });
+    } catch (error) {
+      console.error("Plan recharge error:", error.message);
+      return res.status(500).json({
+        success: false,
+        error: "server_error"
+      });
+    }
+  }
+);
+
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`TakaPay backend listening on port ${PORT}`);
