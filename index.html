@@ -1063,4 +1063,43 @@ document.getElementById('activatePlanBtn').onclick = async () => {
     note(error.message || 'সার্ভার যাচাই ব্যর্থ হয়েছে।');
   }
 };
+  
+document.getElementById('rechargeForm')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const amount = Number(document.getElementById('rechargeAmount').value);
+  const payment_method = document.getElementById('rechargeMethod').value;
+  const payer_number = document.getElementById('rechargePayer').value.trim();
+  const transaction_id = document.getElementById('rechargeTrx').value.trim();
+  const btn = this.querySelector('button[type="submit"]');
+
+  if (!Number.isInteger(amount) || amount < 199 || amount > 1999) {
+    note('রিচার্জ ১৯৯ থেকে ১৯৯৯ টাকার মধ্যে হতে হবে।');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'জমা হচ্ছে...';
+
+  try {
+    const result = await api('/api/plan-recharge', {
+      method: 'POST',
+      body: JSON.stringify({
+        amount,
+        payment_method,
+        payer_number,
+        transaction_id
+      })
+    });
+
+    note(result.message || 'রিচার্জ অনুরোধ জমা হয়েছে।');
+    this.reset();
+  } catch (error) {
+    note(error.message || 'অনুরোধ জমা হয়নি। আবার চেষ্টা করো।');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'রিচার্জ অনুরোধ জমা দিন';
+  }
+});
+  
 </script></body></html>
