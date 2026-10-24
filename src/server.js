@@ -1542,28 +1542,29 @@ app.post(
   async (req, res) => {
     try {
       const telegramId = String(req.telegramUser.id);
-      const plan = String(req.body.plan || "").trim().toLowerCase();
+      const amount = Number(req.body.amount);
       const method = String(req.body.payment_method || "").trim().toLowerCase();
       const payerNumber = String(req.body.payer_number || "").trim();
       const transactionId = String(req.body.transaction_id || "").trim();
 
-      const prices = {
-        premium: 199,
-        diamond: 499,
-        gold: 799,
-        platinum: 1199,
-        vip: 1999
-      };
-
-      if (!prices[plan] || !["bkash", "nagad"].includes(method)) {
+      if (
+        !Number.isFinite(amount) ||
+        amount < 199 ||
+        amount > 1999 ||
+        !["bkash", "nagad"].includes(method)
+      ) {
         return res.status(400).json({
           success: false,
-          error: "invalid_plan_or_payment_method"
+          error: "invalid_amount_or_payment_method",
+          minimum: 199,
+          maximum: 1999
         });
       }
 
-      if (!/^01[3-9]\d{8}$/.test(payerNumber) ||
-          !/^[A-Za-z0-9]{5,30}$/.test(transactionId)) {
+      if (
+        !/^01[3-9]\d{8}$/.test(payerNumber) ||
+        !/^[A-Za-z0-9]{5,30}$/.test(transactionId)
+      ) {
         return res.status(400).json({
           success: false,
           error: "invalid_payment_details"
@@ -1574,8 +1575,8 @@ app.post(
         .from("plan_recharge_requests")
         .insert({
           telegram_id: telegramId,
-          plan,
-          amount: prices[plan],
+          plan: "premium",
+          amount,
           payment_method: method,
           payer_number: payerNumber,
           transaction_id: transactionId
@@ -1590,6 +1591,7 @@ app.post(
             error: "transaction_already_submitted"
           });
         }
+
         console.error("Plan recharge request failed:", error.message);
         return res.status(500).json({
           success: false,
@@ -1611,6 +1613,7 @@ app.post(
     }
   }
 );
+
 
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
