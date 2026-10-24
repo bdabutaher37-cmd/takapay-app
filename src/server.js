@@ -729,7 +729,7 @@ app.get("/postback", async (req, res) => {
   ymidPresent: Boolean(req.query.ymid),
   zoneId: String(req.query.zone_id || ""),
   eventType: String(req.query.event_type || ""),
-  rewardType: String(req.query.reward_event_type || "")
+  rewardType: String(req.query.reward_event_type || ""),
  estimatedPrice: String(req.query.estimated_price || "")
 });
 
