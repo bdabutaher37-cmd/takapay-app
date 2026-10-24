@@ -672,6 +672,37 @@ app.post("/api/monetag/start", requireConfig, requireTelegram, async (req, res) 
   }
 });
 
+app.get("/api/monetag/count", requireConfig, requireTelegram, async (req, res) => {
+  try {
+    const telegramId = String(req.telegramUser.id);
+
+    const { count, error } = await supabase
+      .from("monetag_ad_views")
+      .select("id", { count: "exact", head: true })
+      .eq("telegram_id", telegramId)
+      .gte(
+        "created_at",
+        new Date(
+          new Date().toLocaleString("en-US", { timeZone: "Asia/Dhaka" })
+        ).toISOString().slice(0, 10) + "T00:00:00+06:00"
+      );
+
+    if (error) {
+      console.error("Monetag count error:", error.message);
+      return res.status(500).json({ error: "count_failed" });
+    }
+
+    return res.json({
+      success: true,
+      count: count || 0,
+      remaining: Math.max(0, 20 - (count || 0))
+    });
+  } catch (error) {
+    console.error("Monetag count error:", error.message);
+    return res.status(500).json({ error: "count_failed" });
+  }
+});
+
 
 app.get("/postback", async (req, res) => {
   try {
