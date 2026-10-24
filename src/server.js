@@ -1622,6 +1622,147 @@ app.post(
 );
 
 
+async function verifyRechargeAdmin(req, res) {
+  const { data: admin, error } = await supabase
+    .from("takapay_admins")
+    .select("telegram_id")
+    .eq("telegram_id", String(req.telegramUser.id))
+    .maybeSingle();
+
+  if (error || !admin) {
+    res.status(403).json({
+      success: false,
+      error: "admin_only"
+    });
+    return false;
+  }
+
+  return true;
+}
+
+app.get(
+  "/api/admin/recharges",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      if (!(await verifyRechargeAdmin(req, res))) return;
+
+      const { data, error } = await supabase
+        .from("plan_recharge_requests")
+        .select(
+          "id, telegram_id, amount, payment_method, payer_number, transaction_id, status, created_at"
+        )
+        .order("created_at", { ascending: false })
+        .limit(100);
+
+      if (error) throw error;
+
+      return res.json({ success: true, requests: data || [] });
+    } catch (error) {
+      console.error("Admin recharge list failed:", error.message);
+      return res.status(500).json({
+        success: false,
+        error: "recharge_list_failed"
+      });
+    }
+  }
+);
+
+app.post(
+  "/api/admin/recharges/:id/approve",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      if (!(await verifyRechargeAdmin(req, res))) return;
+
+      const requestId = Number(req.params.id);
+
+      if (!Number.isSafeInteger(requestId) || requestId < 1) {
+        return res.status(400).json({
+          success: false,
+          error: "invalid_request_id"
+        });
+      }
+
+      const { data, error } = await supabase.rpc(
+        "approve_plan_recharge",
+        {
+          p_request_id: requestId,
+          p_reviewed_by: String(req.telegramUser.id)
+        }
+      );
+
+      if (error) throw error;
+
+      if (!data?.success) {
+        return res.status(409).json(data || {
+          success: false,
+          error: "approval_failed"
+        });
+      }
+
+      return res.json({ success: true });
+    } catch (error) {
+      console.error("Recharge approval failed:", error.message);
+      return res.status(500).json({
+        success: false,
+        error: "approval_failed"
+      });
+    }
+  }
+);
+
+app.post(
+  "/api/admin/recharges/:id/reject",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      if (!(await verifyRechargeAdmin(req, res))) return;
+
+      const requestId = Number(req.params.id);
+
+      if (!Number.isSafeInteger(requestId) || requestId < 1) {
+        return res.status(400).json({
+          success: false,
+          error: "invalid_request_id"
+        });
+      }
+
+      const { data, error } = await supabase
+        .from("plan_recharge_requests")
+        .update({
+          status: "rejected",
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: String(req.telegramUser.id)
+        })
+        .eq("id", requestId)
+        .eq("status", "pending")
+        .select("id")
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (!data) {
+        return res.status(409).json({
+          success: false,
+          error: "request_not_pending"
+        });
+      }
+
+      return res.json({ success: true });
+    } catch (error) {
+      console.error("Recharge rejection failed:", error.message);
+      return res.status(500).json({
+        success: false,
+        error: "rejection_failed"
+      });
+    }
+  }
+);
+      
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`TakaPay backend listening on port ${PORT}`);
