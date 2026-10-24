@@ -396,6 +396,11 @@ note(
   (adResult ? JSON.stringify(adResult) : 'কোনো ফলাফল পাওয়া যায়নি')
 );
 
+alert(
+  'SDK ফলাফল: ' +
+  (adResult ? JSON.stringify(adResult) : 'কোনো ফলাফল পাওয়া যায়নি')
+);;
+
 try {
   await refreshWatchCount();
   const me = await api('/api/me');
