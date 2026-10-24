@@ -720,8 +720,12 @@ app.get("/postback", async (req, res) => {
       return res.status(403).send("Forbidden");
     }
 
-    const ymid = String(req.query.ymid || "");
-    console.log("Monetag event details", {
+const ymid = String(req.query.ymid || "");
+const eventType = String(req.query.event_type || "");
+const rewardType = String(req.query.reward_event_type || "");
+const estimatedPrice = String(req.query.estimated_price || "");
+
+console.log("Monetag event details", {
   ymid,
   eventType,
   rewardType,
