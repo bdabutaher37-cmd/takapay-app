@@ -685,7 +685,14 @@ function updatePlanButtons(activePlan){
   });
 }
 
-
+function getTelegramUser(){
+  try {
+    return window.Telegram?.WebApp?.initDataUnsafe?.user || null;
+  } catch (error) {
+    console.error('Telegram user error:', error);
+    return null;
+  }
+}
 async function loadAccount(){
  const user=getTelegramUser();
  if(user){
@@ -1129,5 +1136,7 @@ document.getElementById('adminAddRechargeBalance')?.addEventListener('click', as
     btn.textContent = 'ব্যালেন্স যোগ করুন';
   }
 });
-                                                          
+ document.getElementById('more')?.addEventListener('click', () => {
+  go('admin');
+});                                                         
 </script></body></html>
