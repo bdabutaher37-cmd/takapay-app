@@ -609,7 +609,7 @@ app.post("/api/monetag/start", requireConfig, requireTelegram, async (req, res) 
     // Get the user's current plan from Supabase
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("active_plan")
+      .select("active_plan, plan_expires_at")
       .eq("telegram_id", telegramId)
       .maybeSingle();
 
@@ -619,10 +619,17 @@ app.post("/api/monetag/start", requireConfig, requireTelegram, async (req, res) 
     }
 
     // Normalize plan name: free and Free both work
-    const plan = String(profile.active_plan || "free")
-      .trim()
-      .toLowerCase();
+    const now = Date.now();
+const expiry = profile.plan_expires_at
+  ? new Date(profile.plan_expires_at).getTime()
+  : 0;
 
+const plan =
+  profile.active_plan &&
+  profile.active_plan.toLowerCase() !== "free" &&
+  expiry > now
+    ? profile.active_plan.trim().toLowerCase()
+    : "free";
     const rewards = {
       free: 1,
       starter: 1,
@@ -1500,9 +1507,12 @@ app.post(
 
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
-        .update({ active_plan: plan })
+        .update({
+  active_plan: plan,
+  plan_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+})
         .eq("telegram_id", telegramId)
-        .select("telegram_id, username, active_plan")
+.select("telegram_id, username, active_plan, plan_expires_at")
         .maybeSingle();
 
       if (profileError) {
