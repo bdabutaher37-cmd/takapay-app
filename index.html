@@ -129,6 +129,11 @@
 </ul>
 <button class="btn orange" data-plan="VIP">প্ল্যান নিন</button>
 </div>
+    
+<button class="btn cyan" type="button" data-go="recharge" style="width:100%;margin-top:12px">
+  💳 ব্যালেন্স রিচার্জ করুন
+</button>
+    
   </div>
 </section>
   <section class="page" id="recharge">
@@ -189,63 +194,7 @@
   </div>
   </section>
   
-<section class="page" id="recharge">
-  <div class="card">
-    <h2>💳 ব্যালেন্স রিচার্জ</h2>
-    <p class="muted">রিচার্জ করে পরে আপনার পছন্দের প্ল্যান কিনুন।</p>
 
-    <div class="notice">
-      সর্বনিম্ন রিচার্জ: ৳১৯৯<br>
-      সর্বোচ্চ রিচার্জ: ৳১,৯৯৯<br>
-      অনুমোদনের আগে ব্যালেন্স যোগ হবে না।
-    </div>
-
-    <form id="rechargeForm">
-      <div class="field">
-        <label>রিচার্জের পরিমাণ (৳)</label>
-        <input id="rechargeAmount" type="number"
-          min="199" max="1999" step="1"
-          placeholder="যেমন 500" required>
-      </div>
-
-      <div class="field">
-        <label>পেমেন্ট পদ্ধতি</label>
-        <select id="rechargeMethod" required>
-          <option value="bkash">bKash</option>
-          <option value="nagad">Nagad</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>যে নম্বরে টাকা পাঠাবেন</label>
-        <input value="01318774526" readonly>
-      </div>
-
-      <div class="field">
-        <label>যে নম্বর থেকে টাকা পাঠিয়েছেন</label>
-        <input id="rechargePayer" type="tel"
-          inputmode="numeric" maxlength="11"
-          placeholder="01XXXXXXXXX" required>
-      </div>
-
-      <div class="field">
-        <label>Transaction ID</label>
-        <input id="rechargeTrx" maxlength="30"
-          placeholder="Transaction ID লিখুন" required>
-      </div>
-
-      <button class="btn orange" type="submit" style="width:100%">
-        রিচার্জ অনুরোধ জমা দিন
-      </button>
-    </form>
-
-    <p class="muted tiny">
-      অ্যাডমিন পেমেন্ট যাচাই করে অনুমোদন করলে রিচার্জ ব্যালেন্স যোগ হবে।
-      এই ব্যালেন্স সরাসরি উইথড্র করা যাবে না।
-    </p>
-  </div>
-</section>
-  
 <section class="page" id="withdraw"><div class="balance-card"><div class="wallet">👛</div><div style="flex:1"><h3>মোট ব্যালেন্স</h3><div class="balance" data-balance>৳ 0.00</div></div></div><div class="card"><h2 style="margin-top:0">👛 উইথড্র করুন</h2><p class="muted">আপনার অর্জিত টাকা বিকাশ/নগদ/রকেট/USDT এ তুলুন।</p><div class="formrow"><div class="card" style="margin:0"><div class="muted">রেফারেল শর্ত</div><h2 style="color:var(--orange)">প্রয়োজন নেই</h2></div><div class="card" style="margin:0"><div class="muted">মিনিমাম উইথড্র</div><h2 style="color:var(--orange)">৳ 400</h2></div></div><h3>উইথড্র পদ্ধতি নির্বাচন করুন</h3><div class="methods" id="methods"><button type="button" class="method active" data-method="bKash"><span class="mi">bK</span>bKash</button><button type="button" class="method" data-method="Nagad"><span class="mi">N</span>Nagad</button><button type="button" class="method" data-method="Rocket"><span class="mi">R</span>Rocket</button><button type="button" class="method" data-method="USDT"><span class="mi">₮</span>USDT (TRC20)</button></div><form id="withdrawForm"><div class="field"><label>উইথড্র পরিমাণ লিখুন</label><input id="amount" type="number" min="400" step="1" placeholder="উইথড্রের পরিমাণ লিখুন" required></div><div class="field"><label>পেমেন্ট অ্যাকাউন্ট / ওয়ালেট</label><input id="account" placeholder="আপনার নম্বর বা ওয়ালেট ঠিকানা" required></div><div class="notice">✓ মিনিমাম উইথড্র: ৳400<br>✓ রেফার না করলেও উইথড্র করা যাবে<br>✓ ।</div><button class="btn orange" style="width:100%;padding:15px;font-size:17px" type="submit">➤ উইথড্র অনুরোধ করুন</button></form></div></section>
 <section class="page" id="history"><div class="section-title"><h2>◷ লেনদেনের হিস্ট্রি</h2><button class="btn" id="export">CSV ↗</button></div><div id="historyList"></div><div class="notice">এখানে সার্ভার থেকে পাওয়া লেনদেন দেখানো হবে। লগইন/সার্ভার সংযুক্ত না থাকলে তালিকা খালি থাকবে।</div></section>
 <section class="page" id="referral"><div class="section-title"><h2>👥 রেফারেল প্রোগ্রাম</h2></div><div class="balance-card"><div class="wallet">🎁</div><div><h3>মোট রেফারেল আয়</h3><div class="balance">৳ 0.00</div><small class="muted">প্রতি সফল রেফারে ৳ ১০ · সার্ভার সংযোগ প্রয়োজন</small></div></div><div class="card"><h3>আপনার রেফারেল লিংক</h3><div class="refurl"><code id="ref2">Telegram-এ খুললে লিংক তৈরি হবে</code><button class="btn orange" id="copy2">কপি</button></div></div><div class="stats"><div class="stat"><div class="emoji">👥</div><p>মোট ইনভাইট</p><strong id="refInviteCount">0</strong></div><div class="stat"><div class="emoji">✓</div><p>সফল রেফার</p><strong id="refSuccessCount">0</strong></div><div class="stat"><div class="emoji">⏳</div><p>পেন্ডিং</p><strong id="refPendingCount">0</strong></div></div><div class="notice">রেফারেল সংখ্যা ও আয় বাস্তবভাবে দেখাতে Telegram bot/backend-এর যাচাইকৃত রেফারেল ডেটা প্রয়োজন।</div></section>
