@@ -19,6 +19,13 @@
 <section class="page active" id="home">
 <div class="card glow profile"><div class="crown">👑</div><div style="flex:1"><div class="muted">Hello,</div><h2>👑 <span id="profileName">Guest</span> <span class="online">Online</span></h2><div class="muted">ID: <span id="profileId">Telegram Mini App খুলুন</span></div></div></div>
 <div class="balance-card"><div class="wallet">👛</div><div style="flex:1"><h3>মোট ব্যালেন্স</h3><div class="balance" data-balance>৳ 0.00</div><small class="muted">আপনার বর্তমান ব্যালেন্স</small></div><button class="btn cyan" data-go="withdraw">উইথড্র করুন →</button></div>
+
+<div style="margin:12px 0">
+  <button class="btn orange" type="button" data-go="recharge" style="width:100%">
+    💳 ব্যালেন্স রিচার্জ করুন →
+  </button>
+</div>
+  
 <div class="stats"><div class="stat"><div class="emoji">🪙</div><p>আজকের আয়</p><strong id="todayEarn">৳ 0.00</strong></div><div class="stat"><div class="emoji">☑️</div><p>সম্পন্ন টাস্ক</p><strong id="taskCount">0</strong></div><div class="stat" role="button" tabindex="0" onclick="go('referral')" style="cursor:pointer"><div class="emoji">👥</div><p>মোট রেফার</p><strong id="homeReferralCount">0</strong><small class="muted" style="display:block;margin-top:5px">বিস্তারিত দেখুন →</small></div><div class="stat"><div class="emoji">🎁</div><p>আজকের বোনাস</p><strong id="todayBonus">৳ 0.00</strong></div></div>
 <div class="refbanner"><div class="big">🔗</div><div style="flex:1;min-width:0"><h3>আপনার রেফারেল লিংক</h3><div class="refurl"><code id="ref">Telegram-এ খুললে লিংক তৈরি হবে</code><button class="btn orange" id="copy">কপি করুন</button></div><small class="muted">👥 প্রতি সফল রেফারে ৳১০ · আপনার রেফার সংখ্যা: <b id="homeReferralSmall">০</b></small></div></div>
 <div class="section-title"><h2>🔥 সাম্প্রতিক টাস্ক</h2><button class="btn" data-go="tasks">সব দেখুন →</button></div>
