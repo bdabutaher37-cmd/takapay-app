@@ -766,7 +766,8 @@ console.log("Monetag event details", {
 
     const { data: ad, error: lookupError } = await supabase
       .from("monetag_ad_views")
-.select("ymid, telegram_id, zone_id, rewarded_at, reward_amount, created_at")      .eq("ymid", ymid)
+.select("ymid, telegram_id, zone_id, rewarded_at, reward_amount, created_at")    
+      .eq("ymid", ymid)
       .maybeSingle();
 
     if (lookupError) {
