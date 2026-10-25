@@ -1021,7 +1021,40 @@ document.getElementById('activatePlanBtn').onclick = async () => {
     notice.textContent = 'অ্যাডমিন অনুমতি যাচাই করা যায়নি।';
     note(error.message || 'সার্ভার যাচাই ব্যর্থ হয়েছে।');
   }
+}
+  
+document.getElementById('more').onclick = async () => {
+  go('admin');
+
+  const status = document.getElementById('adminStatus');
+  const notice = document.getElementById('adminNotice');
+
+  status.textContent = 'যাচাই হচ্ছে...';
+  notice.textContent = 'সার্ভার থেকে অ্যাডমিন অনুমতি যাচাই করা হচ্ছে।';
+
+  try {
+    const result = await api('/api/admin/members/count');
+
+    document.getElementById('adminMemberCount').textContent =
+      result.count ?? result.total ?? result.total_members ?? '—';
+
+    status.textContent = 'Admin Verified';
+    notice.textContent = 'অ্যাডমিন অনুমতি যাচাই সফল হয়েছে।';
+
+    try {
+      const pending = await api('/api/admin/withdrawal/pending-count');
+      document.getElementById('adminPendingCount').textContent =
+        pending.pending_count ?? 0;
+    } catch (error) {
+      document.getElementById('adminPendingCount').textContent = '—';
+    }
+  } catch (error) {
+    status.textContent = 'যাচাই ব্যর্থ';
+    notice.textContent = 'অ্যাডমিন অনুমতি যাচাই করা যায়নি।';
+    note(error.message || 'সার্ভার যাচাই ব্যর্থ হয়েছে।');
+  }
 };
+  
   
 document.getElementById('rechargeForm')?.addEventListener('submit', async function(e) {
   e.preventDefault();
