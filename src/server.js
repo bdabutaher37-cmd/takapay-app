@@ -782,10 +782,10 @@ const startedAt = new Date(ad.created_at).getTime();
 const elapsedSeconds = (Date.now() - startedAt) / 1000;
 
 if (!Number.isFinite(startedAt) || elapsedSeconds < 13) {
-  console.log("Monetag reward skipped: under 13 seconds", {
+  console.log("Monetag reward skipped: under 15 seconds", {
     elapsedSeconds
   });
-  return res.status(200).send("Reward skipped: under 13 seconds");
+  return res.status(200).send("Reward skipped: under 15 seconds");
 }
 
       const { data, error } = await supabase.rpc(
