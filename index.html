@@ -987,7 +987,10 @@ document.getElementById('activatePlanBtn').onclick = async () => {
     btn.disabled = false;
   }
 };
-  document.getElementById('more').onclick = async () => {
+  document.getElementById('more').onclick = () => {
+  alert('MORE BUTTON WORKS');
+  go('admin');
+};
     console.log('MORE BUTTON CLICKED');
   go('admin');
 
