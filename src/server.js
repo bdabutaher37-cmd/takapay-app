@@ -816,7 +816,7 @@ return res.status(200).send("Reward skipped: under 13 seconds");
     return res.status(200).send(
       data?.success ? "Rewarded" : "Already processed"
     );
-  } catch (error) {
+   catch (error) {
     console.error("Monetag postback error:", error.message);
     return res.status(500).send("Postback error");
   }
