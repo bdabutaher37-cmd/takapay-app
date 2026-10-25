@@ -238,6 +238,32 @@
     </div>
   </div>
   
+<div class="card">
+  <h3>💳 ইউজারের রিচার্জ ব্যালেন্স যোগ করুন</h3>
+
+  <div class="field">
+    <label>ইউজারের Telegram ID</label>
+    <input id="rechargeUserTelegramId" type="text"
+      inputmode="numeric" placeholder="Telegram ID লিখুন">
+  </div>
+
+  <div class="field">
+    <label>রিচার্জ ব্যালেন্সের পরিমাণ (৳)</label>
+    <input id="rechargeCreditAmount" type="number"
+      min="1" step="1" placeholder="যেমন 199">
+  </div>
+
+  <button class="btn orange" id="adminAddRechargeBalance"
+    type="button" style="width:100%">
+    ব্যালেন্স যোগ করুন
+  </button>
+
+  <p class="muted tiny">
+    পেমেন্ট যাচাই করে তবেই ব্যালেন্স যোগ করবেন।
+    এই ব্যালেন্স সরাসরি উইথড্র করা যাবে না।
+  </p>
+</div>
+  
   <div class="card">
     <h3>নতুন টাস্কের প্রিভিউ</h3>
     <div class="field">
@@ -1031,4 +1057,40 @@ document.getElementById('rechargeForm')?.addEventListener('submit', async functi
   }
 });
   
+document.getElementById('adminAddRechargeBalance')?.addEventListener('click', async function() {
+  const telegram_id = document.getElementById('rechargeUserTelegramId').value.trim();
+  const amount = Number(document.getElementById('rechargeCreditAmount').value);
+  const btn = this;
+
+  if (!/^[0-9]{1,30}$/.test(telegram_id)) {
+    note('সঠিক Telegram ID লিখুন।');
+    return;
+  }
+
+  if (!Number.isSafeInteger(amount) || amount < 1 || amount > 1000000) {
+    note('১ থেকে ১০,০০,০০০ টাকার মধ্যে পূর্ণ সংখ্যা লিখুন।');
+    return;
+  }
+
+  if (!confirm('এই ইউজারের রিচার্জ ব্যালেন্সে ৳' + amount + ' যোগ করবেন?')) return;
+
+  btn.disabled = true;
+  btn.textContent = 'যোগ হচ্ছে...';
+
+  try {
+    const result = await api('/api/admin/recharge-balance/add', {
+      method: 'POST',
+      body: JSON.stringify({ telegram_id, amount })
+    });
+    note(result.message || 'রিচার্জ ব্যালেন্স যোগ হয়েছে।');
+    document.getElementById('rechargeUserTelegramId').value = '';
+    document.getElementById('rechargeCreditAmount').value = '';
+  } catch (error) {
+    note(error.message || 'ব্যালেন্স যোগ করা যায়নি।');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'ব্যালেন্স যোগ করুন';
+  }
+});
+                                                          
 </script></body></html>
