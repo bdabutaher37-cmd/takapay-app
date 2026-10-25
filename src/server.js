@@ -1822,7 +1822,117 @@ app.post(
     }
   }
 );
-                    
+  // General balance recharge requests
+app.get(
+  "/api/admin/balance-recharges",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      if (!(await verifyRechargeAdmin(req, res))) return;
+
+      const { data, error } = await supabase
+        .from("recharge_requests")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(100);
+
+      if (error) throw error;
+
+      return res.json({ success: true, requests: data || [] });
+    } catch (error) {
+      console.error("Balance recharge list failed:", error.message);
+      return res.status(500).json({
+        success: false,
+        error: "recharge_list_failed"
+      });
+    }
+  }
+);
+
+app.post(
+  "/api/admin/balance-recharges/:id/approve",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      if (!(await verifyRechargeAdmin(req, res))) return;
+
+      const requestId = Number(req.params.id);
+
+      if (!Number.isSafeInteger(requestId) || requestId < 1) {
+        return res.status(400).json({
+          success: false,
+          error: "invalid_request_id"
+        });
+      }
+
+      const { data, error } = await supabase.rpc(
+        "approve_balance_recharge",
+        {
+          p_request_id: requestId,
+          p_reviewed_by: String(req.telegramUser.id)
+        }
+      );
+
+      if (error) throw error;
+
+      if (!data?.success) {
+        return res.status(409).json(data);
+      }
+
+      return res.json({ success: true });
+    } catch (error) {
+      console.error("Balance recharge approval failed:", error.message);
+      return res.status(500).json({
+        success: false,
+        error: "approval_failed"
+      });
+    }
+  }
+);
+
+app.post(
+  "/api/admin/balance-recharges/:id/reject",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      if (!(await verifyRechargeAdmin(req, res))) return;
+
+      const requestId = Number(req.params.id);
+
+      if (!Number.isSafeInteger(requestId) || requestId < 1) {
+        return res.status(400).json({
+          success: false,
+          error: "invalid_request_id"
+        });
+      }
+
+      const { data, error } = await supabase.rpc(
+        "reject_balance_recharge",
+        {
+          p_request_id: requestId,
+          p_reviewed_by: String(req.telegramUser.id)
+        }
+      );
+
+      if (error) throw error;
+
+      if (!data?.success) {
+        return res.status(409).json(data);
+      }
+
+      return res.json({ success: true });
+    } catch (error) {
+      console.error("Balance recharge rejection failed:", error.message);
+      return res.status(500).json({
+        success: false,
+        error: "rejection_failed"
+      });
+    }
+  }
+);                  
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`TakaPay backend listening on port ${PORT}`);
