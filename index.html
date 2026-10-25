@@ -1117,5 +1117,87 @@ document.getElementById('adminAddRechargeBalance')?.addEventListener('click', as
     btn.textContent = 'ব্যালেন্স যোগ করুন';
   }
 });
-                                                          
+   
+async function loadBalanceRecharges(){
+  const box = document.getElementById('balanceRechargeList');
+  const loadBtn = document.getElementById('loadBalanceRecharges');
+  if(!box) return;
+
+  if(loadBtn){
+    loadBtn.disabled = true;
+    loadBtn.textContent = 'লোড হচ্ছে...';
+  }
+
+  try{
+    const result = await api('/api/admin/balance-recharges');
+    const rows = Array.isArray(result) ? result : (result.requests || result.data || []);
+
+    if(!rows.length){
+      box.innerHTML = '<p class="muted">এখনো কোনো রিচার্জ আবেদন নেই।</p>';
+      return;
+    }
+
+    box.innerHTML = rows.map(r => `
+      <div class="card" style="margin:8px 0;padding:12px">
+        <strong>আবেদন #${escapeHtml(r.id)}</strong>
+        <p>Telegram ID: ${escapeHtml(r.telegram_id)}</p>
+        <p>পরিমাণ: ৳${escapeHtml(r.amount)}</p>
+        <p>মাধ্যম: ${escapeHtml(r.payment_method)}</p>
+        <p>পেমেন্ট নম্বর: ${escapeHtml(r.payment_number)}</p>
+        <p>Transaction ID: ${escapeHtml(r.transaction_id)}</p>
+        <p>অবস্থা: ${escapeHtml(r.status)}</p>
+        ${r.status === 'pending' ? `
+          <button class="btn orange" type="button" data-approve="${escapeHtml(r.id)}">অনুমোদন</button>
+          <button class="btn" type="button" data-reject="${escapeHtml(r.id)}">বাতিল</button>
+        ` : ''}
+      </div>
+    `).join('');
+
+    box.querySelectorAll('[data-approve]').forEach(btn=>{
+      btn.onclick = async ()=>{
+        if(!confirm('এই আবেদন অনুমোদন করে ইউজারের ব্যালেন্সে টাকা যোগ করবেন?')) return;
+        btn.disabled = true;
+        try{
+          const out = await api('/api/admin/balance-recharges/'+encodeURIComponent(btn.dataset.approve)+'/approve',{
+            method:'POST',
+            body:JSON.stringify({})
+          });
+          note(out.message || 'আবেদন অনুমোদনের অনুরোধ পাঠানো হয়েছে।');
+          await loadBalanceRecharges();
+        }catch(e){
+          note('অনুমোদন ব্যর্থ: '+e.message);
+          btn.disabled = false;
+        }
+      };
+    });
+
+    box.querySelectorAll('[data-reject]').forEach(btn=>{
+      btn.onclick = async ()=>{
+        if(!confirm('এই রিচার্জ আবেদন বাতিল করবেন?')) return;
+        btn.disabled = true;
+        try{
+          const out = await api('/api/admin/balance-recharges/'+encodeURIComponent(btn.dataset.reject)+'/reject',{
+            method:'POST',
+            body:JSON.stringify({})
+          });
+          note(out.message || 'আবেদন বাতিলের অনুরোধ পাঠানো হয়েছে।');
+          await loadBalanceRecharges();
+        }catch(e){
+          note('বাতিল ব্যর্থ: '+e.message);
+          btn.disabled = false;
+        }
+      };
+    });
+  }catch(e){
+    box.innerHTML = '<p class="muted">আবেদন লোড হয়নি: '+escapeHtml(e.message)+'</p>';
+  }finally{
+    if(loadBtn){
+      loadBtn.disabled = false;
+      loadBtn.textContent = 'রিচার্জের আবেদন দেখুন';
+    }
+  }
+}
+
+document.getElementById('loadBalanceRecharges')?.addEventListener('click', loadBalanceRecharges);
+    
 </script></body></html>
