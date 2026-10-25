@@ -1762,7 +1762,67 @@ app.post(
     }
   }
 );
-      
+   
+app.post(
+  "/api/admin/recharge-balance/add",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      if (!(await verifyRechargeAdmin(req, res))) return;
+
+      const telegramId = String(req.body?.telegram_id || "").trim();
+      const amount = Number(req.body?.amount);
+
+      if (!/^[0-9]{1,30}$/.test(telegramId)) {
+        return res.status(400).json({
+          success: false,
+          error: "invalid_telegram_id"
+        });
+      }
+
+      if (
+        !Number.isSafeInteger(amount) ||
+        amount < 1 ||
+        amount > 1000000
+      ) {
+        return res.status(400).json({
+          success: false,
+          error: "invalid_amount"
+        });
+      }
+
+      const { data, error } = await supabase.rpc(
+        "admin_add_recharge_balance",
+        {
+          p_telegram_id: telegramId,
+          p_amount: amount
+        }
+      );
+
+      if (error) throw error;
+
+      if (!data?.success) {
+        const errors = {
+          invalid_telegram_id: 400,
+          invalid_amount: 400,
+          profile_not_found: 404
+        };
+
+        return res.status(errors[data?.error] || 400).json(data);
+      }
+
+      return res.json({ success: true, message: "রিচার্জ ব্যালেন্স যোগ হয়েছে।" });
+    } catch (error) {
+      console.error("Admin recharge balance add failed:", error.message);
+      return res.status(500).json({
+        success: false,
+        error: "recharge_balance_add_failed"
+      });
+    }
+  }
+);
+                    
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`TakaPay backend listening on port ${PORT}`);
