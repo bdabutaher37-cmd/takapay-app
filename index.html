@@ -764,23 +764,73 @@ const result=await api('/api/withdraw',{method:'POST',body:JSON.stringify({amoun
  }catch(err){note(err.message||'উইথড্র অনুরোধ জমা হয়নি।')} 
 };
 
-document.querySelectorAll('[data-plan]').forEach(b=>b.onclick=()=>{
- const plan=b.dataset.plan;
 
- if(b.textContent.trim()==='বর্তমান প্ল্যান'){
-   note('এটাই আপনার বর্তমান প্ল্যান।');
-   return;
- }
+document.querySelectorAll('[data-plan]').forEach(b => {
+  b.onclick = async () => {
+    const plan = String(b.dataset.plan || '').trim().toLowerCase();
+    const current = String(window.currentActivePlan || 'free').trim().toLowerCase();
 
- if(plan==='Starter'){
-   localStorage.setItem('tp_plan','Free');
-   renderTasks();
-   note('ফ্রি প্ল্যান নির্বাচন হয়েছে।');
-   return;
- }
+    if (plan === 'starter') {
+      note('ফ্রি প্ল্যান নির্বাচন করতে পারবেন।');
+      return;
+    }
 
- openCheckout(plan);
+    if (plan === current) {
+      note('এটাই আপনার বর্তমান প্ল্যান।');
+      return;
+    }
+
+    const prices = {
+      premium: 199,
+      diamond: 499,
+      gold: 799,
+      platinum: 1199,
+      vip: 1999
+    };
+
+    const price = prices[plan];
+    if (!price) {
+      note('প্ল্যানটি সঠিক নয়।');
+      return;
+    }
+
+    if (!confirm(plan.toUpperCase() + ' প্ল্যান কিনতে ৳' + price + ' রিচার্জ ব্যালেন্স থেকে কাটা হবে। চালিয়ে যাবেন?')) return;
+
+    b.disabled = true;
+    const oldText = b.textContent;
+    b.textContent = 'কেনা হচ্ছে...';
+
+    try {
+      const result = await api('/api/plans/purchase', {
+        method: 'POST',
+        body: JSON.stringify({ plan })
+      });
+
+      if (!result.success) {
+        throw new Error(result.error || 'purchase_failed');
+      }
+
+      const me = await api('/api/me');
+      window.currentActivePlan = me.profile?.active_plan || 'free';
+      updatePlanButtons(window.currentActivePlan);
+      renderTasks();
+
+      note('প্ল্যান সফলভাবে কেনা হয়েছে! ৳' + price + ' কাটা হয়েছে।');
+    } catch (error) {
+      const messages = {
+        insufficient_balance: 'আপনার রিচার্জ ব্যালেন্সে পর্যাপ্ত টাকা নেই।',
+        invalid_plan: 'প্ল্যানটি সঠিক নয়।',
+        profile_not_found: 'আপনার অ্যাকাউন্ট পাওয়া যায়নি।'
+      };
+      note(messages[error.message] || 'প্ল্যান কেনা যায়নি: ' + error.message);
+    } finally {
+      b.disabled = false;
+      b.textContent = oldText;
+      updatePlanButtons(window.currentActivePlan || 'free');
+    }
+  };
 });
+
 document.getElementById('export').onclick=()=>{
  const rows=[...document.querySelectorAll('#historyList .historyrow')].map(el=>el.innerText.replace(/\n/g,' | '));
  if(!rows.length){note('ডাউনলোড করার মতো সার্ভার হিস্ট্রি নেই।');return}
