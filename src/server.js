@@ -783,10 +783,12 @@ const elapsedSeconds = (Date.now() - startedAt) / 1000;
 
 if (!Number.isFinite(startedAt) || elapsedSeconds < 13) {
   console.log("Monetag reward skipped: under 13 seconds", {
-  elapsedSeconds
-});
-return res.status(200).send("Reward skipped: under 13 seconds");
-      const { data, error } = await supabase.rpc(
+    elapsedSeconds
+  });
+  return res.status(200).send("Reward skipped: under 13 seconds");
+}
+
+const { data, error } = await supabase.rpc(
   "reward_monetag_ad",
   {
     p_ymid: ymid,
@@ -795,28 +797,31 @@ return res.status(200).send("Reward skipped: under 13 seconds");
     p_zone_id: zoneId
   }
 );
-    if (error) {
-      if (error.message?.includes("already_rewarded")) {
-        return res.status(200).send("Already rewarded");
-      }
 
-      console.error("Monetag reward failed:", error.message);
-      return res.status(500).send("Reward failed");
-    }
+if (error) {
+  if (error.message?.includes("already_rewarded")) {
+    return res.status(200).send("Already rewarded");
+  }
 
-    if (data?.error === "already_rewarded") {
-      return res.status(200).send("Already rewarded");
-    }
-    if (data?.error === "daily_limit_reached") {
+  console.error("Monetag reward failed:", error.message);
+  return res.status(500).send("Reward failed");
+}
+
+if (data?.error === "already_rewarded") {
+  return res.status(200).send("Already rewarded");
+}
+
+if (data?.error === "daily_limit_reached") {
   console.log("Monetag daily limit reached:", ad.telegram_id);
   return res.status(200).send("Daily limit reached");
-    }
-    console.log("Monetag reward result:", JSON.stringify(data));
+}
 
-    return res.status(200).send(
-      data?.success ? "Rewarded" : "Already processed"
-    );
-   catch (error) 
+console.log("Monetag reward result:", JSON.stringify(data));
+
+return res.status(200).send(
+  data?.success ? "Rewarded" : "Already processed"
+);
+   } catch (error) {
     console.error("Monetag postback error:", error.message);
     return res.status(500).send("Postback error");
   }
