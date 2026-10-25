@@ -959,7 +959,7 @@ if(window.Telegram?.WebApp){
   loadAccount();
   refreshWatchCount();
 }
-document.getElementById('activatePlanBtn').onclick = async () => {
+if (document.getElementById('activatePlanBtn')) document.getElementById('activatePlanBtn').onclick = async () => {
   const telegramId = document.getElementById('activateTelegramId').value.trim();
   const plan = document.getElementById('activatePlan').value;
   const btn = document.getElementById('activatePlanBtn');
