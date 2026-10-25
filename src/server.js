@@ -1932,7 +1932,54 @@ app.post(
       });
     }
   }
-);                  
+);  
+
+app.post(
+  "/api/plans/purchase",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      const telegramId = String(req.telegramUser.id);
+      const plan = String(req.body.plan || "").trim().toLowerCase();
+
+      const { data, error } = await supabase.rpc(
+        "purchase_plan_with_balance",
+        {
+          p_telegram_id: telegramId,
+          p_plan: plan
+        }
+      );
+
+      if (error) {
+        console.error("Plan purchase failed:", error.message);
+        return res.status(500).json({
+          success: false,
+          error: "purchase_failed"
+        });
+      }
+
+      if (!data?.success) {
+        const status = data?.error === "insufficient_balance" ? 400 : 409;
+        return res.status(status).json(data);
+      }
+
+      return res.json({
+        success: true,
+        message: "plan_purchase_success",
+        plan: data.plan,
+        price: data.price
+      });
+    } catch (error) {
+      console.error("Plan purchase error:", error.message);
+      return res.status(500).json({
+        success: false,
+        error: "purchase_failed"
+      });
+    }
+  }
+);
+
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`TakaPay backend listening on port ${PORT}`);
