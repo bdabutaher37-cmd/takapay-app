@@ -479,11 +479,11 @@ controller.addEventListener("onNotSuitable", (event) => {
 
 controller.addEventListener("onBannerNotFound", (event) => {
   console.error("Adsun banner not found:", event);
-    });
+});
 
-    controller.addEventListener("onReward", () => {
-      console.log("Adsun verified reward event received");
-    });
+controller.addEventListener("onReward", () => {
+  console.log("Adsun verified reward event received");
+});
 
     await controller.show();
 
