@@ -2012,9 +2012,8 @@ app.get("/api/adsun-reward", requireConfig, async (req, res) => {
     if (a.length !== b.length || !timingSafeEqual(a, b)) {
       return res.status(403).send("Forbidden");
     }
-
-    const telegramId = String(req.query.userid || req.query.user || "");
-    const blockId = String(req.query.block || "");
+const telegramId = String(req.query.userId || req.query.userid || req.query.user || "");
+const blockId = String(req.query.blockId || req.query.block || "");
     const timestamp = Number(req.query.timestamp);
 
     if (
