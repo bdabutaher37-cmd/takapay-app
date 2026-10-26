@@ -481,7 +481,11 @@ const adResult = await window.show_12005665({
 });
 
 console.log("Monetag SDK result:", adResult);
-
+if (adResult?.reward_event_type === "valued") {
+  note("Monetag বিজ্ঞাপন ইভেন্ট নিশ্চিত করেছে। রিওয়ার্ড সার্ভার যাচাই করছে।");
+} else {
+  note("বিজ্ঞাপনের রিওয়ার্ড নিশ্চিত হয়নি।");
+}
 console.log('Monetag ad result:', adResult);
 
 note(
