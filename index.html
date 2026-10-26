@@ -463,9 +463,22 @@ if(category==='watch'){
   b.textContent = 'বিজ্ঞাপন লোড হচ্ছে...';
 
   try {
-    const controller = window.Adsun.init({
-      blockId: "50038",
-      debug: true
+   const controller = window.Adsun.init({
+  blockId: "50038",
+  debug: true
+});
+
+controller.addEventListener("onError", (event) => {
+  console.error("Adsun SDK onError:", event);
+  note("Adsun SDK Error: " + JSON.stringify(event));
+});
+
+controller.addEventListener("onNotSuitable", (event) => {
+  console.error("Adsun not suitable:", event);
+});
+
+controller.addEventListener("onBannerNotFound", (event) => {
+  console.error("Adsun banner not found:", event);
     });
 
     controller.addEventListener("onReward", () => {
