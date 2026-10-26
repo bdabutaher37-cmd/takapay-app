@@ -1996,7 +1996,72 @@ app.post(
     }
   }
 );
+// Adsun verified reward callback
+app.get("/api/adsun-reward", requireConfig, async (req, res) => {
+  try {
+    const secret = String(req.query.key || "");
+    const expected = ADSUN_REWARD_SECRET;
 
+    if (!secret || !expected) {
+      return res.status(403).send("Forbidden");
+    }
+
+    const a = Buffer.from(secret);
+    const b = Buffer.from(expected);
+
+    if (a.length !== b.length || !timingSafeEqual(a, b)) {
+      return res.status(403).send("Forbidden");
+    }
+
+    const telegramId = String(req.query.userid || req.query.user || "");
+    const blockId = String(req.query.block || "");
+    const timestamp = Number(req.query.timestamp);
+
+    if (
+      !/^\d+$/.test(telegramId) ||
+      blockId !== "50038" ||
+      !Number.isSafeInteger(timestamp) ||
+      timestamp <= 0
+    ) {
+      return res.status(400).send("Invalid reward");
+    }
+
+    const { data, error } = await supabase.rpc("reward_adsun_ad", {
+      p_telegram_id: telegramId,
+      p_block_id: blockId,
+      p_reward_timestamp: timestamp
+    });
+
+    if (error) {
+      console.error("Adsun reward failed:", error.message);
+      return res.status(500).send("Reward failed");
+    }
+
+    if (data?.error === "already_rewarded") {
+      return res.status(200).send("Already rewarded");
+    }
+
+    if (data?.error === "profile_not_found") {
+      return res.status(404).send("Profile not found");
+    }
+
+    if (!data?.success) {
+      return res.status(400).send("Reward rejected");
+    }
+
+    console.log("Adsun reward granted", {
+      telegramId,
+      blockId,
+      timestamp,
+      reward: data.reward
+    });
+
+    return res.status(200).send("OK");
+  } catch (error) {
+    console.error("Adsun callback error:", error.message);
+    return res.status(500).send("Callback error");
+  }
+});
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`TakaPay backend listening on port ${PORT}`);
