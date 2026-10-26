@@ -447,78 +447,51 @@ if(category==='admin'){
 
 
 if(category==='watch'){
-  const count=watchCount();
+  const count = watchCount();
 
-  if(count>=20){
+  if(count >= 20){
     note('আজকের বিজ্ঞাপনের সীমা ২০টি শেষ।');
     return;
   }
 
-  if(typeof window.show_12005665!=='function'){
-    note('Monetag লোড হয়নি। ইন্টারনেট পরীক্ষা করে আবার চেষ্টা করুন।');
+  if(!window.Adsun || typeof window.Adsun.init !== 'function'){
+    note('Adsun SDK লোড হয়নি। পেজ রিফ্রেশ করে আবার চেষ্টা করুন।');
     return;
   }
 
-  b.disabled=true;
-  b.textContent='বিজ্ঞাপন লোড হচ্ছে...';
+  b.disabled = true;
+  b.textContent = 'বিজ্ঞাপন লোড হচ্ছে...';
 
-  try{
-    const start=await api('/api/monetag/start',{
-      method:'POST',
-      body:JSON.stringify({})
+  try {
+    const controller = window.Adsun.init({
+      blockId: "50038",
+      debug: false
     });
-    console.log("TakaPay start ymid:", start.ymid);
 
-    if(!start.success || !start.ymid){
-      throw new Error('বিজ্ঞাপন সেশন তৈরি হয়নি।');
+    controller.addEventListener("onReward", () => {
+      console.log("Adsun verified reward event received");
+    });
+
+    await controller.show();
+
+    note('বিজ্ঞাপন বন্ধ হয়েছে। যাচাইকৃত রিওয়ার্ডের জন্য অপেক্ষা করুন।');
+
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    try {
+      const me = await api('/api/me');
+      setBalance(me.profile?.balance || 0);
+      await refreshWatchCount();
+    } catch (refreshError) {
+      console.warn('Balance refresh:', refreshError);
     }
 
-    
-const adResult = await window.show_12005665({
-  ymid: start.ymid,
-  requestVar: 'watch-ad'
-});
-
-console.log("Monetag SDK result:", adResult);
-if (adResult?.reward_event_type === "valued") {
-  note("Monetag বিজ্ঞাপন ইভেন্ট নিশ্চিত করেছে। রিওয়ার্ড সার্ভার যাচাই করছে।");
-} else {
-  note("বিজ্ঞাপনের রিওয়ার্ড নিশ্চিত হয়নি।");
-}
-console.log('Monetag ad result:', adResult);
-
-note(
-  'SDK ফলাফল: ' +
-  (adResult ? JSON.stringify(adResult) : 'কোনো ফলাফল পাওয়া যায়নি')
-);
-
-alert(
-  'SDK ফলাফল: ' +
-  (adResult ? JSON.stringify(adResult) : 'কোনো ফলাফল পাওয়া যায়নি')
-);;
-
-try {
-  await refreshWatchCount();
-  const me = await api('/api/me');
-  setBalance(me.profile?.balance || 0);
-} catch (refreshError) {
-  console.warn('Balance refresh:', refreshError);
-}
-  
-} catch(error) {
-  console.error('Monetag ad error:', error);
-
-  const message = error.message || '';
-
-  if (message.includes('daily_ad_limit_reached')) {
-    note('আজকের সর্বোচ্চ ২০টি বিজ্ঞাপন দেখা হয়েছে। আগামীকাল আবার চেষ্টা করুন।');
-  } else if (message.includes('daily_limit_check_failed')) {
-    note('দৈনিক সীমা যাচাই করা যায়নি। একটু পরে আবার চেষ্টা করুন।');
-  } else {
-    note('বিজ্ঞাপন চালু হয়নি। আবার চেষ্টা করুন।');
-  }
-} finally {
-  renderTasks();
+  } catch(error) {
+    console.error('Adsun ad error:', error);
+    note('বিজ্ঞাপন সম্পন্ন হয়নি, অথবা বিজ্ঞাপন পাওয়া যায়নি।');
+  } finally {
+    b.disabled = false;
+    renderTasks();
   }
 
   return;
