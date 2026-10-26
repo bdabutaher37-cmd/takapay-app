@@ -485,9 +485,16 @@ controller.addEventListener("onReward", () => {
   console.log("Adsun verified reward event received");
 });
 
-    await controller.show();
+    const result = await controller.show();
 
-    note('বিজ্ঞাপন বন্ধ হয়েছে। যাচাইকৃত রিওয়ার্ডের জন্য অপেক্ষা করুন।');
+console.log('Adsun show result:', result);
+
+note(
+  'Adsun ফলাফল: ' +
+  (result?.description || 'বিস্তারিত পাওয়া যায়নি') +
+  ' | done=' + result?.done +
+  ' | error=' + result?.error
+);
 
     await new Promise(resolve => setTimeout(resolve, 1500));
 
