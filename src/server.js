@@ -30,6 +30,8 @@ const TELEGRAM_BOT_TOKEN =
 
 const POSTBACK_SECRET =
   (process.env.POSTBACK_SECRET || "").trim();
+const ADSUN_REWARD_SECRET =
+  (process.env.ADSUN_REWARD_SECRET || "").trim();
 
 
 const SUPABASE_URL = rawUrl
@@ -728,6 +730,7 @@ app.get("/postback", async (req, res) => {
     }
 
 const ymid = String(req.query.ymid || "");
+const requestVar = String(req.query.request_var || "");
 const eventType = String(req.query.event_type || "");
 const rewardType = String(req.query.reward_event_type || "");
 const estimatedPrice = String(req.query.estimated_price || "");
