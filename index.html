@@ -485,10 +485,19 @@ if(category==='watch'){
     } catch (refreshError) {
       console.warn('Balance refresh:', refreshError);
     }
-
-  } catch(error) {
-    console.error('Adsun ad error:', error);
-    note('বিজ্ঞাপন সম্পন্ন হয়নি, অথবা বিজ্ঞাপন পাওয়া যায়নি।');
+} catch(error) {
+  console.error('Adsun ad error:', {
+    name: error?.name,
+    message: error?.message,
+    description: error?.description,
+    error: error
+  });
+  note('Adsun ত্রুটি: ' + (
+    error?.description ||
+    error?.message ||
+    error?.name ||
+    'বিস্তারিত পাওয়া যায়নি'
+  ));
   } finally {
     b.disabled = false;
     renderTasks();
