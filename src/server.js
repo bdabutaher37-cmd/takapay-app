@@ -1998,6 +1998,7 @@ app.post(
 );
 // Adsun verified reward callback
 app.get("/api/adsun-reward", requireConfig, async (req, res) => {
+    console.log("Adsun callback reached");
   try {
     const secret = String(req.query.key || "");
     const expected = ADSUN_REWARD_SECRET;
