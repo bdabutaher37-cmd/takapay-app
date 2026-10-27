@@ -19,24 +19,16 @@
 <main class="shell"> 
 <section class="page active" id="home">
 <div class="card glow profile"><div class="crown">👑</div><div style="flex:1"><div class="muted">Hello,</div><h2>👑 <span id="profileName">Guest</span> <span class="online">Online</span></h2><div class="muted">ID: <span id="profileId">Telegram Mini App খুলুন</span></div></div></div>
-<div class="balance-card" style="display:block">
+<div class="balance-card">
   <div class="wallet">👛</div>
-
-  <h3>আমার মোট ব্যালেন্স</h3>
-
-  <div class="balance" data-balance>৳ 0.00</div>
-  <small class="muted">আপনার বর্তমান ব্যালেন্স</small>
-
-  <div style="margin-top:16px;padding-top:12px;border-top:1px solid #087da0">
-    <div class="muted">💳 রিচার্জ ব্যালেন্স</div>
-    <div class="balance" id="rechargeBalance">৳0.00</div>
-  </div>
+  <h3>সর্বমোট ব্যালেন্স</h3>
+  <div class="balance" id="combinedBalance">৳ 0.00</div>
+  <small class="muted">মোট ব্যালেন্স ও রিচার্জ ব্যালেন্স মিলিয়ে</small>
 
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">
     <button class="btn cyan" data-go="withdraw" type="button">
       উইথড্র করুন →
     </button>
-
     <button class="btn orange" data-go="recharge" type="button">
       💳 রিচার্জ করুন →
     </button>
