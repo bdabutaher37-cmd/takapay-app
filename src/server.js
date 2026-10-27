@@ -37,7 +37,8 @@ const POSTBACK_SECRET =
   (process.env.POSTBACK_SECRET || "").trim();
 const ADSUN_REWARD_SECRET =
   (process.env.ADSUN_REWARD_SECRET || "").trim();
-
+const LBA_CALLBACK_SECRET =
+  (process.env.LBA_CALLBACK_SECRET || "").trim();
 
 const SUPABASE_URL = rawUrl
   .replace(/\/rest\/v1\/?$/i, "")
