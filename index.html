@@ -772,9 +772,11 @@ async function loadAccount(){
   const me=await api('/api/me');
    console.log('PROFILE FROM SERVER:', me.profile);
    
-  setBalance(me.profile?.balance||0);
-   document.getElementById('rechargeBalance').textContent =
-  '৳' + Number(me.profile?.recharge_balance || 0).toFixed(2);
+  const totalBalance = Number(me.profile?.balance || 0);
+const rechargeBalance = Number(me.profile?.recharge_balance || 0);
+
+document.getElementById('combinedBalance').textContent =
+  '৳ ' + (totalBalance + rechargeBalance).toFixed(2);
   updatePlanButtons(me.profile?.active_plan||'free');
 window.currentActivePlan=me.profile?.active_plan||'free';   
   const tx=await api('/api/transactions');
