@@ -19,29 +19,63 @@
 <main class="shell"> 
 <section class="page active" id="home">
 <div class="card glow profile"><div class="crown">👑</div><div style="flex:1"><div class="muted">Hello,</div><h2>👑 <span id="profileName">Guest</span> <span class="online">Online</span></h2><div class="muted">ID: <span id="profileId">Telegram Mini App খুলুন</span></div></div></div>
-<div class="wallet">👛</div>
+<div style="
+  position:relative;
+  overflow:hidden;
+  padding:18px;
+  border-radius:22px;
+  border:1px solid rgba(0,229,255,.65);
+  background:linear-gradient(135deg,#09263b,#061525 65%,#172234);
+  box-shadow:0 8px 24px rgba(0,210,255,.10);
+  color:#fff;
+  margin:12px 0;
+">
 
-<h3 style="margin:0 0 8px;font-size:18px">
-  সর্বমোট ব্যালেন্স
-</h3>
+  <div style="
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+  ">
+    <div>
+      <div style="
+        font-size:15px;
+        color:#b8d5e8;
+        margin-bottom:8px;
+      ">👛 সর্বমোট ব্যালেন্স</div>
 
-<div class="balance" id="combinedBalance"
-     style="font-size:32px;margin:0 0 6px">
-  ৳ 0.00
-</div>
+      <div id="combinedBalance" style="
+        font-size:32px;
+        font-weight:800;
+        color:#16e5f5;
+        letter-spacing:.3px;
+        line-height:1.3;
+      ">৳ 0.00</div>
 
-<small class="muted" style="font-size:11px">
-  মোট ব্যালেন্স ও রিচার্জ ব্যালেন্স মিলিয়ে
-</small>
+      <div style="
+        font-size:10px;
+        color:#9ab4c9;
+        margin-top:5px;
+      ">মোট ব্যালেন্স ও রিচার্জ ব্যালেন্স</div>
+    </div>
+  </div>
 
-<div style="display:flex;gap:8px;margin-top:12px">
-  <button class="btn cyan" data-go="withdraw" type="button">
-    উইথড্র →
-  </button>
-  <button class="btn orange" data-go="recharge" type="button">
-    💳 রিচার্জ →
-  </button>
-</div>
+  <div style="
+    display:flex;
+    gap:10px;
+    margin-top:16px;
+  ">
+    <button class="btn cyan" data-go="withdraw" type="button"
+      style="flex:1;min-width:0;padding:11px 5px;font-size:13px;">
+      ↗ উইথড্র
+    </button>
+
+    <button class="btn orange" data-go="recharge" type="button"
+      style="flex:1;min-width:0;padding:11px 5px;font-size:13px;">
+      💳 রিচার্জ
+    </button>
+  </div>
+
 </div>
 <div class="stats"><div class="stat"><div class="emoji">🪙</div><p>আজকের আয়</p><strong id="todayEarn">৳ 0.00</strong></div><div class="stat"><div class="emoji">☑️</div><p>সম্পন্ন টাস্ক</p><strong id="taskCount">0</strong></div><div class="stat" role="button" tabindex="0" onclick="go('referral')" style="cursor:pointer"><div class="emoji">👥</div><p>মোট রেফার</p><strong id="homeReferralCount">0</strong><small class="muted" style="display:block;margin-top:5px">বিস্তারিত দেখুন →</small></div><div class="stat"><div class="emoji">🎁</div><p>আজকের বোনাস</p><strong id="todayBonus">৳ 0.00</strong></div></div>
 <div class="refbanner"><div class="big">🔗</div><div style="flex:1;min-width:0"><h3>আপনার রেফারেল লিংক</h3><div class="refurl"><code id="ref">Telegram-এ খুললে লিংক তৈরি হবে</code><button class="btn orange" id="copy">কপি করুন</button></div><small class="muted">👥 প্রতি সফল রেফারে ৳১০ · আপনার রেফার সংখ্যা: <b id="homeReferralSmall">০</b></small></div></div>
