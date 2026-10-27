@@ -446,7 +446,43 @@ if(category==='admin'){
 
   return;
 }
+if(category==='litebits'){
+  b.disabled = true;
+  b.textContent = 'বিজ্ঞাপন লোড হচ্ছে...';
 
+  try {
+    if (typeof window.LiteBitsAds !== 'function') {
+      note('LiteBits SDK লোড হয়নি। পেজ রিফ্রেশ করে চেষ্টা করুন।');
+      return;
+    }
+
+    const ads = new window.LiteBitsAds({
+      apiKey: 'এখানে_তোমার_LiteBits_API_KEY',
+      placementId: '2e6a5df6-6e73-4fe0-8a55-86fe8d51129d',
+      baseUrl: 'https://ads.litebits.io',
+      sandbox: true
+    });
+
+    const result = await ads.show();
+
+    if (result?.verified) {
+      note('বিজ্ঞাপন যাচাই হয়েছে। রিওয়ার্ড সার্ভার থেকে আসবে।');
+      await api('/api/me').then(me =>
+        setBalance(me.profile?.balance || 0)
+      );
+    } else {
+      note('বিজ্ঞাপন সম্পন্ন হয়নি বা যাচাইয়ের অপেক্ষায় আছে।');
+    }
+  } catch (error) {
+    console.error('LiteBits ad error:', error);
+    note('LiteBits বিজ্ঞাপন এখন দেখানো যাচ্ছে না।');
+  } finally {
+    b.disabled = false;
+    renderTasks();
+  }
+
+  return;
+}
 
 if(category==='watch'){
   const count = watchCount();
