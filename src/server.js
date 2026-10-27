@@ -2025,7 +2025,7 @@ const blockId = String(req.query.blockId || req.query.block || "");
 
     if (
       !/^\d+$/.test(telegramId) ||
-      blockId !== "50038" ||
+   blockId !== "50052" ||
       !Number.isSafeInteger(timestamp) ||
       timestamp <= 0
     ) {
