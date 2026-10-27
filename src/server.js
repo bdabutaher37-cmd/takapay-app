@@ -2007,6 +2007,12 @@ app.get("/api/adsun-reward", requireConfig, async (req, res) => {
     console.log("Adsun callback reached");
   try {
     const secret = String(req.query.key || "");
+    console.log("Adsun callback params", {
+  hasKey: Boolean(req.query.key),
+  userId: req.query.userId || req.query.userid || req.query.user || "",
+  blockId: req.query.blockId || req.query.block || "",
+  hasTimestamp: Boolean(req.query.timestamp)
+});
     const expected = ADSUN_REWARD_SECRET;
 
     if (!secret || !expected) {
