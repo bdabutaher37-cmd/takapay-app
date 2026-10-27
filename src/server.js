@@ -2021,6 +2021,10 @@ app.get("/api/adsun-reward", requireConfig, async (req, res) => {
 
     const a = Buffer.from(secret);
     const b = Buffer.from(expected);
+    console.log("Adsun secret check", {
+  receivedLength: a.length,
+  expectedLength: b.length
+});
 
     if (a.length !== b.length || !timingSafeEqual(a, b)) {
       return res.status(403).send("Forbidden");
