@@ -773,22 +773,11 @@ async function loadAccount(){
   const me=await api('/api/me');
    console.log('PROFILE FROM SERVER:', me.profile);
    
-  <div class="balance-card">
-  <div class="wallet">👛</div>
-  <h3>মোট ব্যালেন্স</h3>
+const totalBalance = Number(me.profile?.balance || 0);
+const rechargeBalance = Number(me.profile?.recharge_balance || 0);
 
-  <div class="balance" id="combinedBalance">৳ 0.00</div>
-  <small class="muted">মোট ব্যালেন্স ও রিচার্জ ব্যালেন্স মিলিয়ে</small>
-
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">
-    <button class="btn cyan" data-go="withdraw" type="button">
-      উইথড্র করুন →
-    </button>
-    <button class="btn orange" data-go="recharge" type="button">
-      💳 রিচার্জ করুন →
-    </button>
-  </div>
-</div>
+document.getElementById('combinedBalance').textContent =
+  '৳ ' + (totalBalance + rechargeBalance).toFixed(2);
   updatePlanButtons(me.profile?.active_plan||'free');
 window.currentActivePlan=me.profile?.active_plan||'free';   
   const tx=await api('/api/transactions');
