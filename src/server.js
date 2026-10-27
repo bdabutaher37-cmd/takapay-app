@@ -2068,6 +2068,128 @@ const blockId = String(req.query.blockId || req.query.block || "");
     return res.status(500).send("Callback error");
   }
 });
+// LiteBits verified rewarded-ad callback
+app.post("/lba/callback", async (req, res) => {
+  try {
+    const secret = LBA_CALLBACK_SECRET;
+
+    if (!secret || !req.rawBody) {
+      return res.status(403).send("Forbidden");
+    }
+
+    const timestamp = String(req.headers["x-lba-timestamp"] || "");
+    const eventId = String(req.headers["x-lba-event-id"] || "");
+    const signature = String(req.headers["x-lba-signature"] || "");
+
+    if (
+      !/^\d+$/.test(timestamp) ||
+      !eventId ||
+      !signature
+    ) {
+      return res.status(400).send("Invalid headers");
+    }
+
+    const timestampMs = Number(timestamp) * 1000;
+
+    if (
+      !Number.isSafeInteger(timestampMs) ||
+      Math.abs(Date.now() - timestampMs) > 5 * 60 * 1000
+    ) {
+      return res.status(401).send("Expired timestamp");
+    }
+
+    const signedPayload = Buffer.concat([
+      Buffer.from(timestamp + "."),
+      req.rawBody
+    ]);
+
+    const expectedSignature = createHmac("sha256", secret)
+      .update(signedPayload)
+      .digest("base64url");
+
+    const received = Buffer.from(signature);
+    const expected = Buffer.from(expectedSignature);
+
+    if (
+      received.length !== expected.length ||
+      !timingSafeEqual(received, expected)
+    ) {
+      return res.status(403).send("Invalid signature");
+    }
+
+    const body = req.body || {};
+
+    if (
+      body.event !== "impression.verified" ||
+      String(body.event_id || "") !== eventId
+    ) {
+      return res.status(400).send("Invalid event");
+    }
+
+    const telegramId = String(
+      body.telegram_user_id || body.ext_user_id || ""
+    );
+
+    const placementId = String(body.placement_id || "");
+    const campaignId = body.campaign_id
+      ? String(body.campaign_id)
+      : null;
+    const earning = Number(body.earning);
+    const occurredAt = body.occurred_at;
+
+    if (
+      !/^\d+$/.test(telegramId) ||
+      placementId !== "2e6a5df6-6e73-4fe0-8a55-86fe8d51129d" ||
+      !Number.isFinite(earning) ||
+      earning < 0 ||
+      !occurredAt ||
+      !Number.isFinite(Date.parse(occurredAt))
+    ) {
+      return res.status(400).send("Invalid payload");
+    }
+
+    const { data, error } = await supabase.rpc(
+      "reward_litebits_ad",
+      {
+        p_event_id: eventId,
+        p_telegram_id: telegramId,
+        p_placement_id: placementId,
+        p_campaign_id: campaignId,
+        p_earning: earning,
+        p_occurred_at: occurredAt
+      }
+    );
+
+    if (error) {
+      console.error("LiteBits reward RPC failed:", error.message);
+      return res.status(500).send("Reward failed");
+    }
+
+    if (data?.error === "duplicate_event") {
+      return res.status(200).send("Already processed");
+    }
+
+    if (data?.error === "profile_not_found") {
+      return res.status(404).send("Profile not found");
+    }
+
+    if (!data?.success) {
+      return res.status(400).send("Reward rejected");
+    }
+
+    console.log("LiteBits reward granted", {
+      telegramId,
+      eventId,
+      reward: data.reward
+    });
+
+    return res.status(200).send("OK");
+  } catch (error) {
+    console.error("LiteBits callback error:", error.message);
+    return res.status(500).send("Callback error");
+  }
+});
+
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`TakaPay backend listening on port ${PORT}`);
