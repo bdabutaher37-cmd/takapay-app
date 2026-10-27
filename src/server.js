@@ -15,7 +15,12 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
 const app = express();
-app.use(express.json());
+app.use(express.json({
+  limit: "64kb",
+  verify: (req, res, buf) => {
+    req.rawBody = Buffer.from(buf);
+  }
+}));
 app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3000;
 
