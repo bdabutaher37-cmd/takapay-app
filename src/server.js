@@ -687,33 +687,62 @@ const plan =
   }
 });
 
+
 app.get("/api/monetag/count", requireConfig, requireTelegram, async (req, res) => {
   try {
     const telegramId = String(req.telegramUser.id);
 
-    const { count, error } = await supabase
+    // Bangladesh local day boundaries
+    const dhakaDate = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Dhaka",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).format(new Date());
+
+    const start = new Date(`${dhakaDate}T00:00:00+06:00`);
+    const end = new Date(start.getTime() + 24 * 60 * 60 * 1000);
+
+    const startISO = start.toISOString();
+    const endISO = end.toISOString();
+
+    // Count today's Monetag ad views
+    const monetagResult = await supabase
       .from("monetag_ad_views")
       .select("id", { count: "exact", head: true })
       .eq("telegram_id", telegramId)
-      .gte(
-        "created_at",
-        new Date(
-          new Date().toLocaleString("en-US", { timeZone: "Asia/Dhaka" })
-        ).toISOString().slice(0, 10) + "T00:00:00+06:00"
-      );
+      .gte("created_at", startISO)
+      .lt("created_at", endISO);
 
-    if (error) {
-      console.error("Monetag count error:", error.message);
+    if (monetagResult.error) {
+      console.error("Monetag count error:", monetagResult.error.message);
       return res.status(500).json({ error: "count_failed" });
     }
 
+    // Count today's successful Adsun rewards
+    const adsunResult = await supabase
+      .from("adsun_reward_claims")
+      .select("id", { count: "exact", head: true })
+      .eq("telegram_id", telegramId)
+      .gte("created_at", startISO)
+      .lt("created_at", endISO);
+
+    if (adsunResult.error) {
+      console.error("Adsun count error:", adsunResult.error.message);
+      return res.status(500).json({ error: "count_failed" });
+    }
+
+    const count =
+      (monetagResult.count || 0) +
+      (adsunResult.count || 0);
+
     return res.json({
       success: true,
-      count: count || 0,
-      remaining: Math.max(0, 20 - (count || 0))
+      count,
+      remaining: Math.max(0, 20 - count)
     });
   } catch (error) {
-    console.error("Monetag count error:", error.message);
+    console.error("Combined ad count error:", error.message);
     return res.status(500).json({ error: "count_failed" });
   }
 });
