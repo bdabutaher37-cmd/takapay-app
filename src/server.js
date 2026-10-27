@@ -2189,7 +2189,10 @@ app.post("/lba/callback", async (req, res) => {
     return res.status(500).send("Callback error");
   }
 });
-
+fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/getMe`)
+  .then(r => r.json())
+  .then(d => console.log("TELEGRAM_BOT_ID:", d.result?.id || "ID_NOT_FOUND"))
+  .catch(() => console.log("TELEGRAM_BOT_ID_LOOKUP_FAILED"));
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`TakaPay backend listening on port ${PORT}`);
