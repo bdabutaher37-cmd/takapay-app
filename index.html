@@ -928,13 +928,17 @@ document.querySelectorAll('[data-plan]').forEach(b => {
       renderTasks();
 
       note('প্ল্যান সফলভাবে কেনা হয়েছে! ৳' + price + ' কাটা হয়েছে।');
+
     } catch (error) {
       const messages = {
-        insufficient_balance: 'আপনার রিচার্জ ব্যালেন্সে পর্যাপ্ত টাকা নেই।',
+        insufficient_balance: 'আপনার ব্যালেন্স পর্যাপ্ত নয়।',
         invalid_plan: 'প্ল্যানটি সঠিক নয়।',
-        profile_not_found: 'আপনার অ্যাকাউন্ট পাওয়া যায়নি।'
+        profile_not_found: 'আপনার অ্যাকাউন্ট পাওয়া যায়নি।',
+        earned_balance_mismatch: 'ব্যালেন্সের হিসাবে সমস্যা হয়েছে। অ্যাডমিনের সঙ্গে যোগাযোগ করুন।',
+        purchase_failed: 'প্ল্যান কেনা যায়নি। আবার চেষ্টা করুন।'
       };
-      note(messages[error.message] || 'প্ল্যান কেনা যায়নি: ' + error.message);
+      note(messages[error.message] || 'প্ল্যান কেনা যায়নি। আবার চেষ্টা করুন।');
+
     } finally {
       b.disabled = false;
       b.textContent = oldText;
