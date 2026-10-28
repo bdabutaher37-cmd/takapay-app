@@ -2379,6 +2379,52 @@ fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/getMe`)
   .then(r => r.json())
   .then(d => console.log("TELEGRAM_BOT_ID:", d.result?.id || "ID_NOT_FOUND"))
   .catch(() => console.log("TELEGRAM_BOT_ID_LOOKUP_FAILED"));
+
+app.post("/telegram-webhook", async (req, res) => {
+  res.sendStatus(200);
+
+  try {
+    const update = req.body;
+    const message = update.message;
+
+    if (!message || message.text !== "/start") return;
+
+    const chatId = message.chat.id;
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+
+    await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        photo: "https://bdabutaher37-cmd.github.io/takapay-app/file_000000009a088211b2b99610f0206d1b.png",
+        caption:
+          "💸 TakaPay Bot — টাকা ইনকাম করুন\n\n" +
+          "🌟 স্বাগতম TakaPay-তে!\n\n" +
+          "🎯 টাস্ক সম্পন্ন করে রিওয়ার্ড অর্জন করুন।\n" +
+          "📺 বিজ্ঞাপন দেখে রিওয়ার্ড পান।\n" +
+          "👥 বন্ধুদের আমন্ত্রণ করুন।\n" +
+          "🎁 ডেইলি বোনাস নিন।\n" +
+          "💳 ব্যালেন্স ও আয়ের হিসাব দেখুন।\n\n" +
+          "🚀 নিচের বাটনে চাপ দিয়ে অ্যাপ চালু করুন!\n" +
+          "⚠️ রিওয়ার্ড ও পেমেন্ট প্রযোজ্য শর্তের ওপর নির্ভরশীল।",
+        reply_markup: {
+          inline_keyboard: [[
+            {
+              text: "🚀 Open App",
+              web_app: {
+                url: "https://bdabutaher37-cmd.github.io/takapay-app/"
+              }
+            }
+          ]]
+        }
+      })
+    });
+  } catch (error) {
+    console.error("Telegram welcome error:", error);
+  }
+});
+
 // Start server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`TakaPay backend listening on port ${PORT}`);
