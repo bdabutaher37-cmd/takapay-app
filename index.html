@@ -488,22 +488,12 @@ if(category==='admin'){
 
   return;
 }
+
 if(category==='litebits'){
-  b.disabled = true;
-  b.textContent = 'বিজ্ঞাপন লোড হচ্ছে...';
+  note('LiteBits বিজ্ঞাপন খুব শীঘ্রই আসছে ❤️');
+  return;
+}
 
-  try {
-    if (typeof window.LiteBitsAds !== 'function') {
-      note('LiteBits SDK লোড হয়নি। পেজ রিফ্রেশ করে চেষ্টা করুন।');
-      return;
-    }
-
-    const ads = new window.LiteBitsAds({
-      apiKey: 'এখানে_তোমার_LiteBits_API_KEY',
-      placementId: '2e6a5df6-6e73-4fe0-8a55-86fe8d51129d',
-      baseUrl: 'https://ads.litebits.io',
-      sandbox: true
-    });
 
     const result = await ads.show();
 
