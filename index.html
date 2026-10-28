@@ -808,6 +808,20 @@ document.getElementById('combinedBalance').textContent =
 window.currentActivePlan=me.profile?.active_plan||'free';   
   const tx=await api('/api/transactions');
   renderHistory(tx.transactions||[]);
+   
+  const stats = await api('/api/home-stats');
+
+  if (stats.success) {
+    document.getElementById('todayEarn').textContent =
+      '৳ ' + Number(stats.todayEarn || 0).toFixed(2);
+
+    document.getElementById('taskCount').textContent =
+      String(stats.taskCount || 0);
+
+    document.getElementById('todayBonus').textContent =
+      '৳ ' + Number(stats.todayBonus || 0).toFixed(2);
+  }
+   
  }catch(err){
   note(err.message||'সার্ভারের সঙ্গে সংযোগ হয়নি।');
   setBalance(0);
