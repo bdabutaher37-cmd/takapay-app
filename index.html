@@ -38,6 +38,10 @@
     gap:10px;
   ">
     <div>
+      <button id="refreshHome" class="btn cyan" type="button"
+  style="padding:7px 12px;font-size:13px;margin-bottom:10px;">
+  🔄 রিফ্রেশ
+      </button>
       <div style="
         font-size:15px;
         color:#b8d5e8;
@@ -811,6 +815,16 @@ window.currentActivePlan=me.profile?.active_plan||'free';
  }
 }
 loadAccount();
+  document.getElementById('refreshHome').onclick = async function(){
+  this.disabled = true;
+  this.textContent = '⏳ লোড হচ্ছে...';
+  try {
+    await loadAccount();
+  } finally {
+    this.disabled = false;
+    this.textContent = '🔄 রিফ্রেশ';
+  }
+};
 
   console.log('TakaPay script reached task rendering');
 renderReferralCounts();renderTasks();renderHistory([]);
