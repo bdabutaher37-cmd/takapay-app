@@ -460,7 +460,7 @@ app.get(
         await Promise.all([
           supabase
             .from("task_completions")
-            .select("reward")
+.select("reward, task_key")
             .eq("telegram_id", telegramId)
             .eq("completion_date", date),
 
@@ -493,10 +493,17 @@ app.get(
       const bonuses = bonusResult.data || [];
       const transactions = txResult.data || [];
 
-      const todayBonus = bonuses.reduce(
-        (sum, row) => sum + Number(row.amount || 0),
-        0
-      );
+      const todayBonus =
+  bonuses.reduce(
+    (sum, row) => sum + Number(row.amount || 0),
+    0
+  ) +
+  tasks
+    .filter(row => row.task_key === "daily_checkin")
+    .reduce(
+      (sum, row) => sum + Number(row.reward || 0),
+      0
+    );
 
       const earningTypes = new Set([
         "ad_reward",
