@@ -488,31 +488,8 @@ if(category==='admin'){
 
   return;
 }
-
 if(category==='litebits'){
   note('LiteBits বিজ্ঞাপন খুব শীঘ্রই আসছে ❤️');
-  return;
-}
-
-
-    const result = await ads.show();
-
-    if (result?.verified) {
-      note('বিজ্ঞাপন যাচাই হয়েছে। রিওয়ার্ড সার্ভার থেকে আসবে।');
-      await api('/api/me').then(me =>
-        setBalance(me.profile?.balance || 0)
-      );
-    } else {
-      note('বিজ্ঞাপন সম্পন্ন হয়নি বা যাচাইয়ের অপেক্ষায় আছে।');
-    }
-  } catch (error) {
-    console.error('LiteBits ad error:', error);
-    note('LiteBits বিজ্ঞাপন এখন দেখানো যাচ্ছে না।');
-  } finally {
-    b.disabled = false;
-    renderTasks();
-  }
-
   return;
 }
 
