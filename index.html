@@ -821,13 +821,17 @@ window.currentActivePlan=me.profile?.active_plan||'free';
       '৳ ' + Number(stats.todayBonus || 0).toFixed(2);
   }
    
+
  }catch(err){
   note(err.message||'সার্ভারের সঙ্গে সংযোগ হয়নি।');
   setBalance(0);
   renderHistory([]);
  }
-}
+ } // if(user) শেষ
+} // loadAccount() শেষ
+
 loadAccount();
+
   document.getElementById('refreshHome').onclick = async function(){
   this.disabled = true;
   this.textContent = '⏳ লোড হচ্ছে...';
