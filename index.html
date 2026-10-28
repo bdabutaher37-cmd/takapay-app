@@ -1362,5 +1362,32 @@ async function loadBalanceRecharges(){
 }
 
 document.getElementById('loadBalanceRecharges')?.addEventListener('click', loadBalanceRecharges);
-    
+document.getElementById('copy')?.addEventListener('click', async function(){
+  const ref = document.getElementById('ref');
+  const link = ref?.textContent?.trim();
+
+  if(!link || !link.startsWith('https://t.me/')){
+    note('রেফারেল লিংক এখনো তৈরি হয়নি।');
+    return;
+  }
+
+  try{
+    if(navigator.clipboard && window.isSecureContext){
+      await navigator.clipboard.writeText(link);
+    }else{
+      const area = document.createElement('textarea');
+      area.value = link;
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      const copied = document.execCommand('copy');
+      area.remove();
+      if(!copied) throw new Error('copy_failed');
+    }
+    note('রেফারেল লিংক কপি হয়েছে!');
+  }catch(e){
+    note('কপি হয়নি। লিংকটি চেপে ধরে কপি করো: ' + link);
+  }
+});    
 </script></body></html>
