@@ -791,9 +791,8 @@ async function loadAccount(){
  if(user){
   document.getElementById('profileName').textContent=user.first_name||user.username||'User';
   document.getElementById('profileId').textContent=String(user.id);
-  document.getElementById('ref').textContent=`https://t.me/TakaPayBot?start=${user.id}`;
-  document.getElementById('ref2').textContent=`https://t.me/TakaPayBot?start=${user.id}`;
- }
+  document.getElementById('ref').textContent=`https://t.me/TakaPayAppBot?start=${user.id}`;
+  document.getElementById('ref2').textContent=`https://t.me/TakaPayAppBot?start=${user.id}`;
  try{
   await api('/api/auth',{method:'POST',body:JSON.stringify({})});
   const me=await api('/api/me');
