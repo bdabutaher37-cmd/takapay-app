@@ -527,7 +527,21 @@ if(category==='litebits'){
 }
 
 if(category==='watch'){
-  const count = watchCount();
+  let count = 0;
+
+try {
+  const limitData = await api('/api/adsun/count');
+
+  if (!limitData || !limitData.success) {
+    note('Adsun সীমা যাচাই করা যায়নি। একটু পরে চেষ্টা করুন।');
+    return;
+  }
+
+  count = Number(limitData.count) || 0;
+} catch (error) {
+  note('Adsun সীমা যাচাই করা যায়নি। বিজ্ঞাপন চালু করা হয়নি।');
+  return;
+}
 
   if(count >= 20){
     note('আজকের বিজ্ঞাপনের সীমা ২০টি শেষ।');
