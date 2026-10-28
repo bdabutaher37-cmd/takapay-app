@@ -687,8 +687,32 @@ if(category==='Telegram'){
 }
 document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));renderTasks()}));
 document.getElementById('refresh').onclick=()=>{renderTasks();note('টাস্ক তালিকা রিফ্রেশ হয়েছে।')};
-function renderReferralCounts(){['homeReferralCount','homeReferralSmall','refInviteCount','refSuccessCount','refPendingCount'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='০'})}
-function renderHistory(rows=[]){
+async function renderReferralCounts() {
+  try {
+    const stats = await api('/api/referrals');
+
+    const values = {
+      homeReferralCount: stats.inviteCount ?? 0,
+      homeReferralSmall: stats.successCount ?? 0,
+      refInviteCount: stats.inviteCount ?? 0,
+      refSuccessCount: stats.successCount ?? 0,
+      refPendingCount: stats.pendingCount ?? 0
+    };
+
+    Object.entries(values).forEach(([id, value]) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = Number(value).toLocaleString('bn-BD');
+    });
+
+    const income = document.querySelector('#referral .balance');
+    if (income) {
+      income.textContent =
+        '৳ ' + Number(stats.totalIncome ?? 0).toFixed(2);
+    }
+  } catch (error) {
+    console.warn('Referral stats load failed:', error.message);
+  }
+}function renderHistory(rows=[]){
  const list=document.getElementById('historyList');
  if(!rows.length){list.innerHTML='<div class="card muted">এখনো কোনো সার্ভার লেনদেন পাওয়া যায়নি।</div>';return}
  list.innerHTML=rows.map(h=>{
@@ -1392,5 +1416,20 @@ document.getElementById('copy')?.addEventListener('click', async function(){
   }catch(e){
     note('কপি হয়নি। লিংকটি চেপে ধরে কপি করো: ' + link);
   }
-});    
+}); 
+  renderReferralCounts();
+document.getElementById('copy2')?.addEventListener('click', async function(){
+  const ref = document.getElementById('ref2');
+  const link = ref?.textContent?.trim();
+  if(!link || !link.startsWith('https://t.me/')){
+    note('রেফারেল লিংক এখনো তৈরি হয়নি।');
+    return;
+  }
+  try{
+    await navigator.clipboard.writeText(link);
+    note('রেফারেল লিংক কপি হয়েছে!');
+  }catch(e){
+    note('লিংকটি চেপে ধরে কপি করো: ' + link);
+  }
+});
 </script></body></html>
