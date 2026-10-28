@@ -379,6 +379,53 @@ app.get(
     }
   }
 );
+// Referral statistics for the logged-in Telegram user
+app.get(
+  "/api/referrals",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      const userId = req.telegramUser.id;
+
+      const { data, error } = await supabase
+        .from("referrals")
+        .select("referred_telegram_id, reward, status")
+        .eq("referrer_telegram_id", userId);
+
+      if (error) {
+        console.error("Referral stats failed:", error.message);
+        return res.status(500).json({
+          error: "referral_stats_failed"
+        });
+      }
+
+      const rows = data || [];
+      const successful = rows.filter(
+        row => row.status === "paid"
+      );
+      const pending = rows.filter(
+        row => row.status === "pending"
+      );
+      const totalIncome = successful.reduce(
+        (sum, row) => sum + Number(row.reward || 0),
+        0
+      );
+
+      return res.json({
+        inviteCount: rows.length,
+        successCount: successful.length,
+        pendingCount: pending.length,
+        totalIncome
+      });
+    } catch (error) {
+      console.error("Referral stats error:", error.message);
+      return res.status(500).json({
+        error: "referral_stats_failed"
+      });
+    }
+  }
+);
 
 /* Admin API: Get total member count */
 app.get(
