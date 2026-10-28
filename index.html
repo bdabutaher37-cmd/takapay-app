@@ -249,7 +249,28 @@
   </section>
   
 
-<section class="page" id="withdraw"><div class="balance-card"><div class="wallet">💳</div><div style="flex:1"><h3>মোট ব্যালেন্স</h3><div class="balance" data-balance>৳ 0.00</div></div></div><div class="card"><h2 style="margin-top:0">👛 উইথড্র করুন</h2><p class="muted">আপনার অর্জিত টাকা বিকাশ/নগদ/রকেট/USDT এ তুলুন।</p><div class="formrow"><div class="card" style="margin:0"><div class="muted">রেফারেল শর্ত</div><h2 style="color:var(--orange)">প্রয়োজন নেই</h2></div><div class="card" style="margin:0"><div class="muted">মিনিমাম উইথড্র</div><h2 style="color:var(--orange)">৳ 400</h2></div></div><h3>উইথড্র পদ্ধতি নির্বাচন করুন</h3><div class="methods" id="methods"><button type="button" class="method active" data-method="bKash"><span class="mi">bK</span>bKash</button><button type="button" class="method" data-method="Nagad"><span class="mi">N</span>Nagad</button><button type="button" class="method" data-method="Rocket"><span class="mi">R</span>Rocket</button><button type="button" class="method" data-method="USDT"><span class="mi">₮</span>USDT (TRC20)</button></div><form id="withdrawForm"><div class="field"><label>উইথড্র পরিমাণ লিখুন</label><input id="amount" type="number" min="400" step="1" placeholder="উইথড্রের পরিমাণ লিখুন" required></div><div class="field"><label>পেমেন্ট অ্যাকাউন্ট / ওয়ালেট</label><input id="account" placeholder="আপনার নম্বর বা ওয়ালেট ঠিকানা" required></div><div class="notice">✓ মিনিমাম উইথড্র: ৳400<br>✓ রেফার না করলেও উইথড্র করা যাবে<br>✓ ।</div><button class="btn orange" style="width:100%;padding:15px;font-size:17px" type="submit">➤ উইথড্র অনুরোধ করুন</button></form></div></section>
+
+<div class="methods" id="methods">
+  <button type="button" class="method active" data-method="bKash">
+    <span class="mi" style="background:#E2136E;color:#fff;border-color:#E2136E">bK</span>
+    bKash
+  </button>
+
+  <button type="button" class="method" data-method="Nagad">
+    <span class="mi" style="background:#F58220;color:#fff;border-color:#F58220">N</span>
+    Nagad
+  </button>
+
+  <button type="button" class="method" data-method="Rocket">
+    <span class="mi" style="background:#8B1AA8;color:#fff;border-color:#8B1AA8">R</span>
+    Rocket
+  </button>
+
+  <button type="button" class="method" data-method="USDT">
+    <span class="mi" style="background:#26A17B;color:#fff;border-color:#26A17B">₮</span>
+    USDT (TRC20)
+  </button>
+</div>
 <section class="page" id="history"><div class="section-title"><h2>◷ লেনদেনের হিস্ট্রি</h2><button class="btn" id="export">CSV ↗</button></div><div id="historyList"></div><div class="notice">এখানে সার্ভার থেকে পাওয়া লেনদেন দেখানো হবে। লগইন/সার্ভার সংযুক্ত না থাকলে তালিকা খালি থাকবে।</div></section>
 <section class="page" id="referral"><div class="section-title"><h2>👥 রেফারেল প্রোগ্রাম</h2></div><div class="balance-card"><div class="wallet">🎁</div><div><h3>মোট রেফারেল আয়</h3><div class="balance">৳ 0.00</div><small class="muted">প্রতি সফল রেফারে ৳ ১০ · সার্ভার সংযোগ প্রয়োজন</small></div></div><div class="card"><h3>আপনার রেফারেল লিংক</h3><div class="refurl"><code id="ref2">Telegram-এ খুললে লিংক তৈরি হবে</code><button class="btn orange" id="copy2">কপি</button></div></div><div class="stats"><div class="stat"><div class="emoji">👥</div><p>মোট ইনভাইট</p><strong id="refInviteCount">0</strong></div><div class="stat"><div class="emoji">✓</div><p>সফল রেফার</p><strong id="refSuccessCount">0</strong></div><div class="stat"><div class="emoji">⏳</div><p>পেন্ডিং</p><strong id="refPendingCount">0</strong></div></div><div class="notice">রেফারেল সংখ্যা ও আয় বাস্তবভাবে দেখাতে Telegram bot/backend-এর যাচাইকৃত রেফারেল ডেটা প্রয়োজন।</div></section>
 
@@ -358,7 +379,7 @@
 </section>
 </main>
 <div class="payoverlay" id="payOverlay" role="dialog" aria-modal="true" aria-labelledby="payTitle"><div class="paymodal"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><h2 id="payTitle" style="margin:0">🔐 প্ল্যান পেমেন্ট</h2><button class="btn" id="closePay" aria-label="বন্ধ করুন">✕</button></div><p class="muted">নির্বাচিত প্ল্যান: <strong id="checkoutPlan">—</strong></p><div class="balance-card" style="margin:10px 0;padding:14px"><div style="flex:1"><div class="muted">পরিশোধযোগ্য টাকা</div><div class="balance" id="checkoutPrice">৳ ০</div></div></div><p class="muted">পেমেন্ট পদ্ধতি</p><div class="paychoice active" data-paymethod="bKash"><span class="mi" style="background:#e2136e;color:#fff">bK</span><div><strong>bKash Personal</strong><div class="muted tiny">Send Money করুন</div></div></div><div class="field" style="margin-top:12px"><label>bKash নম্বর</label><div style="display:flex;gap:8px"><input id="bkashNumber" value="01318774526" readonly style="flex:1;min-width:0"><button class="btn" id="copyBkash" type="button">কপি</button></div></div><div class="notice">১. উপরের নম্বরে নির্বাচিত প্ল্যানের সঠিক টাকা Send Money করুন।<br>২. নিচে আপনার bKash নম্বর ও Transaction ID লিখুন।<br>৩. অ্যাডমিন লেনদেন যাচাই করে অনুমোদন করলে প্ল্যান চালু হবে।</div><div class="field"><label>যে নম্বর থেকে টাকা পাঠিয়েছেন</label><input id="payerNumber" inputmode="numeric" placeholder="01XXXXXXXXX" maxlength="11"></div><div class="field"><label>bKash Transaction ID</label><input id="transactionId" placeholder="যেমন: 8N7ABC1234" maxlength="30"></div><button class="btn orange" id="startGateway" style="width:100%;padding:14px">পেমেন্ট যাচাইয়ের জন্য জমা দিন</button><p class="muted tiny" style="margin-bottom:0">এই পেজ একা লেনদেন যাচাই করতে পারে না। জমা দিলে কেবল ডেমো অনুরোধ তৈরি হবে; যাচাই না হওয়া পর্যন্ত প্ল্যান চালু হবে না।</p></div></div>
-<nav class="bottomnav"><button class="active" data-go="home"><span class="ico">⌂</span><span>হোম</span></button><button data-go="tasks"><span class="ico">☑</span><span>টাস্ক</span></button><button data-go="plans"><span class="ico">♢</span><span>প্ল্যান</span></button><button data-go="withdraw"><span class="ico">👛</span><span>উইথড্র</span></button><button data-go="history"><span class="ico">◷</span><span>হিস্ট্রি</span></button></nav><div class="toast" id="toast"></div>
+<nav class="bottomnav"><button class="active" data-go="home"><span class="ico">⌂</span><span>হোম</span></button><button data-go="tasks"><span class="ico">☑</span><span>টাস্ক</span></button><button data-go="plans"><span class="ico">♢</span><span>প্ল্যান</span></button><button data-go="withdraw"><span class="ico">💳</span><span>উইথড্র</span></button><button data-go="history"><span class="ico">◷</span><span>হিস্ট্রি</span></button></nav><div class="toast" id="toast"></div>
 <script>
 const API_BASE = 'https://takapay-app.onrender.com';
 const tasks=[
