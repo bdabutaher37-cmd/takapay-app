@@ -1,4 +1,4 @@
-
+‌
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
@@ -430,6 +430,107 @@ app.get(
     } catch {
       return res.status(500).json({
         error: "transactions_failed"
+      });
+    }
+  }
+);
+
+
+/* Home dashboard statistics */
+app.get(
+  "/api/home-stats",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      const telegramId = req.telegramUser.id;
+
+      // Today's date in Bangladesh
+      const date = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Dhaka",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).format(new Date());
+
+      const start = new Date(
+        `${date}T00:00:00+06:00`
+      ).toISOString();
+
+      const [tasksResult, bonusResult, txResult] =
+        await Promise.all([
+          supabase
+            .from("task_completions")
+            .select("reward")
+            .eq("telegram_id", telegramId)
+            .eq("completion_date", date),
+
+          supabase
+            .from("daily_bonus_claims")
+            .select("amount")
+            .eq("telegram_id", telegramId)
+            .eq("claim_date", date),
+
+          supabase
+            .from("transactions")
+            .select("type, amount")
+            .eq("telegram_id", telegramId)
+            .eq("status", "completed")
+            .gte("created_at", start)
+        ]);
+
+      if (
+        tasksResult.error ||
+        bonusResult.error ||
+        txResult.error
+      ) {
+        console.error("Home stats query failed");
+        return res.status(500).json({
+          error: "home_stats_failed"
+        });
+      }
+
+      const tasks = tasksResult.data || [];
+      const bonuses = bonusResult.data || [];
+      const transactions = txResult.data || [];
+
+      const todayBonus = bonuses.reduce(
+        (sum, row) => sum + Number(row.amount || 0),
+        0
+      );
+
+      const earningTypes = new Set([
+        "ad_reward",
+        "task_reward",
+        "task reward",
+        "referral",
+        "channel_join",
+        "daily_bonus",
+        "daily_checkin",
+        "adsun_reward"
+      ]);
+
+      const todayEarn = transactions
+        .filter(row =>
+          earningTypes.has(
+            String(row.type || "").toLowerCase()
+          )
+        )
+        .reduce(
+          (sum, row) => sum + Number(row.amount || 0),
+          0
+        );
+
+      return res.json({
+        success: true,
+        todayEarn,
+        taskCount: tasks.length,
+        todayBonus
+      });
+    } catch (error) {
+      console.error("Home stats error:", error.message);
+      return res.status(500).json({
+        error: "home_stats_failed"
       });
     }
   }
