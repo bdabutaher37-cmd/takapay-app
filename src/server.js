@@ -748,6 +748,46 @@ app.get("/api/monetag/count", requireConfig, requireTelegram, async (req, res) =
 });
 
 
+app.get("/api/adsun/count", requireConfig, requireTelegram, async (req, res) => {
+  try {
+    const telegramId = String(req.telegramUser.id);
+
+    const dhakaDate = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Dhaka",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).format(new Date());
+
+    const start = new Date(`${dhakaDate}T00:00:00+06:00`);
+    const end = new Date(start.getTime() + 24 * 60 * 60 * 1000);
+
+    const { count, error } = await supabase
+      .from("adsun_reward_claims")
+      .select("id", { count: "exact", head: true })
+      .eq("telegram_id", telegramId)
+      .gte("created_at", start.toISOString())
+      .lt("created_at", end.toISOString());
+
+    if (error) {
+      console.error("Adsun count error:", error.message);
+      return res.status(500).json({ error: "count_failed" });
+    }
+
+    const total = count || 0;
+
+    return res.json({
+      success: true,
+      count: total,
+      remaining: Math.max(0, 20 - total),
+      limitReached: total >= 20
+    });
+  } catch (error) {
+    console.error("Adsun count error:", error.message);
+    return res.status(500).json({ error: "count_failed" });
+  }
+});
+    
 app.get("/postback", async (req, res) => {
   try {
     const receivedSecret = String(req.query.secret || "");
