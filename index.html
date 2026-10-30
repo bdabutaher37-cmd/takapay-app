@@ -1395,8 +1395,9 @@ async function loadBalanceRecharges(){
 }
 
 document.getElementById('loadBalanceRecharges')?.addEventListener('click', loadBalanceRecharges);
-document.getElementById('copy')?.addEventListener('click', async function(){
-  const ref = document.getElementById('ref');
+
+async function shareReferral(refId){
+  const ref = document.getElementById(refId);
   const link = ref?.textContent?.trim();
 
   if(!link || !link.startsWith('https://t.me/')){
@@ -1404,38 +1405,63 @@ document.getElementById('copy')?.addEventListener('click', async function(){
     return;
   }
 
+  const text = `🎁 TakaPay Bot-এ যোগ দিন!
+
+👥 বন্ধুদের আমন্ত্রণ জানান এবং প্রতি সফল রেফারে ৳১০ রিওয়ার্ড পান।
+
+🚀 এখনই যুক্ত হোন:
+${link}`;
+
+  const imageUrl = 'https://raw.githubusercontent.com/bdabutaher37-cmd/takapay-app/main/TakaPay%20%E2%80%94%204%205%20Poster.png';
   try{
-    if(navigator.clipboard && window.isSecureContext){
-      await navigator.clipboard.writeText(link);
-    }else{
-      const area = document.createElement('textarea');
-      area.value = link;
-      area.style.position = 'fixed';
-      area.style.opacity = '0';
-      document.body.appendChild(area);
-      area.select();
-      const copied = document.execCommand('copy');
-      area.remove();
-      if(!copied) throw new Error('copy_failed');
+    const response = await fetch(imageUrl);
+    if(!response.ok) throw new Error('image_failed');
+
+    const blob = await response.blob();
+    const file = new File([blob], 'takapay-referral.png', {
+      type: blob.type || 'image/png'
+    });
+
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({
+        files:[file],
+        title:'TakaPay Bot',
+        text:text
+      });
+      return;
     }
-    note('রেফারেল লিংক কপি হয়েছে!');
-  }catch(e){
-    note('কপি হয়নি। লিংকটি চেপে ধরে কপি করো: ' + link);
+
+    if(navigator.share){
+      await navigator.share({
+        title:'TakaPay Bot',
+        text:text
+      });
+      return;
+    }
+
+    throw new Error('share_unavailable');
+  }catch(error){
+    if(error.name === 'AbortError') return;
+
+    const shareUrl = 'https://t.me/share/url?url=' +
+      encodeURIComponent(link) +
+      '&text=' + encodeURIComponent(text);
+
+    if(window.Telegram?.WebApp?.openTelegramLink){
+      window.Telegram.WebApp.openTelegramLink(shareUrl);
+    }else{
+      window.open(shareUrl, '_blank');
+    }
   }
-}); 
-  renderReferralCounts();
-document.getElementById('copy2')?.addEventListener('click', async function(){
-  const ref = document.getElementById('ref2');
-  const link = ref?.textContent?.trim();
-  if(!link || !link.startsWith('https://t.me/')){
-    note('রেফারেল লিংক এখনো তৈরি হয়নি।');
-    return;
-  }
-  try{
-    await navigator.clipboard.writeText(link);
-    note('রেফারেল লিংক কপি হয়েছে!');
-  }catch(e){
-    note('লিংকটি চেপে ধরে কপি করো: ' + link);
-  }
+}
+
+document.getElementById('copy')?.addEventListener('click', function(){
+  shareReferral('ref');
 });
+
+document.getElementById('copy2')?.addEventListener('click', function(){
+  shareReferral('ref2');
+});
+  renderReferralCounts();
+
 </script></body></html>
