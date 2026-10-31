@@ -426,6 +426,70 @@ app.get(
     }
   }
 );
+// Top 10 successful referral leaderboard
+app.get(
+  "/api/referrals/leaderboard",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      const { data: referrals, error } = await supabase
+        .from("referrals")
+        .select("referrer_telegram_id")
+        .eq("status", "paid");
+
+      if (error) throw error;
+
+      const counts = {};
+
+      (referrals || []).forEach(row => {
+        const id = String(row.referrer_telegram_id);
+        counts[id] = (counts[id] || 0) + 1;
+      });
+
+      const top = Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10);
+
+      if (!top.length) {
+        return res.json({ leaderboard: [] });
+      }
+
+      const ids = top.map(item => item[0]);
+
+      const { data: profiles, error: profileError } = await supabase
+        .from("profiles")
+        .select("telegram_id, username, full_name")
+        .in("telegram_id", ids);
+
+      if (profileError) throw profileError;
+
+      const profileMap = {};
+      (profiles || []).forEach(profile => {
+        profileMap[String(profile.telegram_id)] = profile;
+      });
+
+      const leaderboard = top.map(([id, count], index) => {
+        const profile = profileMap[id] || {};
+
+        return {
+          rank: index + 1,
+          name: profile.full_name ||
+                (profile.username ? "@" + profile.username : "Telegram User"),
+          username: profile.username || "",
+          referrals: count
+        };
+      });
+
+      return res.json({ leaderboard });
+    } catch (error) {
+      console.error("Referral leaderboard failed:", error.message);
+      return res.status(500).json({
+        error: "referral_leaderboard_failed"
+      });
+    }
+  }
+);
 
 /* Admin API: Get total member count */
 app.get(
