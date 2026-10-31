@@ -255,8 +255,81 @@
 <section class="page" id="withdraw"><div class="balance-card"><div class="wallet">💳</div><div style="flex:1"><h3>মোট ব্যালেন্স</h3><div class="balance" data-balance>৳ 0.00</div></div></div><div class="card"><h2 style="margin-top:0">👛 উইথড্র করুন</h2><p class="muted">আপনার অর্জিত টাকা বিকাশ/নগদ/রকেট/USDT এ তুলুন।</p><div class="formrow"><div class="card" style="margin:0"><div class="muted">রেফারেল শর্ত</div><h2 style="color:var(--orange)">প্রয়োজন নেই</h2></div><div class="card" style="margin:0"><div class="muted">মিনিমাম উইথড্র</div><h2 style="color:var(--orange)">৳ 400</h2></div></div><h3>উইথড্র পদ্ধতি নির্বাচন করুন</h3><div class="methods" id="methods"><button type="button" class="method active" data-method="bKash"><span class="mi">bK</span>bKash</button><button type="button" class="method" data-method="Nagad"><span class="mi">N</span>Nagad</button><button type="button" class="method" data-method="Rocket"><span class="mi">R</span>Rocket</button><button type="button" class="method" data-method="USDT"><span class="mi">₮</span>USDT (TRC20)</button></div><form id="withdrawForm"><div class="field"><label>উইথড্র পরিমাণ লিখুন</label><input id="amount" type="number" min="400" step="1" placeholder="উইথড্রের পরিমাণ লিখুন" required></div><div class="field"><label>পেমেন্ট অ্যাকাউন্ট / ওয়ালেট</label><input id="account" placeholder="আপনার নম্বর বা ওয়ালেট ঠিকানা" required></div><div class="notice">✓ মিনিমাম উইথড্র: ৳400<br>✓ রেফার না করলেও উইথড্র করা যাবে</div><button class="btn orange" style="width:100%;padding:15px;font-size:17px" type="submit">➤ উইথড্র অনুরোধ করুন</button></form></div></section>
 
 <section class="page" id="history"><div class="section-title"><h2>◷ লেনদেনের হিস্ট্রি</h2><button class="btn" id="export">CSV ↗</button></div><div id="historyList"></div><div class="notice">এখানে সার্ভার থেকে পাওয়া লেনদেন দেখানো হবে। লগইন/সার্ভার সংযুক্ত না থাকলে তালিকা খালি থাকবে।</div></section>
-<section class="page" id="referral"><div class="section-title"><h2>👥 রেফারেল প্রোগ্রাম</h2></div><div class="balance-card"><div class="wallet">🎁</div><div><h3>মোট রেফারেল আয়</h3><div class="balance">৳ 0.00</div><small class="muted">প্রতি সফল রেফারে ৳ ১০ · সার্ভার সংযোগ প্রয়োজন</small></div></div><div class="card"><h3>আপনার রেফারেল লিংক</h3><div class="refurl"><code id="ref2">Telegram-এ খুললে লিংক তৈরি হবে</code><button class="btn orange" id="copy2">Forward</button></div></div><div class="stats"><div class="stat"><div class="emoji">👥</div><p>মোট ইনভাইট</p><strong id="refInviteCount">0</strong></div><div class="stat"><div class="emoji">✓</div><p>সফল রেফার</p><strong id="refSuccessCount">0</strong></div><div class="stat"><div class="emoji">⏳</div><p>পেন্ডিং</p><strong id="refPendingCount">0</strong></div></div><div class="notice" id="referralNotice" style="display:none"></div></section>
-<section class="page" id="admin">
+<section class="page" id="referral">
+  <div class="section-title">
+    <h2>👥 রেফারেল প্রোগ্রাম</h2>
+  </div>
+
+  <div class="balance-card" style="background:linear-gradient(135deg,#101d45,#172d68);border:1px solid #2879c9">
+    <div class="wallet">🎁</div>
+    <div>
+      <h3>মোট রেফারেল আয়</h3>
+      <div class="balance" id="refTotalIncome">৳ 0.00</div>
+      <small class="muted">প্রতি সফল রেফারে ৳১০ + অতিরিক্ত মাইলস্টোন বোনাস</small>
+    </div>
+  </div>
+
+  <div class="card" style="background:#101a35;border:1px solid #24518b">
+    <h3>🏆 রেফারেল মাইলস্টোন বোনাস</h3>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px">
+      <div class="stat"><p>৩ জন</p><strong style="color:#43d9ff">৳৪০</strong></div>
+      <div class="stat"><p>৫ জন</p><strong style="color:#43d9ff">৳৭০</strong></div>
+      <div class="stat"><p>১০ জন</p><strong style="color:#43d9ff">৳১৩০</strong></div>
+      <div class="stat"><p>২০ জন</p><strong style="color:#ffad42">৳২৬০</strong></div>
+      <div class="stat"><p>৫০ জন</p><strong style="color:#ffad42">৳৭০০</strong></div>
+      <div class="stat"><p>১০০ জন</p><strong style="color:#ffad42">৳১,২০০</strong></div>
+    </div>
+    <div style="margin-top:16px;padding:12px;background:#17264b;border-radius:12px">
+      <div style="display:flex;justify-content:space-between;gap:8px">
+        <b>পরবর্তী বোনাস</b>
+        <strong id="refNextMilestone" style="color:#43d9ff">৩ জনে ৳৪০</strong>
+      </div>
+      <div style="height:9px;background:#26395e;border-radius:20px;margin-top:10px;overflow:hidden">
+        <div id="refProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#16c8ff,#8b5cf6);border-radius:20px"></div>
+      </div>
+      <small id="refProgressText" class="muted">সফল রেফার: ০ / ৩</small>
+    </div>
+  </div>
+
+  <div class="card" style="background:#101a35;border:1px solid #24518b">
+    <div class="section-title">
+      <h3>🏅 Top 10 রেফারেল</h3>
+      <span style="color:#43d9ff">সফল রেফার</span>
+    </div>
+    <div id="refLeaderboard">
+      <div class="notice">লিডারবোর্ড লোড হচ্ছে...</div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="emoji">👥</div>
+      <p>মোট ইনভাইট</p>
+      <strong id="refInviteCount">0</strong>
+    </div>
+    <div class="stat">
+      <div class="emoji">✓</div>
+      <p>সফল রেফার</p>
+      <strong id="refSuccessCount">0</strong>
+    </div>
+    <div class="stat">
+      <div class="emoji">⏳</div>
+      <p>পেন্ডিং</p>
+      <strong id="refPendingCount">0</strong>
+    </div>
+  </div>
+
+  <div class="card" style="background:#101a35;border:1px solid #2879c9">
+    <h3>🔗 আপনার রেফারেল লিংক</h3>
+    <div class="refurl">
+      <code id="ref2">Telegram-এ খুললে লিংক তৈরি হবে</code>
+      <button class="btn orange" id="copy2">Forward</button>
+    </div>
+    <small class="muted">বন্ধুদের আমন্ত্রণ জানান এবং রিওয়ার্ড পান।</small>
+  </div>
+
+  <div class="notice" id="referralNotice" style="display:none"></div>
+</section><section class="page" id="admin">
   <div class="section-title">
     <h2>⚙️ Admin Panel</h2>
     <span class="status failed" id="adminStatus">যাচাই হচ্ছে...</span>
@@ -687,28 +760,91 @@ document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click'
 document.getElementById('refresh').onclick=()=>{renderTasks();note('টাস্ক তালিকা রিফ্রেশ হয়েছে।')};
 async function renderReferralCounts() {
   try {
-    const stats = await api('/api/referrals');
+    const [stats, board] = await Promise.all([
+      api('/api/referrals'),
+      api('/api/referrals/leaderboard')
+    ]);
+
     const notice = document.getElementById('referralNotice');
-if (notice) notice.style.display = 'none';
+    if (notice) notice.style.display = 'none';
+
+    const inviteCount = Number(stats.inviteCount || 0);
+    const successCount = Number(stats.successCount || 0);
+    const pendingCount = Number(stats.pendingCount || 0);
 
     const values = {
-      homeReferralCount: stats.inviteCount ?? 0,
-      homeReferralSmall: stats.successCount ?? 0,
-      refInviteCount: stats.inviteCount ?? 0,
-      refSuccessCount: stats.successCount ?? 0,
-      refPendingCount: stats.pendingCount ?? 0
+      refInviteCount: inviteCount,
+      refSuccessCount: successCount,
+      refPendingCount: pendingCount
     };
 
     Object.entries(values).forEach(([id, value]) => {
       const el = document.getElementById(id);
-      if (el) el.textContent = Number(value).toLocaleString('bn-BD');
+      if (el) el.textContent = value.toLocaleString('bn-BD');
     });
 
-    const income = document.querySelector('#referral .balance');
+    const milestones = [
+      { count: 3, bonus: 40 },
+      { count: 5, bonus: 70 },
+      { count: 10, bonus: 130 },
+      { count: 20, bonus: 260 },
+      { count: 50, bonus: 700 },
+      { count: 100, bonus: 1200 }
+    ];
+
+    const next = milestones.find(m => successCount < m.count);
+    const nextText = document.getElementById('refNextMilestone');
+    const progressText = document.getElementById('refProgressText');
+    const progressBar = document.getElementById('refProgressBar');
+
+    if (next) {
+      const previous = milestones[milestones.indexOf(next) - 1];
+      const start = previous ? previous.count : 0;
+      const progress = Math.min(
+        100,
+        ((successCount - start) / (next.count - start)) * 100
+      );
+
+      if (nextText) {
+        nextText.textContent =
+          `${next.count} জনে ৳${next.bonus.toLocaleString('bn-BD')}`;
+      }
+      if (progressText) {
+        progressText.textContent =
+          `সফল রেফার: ${successCount.toLocaleString('bn-BD')} / ${next.count.toLocaleString('bn-BD')}`;
+      }
+      if (progressBar) progressBar.style.width = progress + '%';
+    } else {
+      if (nextText) nextText.textContent = 'সব মাইলস্টোন সম্পন্ন!';
+      if (progressText) progressText.textContent = 'অভিনন্দন! 🎉';
+      if (progressBar) progressBar.style.width = '100%';
+    }
+
+    const leaderboard = document.getElementById('refLeaderboard');
+    const leaders = board.leaderboard || [];
+
+    if (leaderboard) {
+      leaderboard.innerHTML = leaders.length
+        ? leaders.map(item => `
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;border-bottom:1px solid #26395e">
+            <div style="display:flex;align-items:center;gap:10px;min-width:0">
+              <strong style="color:#43d9ff">#${item.rank}</strong>
+              <span style="overflow-wrap:anywhere">${escapeHtml(item.name || 'Telegram User')}</span>
+            </div>
+            <strong style="color:#ffad42;white-space:nowrap">
+              ${Number(item.referrals || 0).toLocaleString('bn-BD')} জন
+            </strong>
+          </div>
+        `).join('')
+        : '<div class="notice">এখনো কোনো সফল রেফারেল নেই।</div>';
+    }
+
+    const income = document.getElementById('refTotalIncome');
     if (income) {
       income.textContent =
-        '৳ ' + Number(stats.totalIncome ?? 0).toFixed(2);
+        '৳ ' + Number(stats.totalIncome || 0).toFixed(2);
     }
+
   } catch (error) {
     const notice = document.getElementById('referralNotice');
     if (notice) {
@@ -718,7 +854,8 @@ if (notice) notice.style.display = 'none';
     }
     console.warn('Referral stats load failed:', error.message);
   }
-}function renderHistory(rows=[]){
+}
+function renderHistory(rows=[]){
  const list=document.getElementById('historyList');
  if(!rows.length){list.innerHTML='<div class="card muted">এখনো কোনো সার্ভার লেনদেন পাওয়া যায়নি।</div>';return}
  list.innerHTML=rows.map(h=>{
