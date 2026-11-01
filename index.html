@@ -392,6 +392,21 @@
     এই ব্যালেন্স সরাসরি উইথড্র করা যাবে না।
   </p>
 </div>
+ 
+<div class="card">
+  <h3>💳 প্ল্যান রিচার্জের আবেদন</h3>
+  <button
+    class="btn orange"
+    id="loadPlanRecharges"
+    type="button"
+    style="width:100%"
+  >
+    প্ল্যান রিচার্জের আবেদন দেখুন
+  </button>
+  <div id="planRechargeList" style="margin-top:12px">
+    <p class="muted">আবেদন দেখতে উপরের বাটনে চাপ দিন।</p>
+  </div>
+</div>
   
   <div class="card">
     <h3>নতুন টাস্কের প্রিভিউ</h3>
@@ -1395,7 +1410,7 @@ document.getElementById('more').onclick = async () => {
   }
 };
 
-  
+document.getElementById('loadPlanRecharges')?.addEventListener('click', loadPlanRecharges);  
   
 document.getElementById('rechargeForm')?.addEventListener('submit', async function(e) {
   e.preventDefault();
@@ -1551,6 +1566,86 @@ async function loadBalanceRecharges(){
   }
 }
 
+async function loadPlanRecharges(){
+  const box = document.getElementById('planRechargeList');
+  const loadBtn = document.getElementById('loadPlanRecharges');
+  if(!box) return;
+
+  if(loadBtn){
+    loadBtn.disabled = true;
+    loadBtn.textContent = 'লোড হচ্ছে...';
+  }
+
+  try{
+    const result = await api('/api/admin/recharges');
+    const rows = Array.isArray(result) ? result : (result.requests || result.data || []);
+
+    if(!rows.length){
+      box.innerHTML = '<p class="muted">এখনো কোনো প্ল্যান রিচার্জ আবেদন নেই।</p>';
+      return;
+    }
+
+    box.innerHTML = rows.map(r => `
+      <div class="card" style="margin:8px 0;padding:12px">
+        <strong>প্ল্যান রিচার্জ আবেদন #${escapeHtml(r.id)}</strong>
+        <p>Telegram ID: ${escapeHtml(r.telegram_id)}</p>
+        <p>পরিমাণ: ৳${escapeHtml(r.amount)}</p>
+        <p>মাধ্যম: ${escapeHtml(r.payment_method)}</p>
+        <p>পেমেন্ট নম্বর: ${escapeHtml(r.payer_number)}</p>
+        <p>Transaction ID: ${escapeHtml(r.transaction_id)}</p>
+        <p>অবস্থা: ${escapeHtml(r.status)}</p>
+        ${r.status === 'pending' ? `
+          <button class="btn orange" type="button" data-plan-approve="${escapeHtml(r.id)}">অনুমোদন</button>
+          <button class="btn" type="button" data-plan-reject="${escapeHtml(r.id)}">বাতিল</button>
+        ` : ''}
+      </div>
+    `).join('');
+
+    box.querySelectorAll('[data-plan-approve]').forEach(btn=>{
+      btn.onclick = async ()=>{
+        if(!confirm('পেমেন্ট যাচাই করেছেন? আবেদনটি অনুমোদন করবেন?')) return;
+        btn.disabled = true;
+        try{
+          await api('/api/admin/recharges/'+encodeURIComponent(btn.dataset.planApprove)+'/approve',{
+            method:'POST',
+            body:JSON.stringify({})
+          });
+          note('প্ল্যান রিচার্জ অনুমোদনের অনুরোধ সফল হয়েছে।');
+          await loadPlanRecharges();
+        }catch(e){
+          note('অনুমোদন ব্যর্থ: '+e.message);
+          btn.disabled = false;
+        }
+      };
+    });
+
+    box.querySelectorAll('[data-plan-reject]').forEach(btn=>{
+      btn.onclick = async ()=>{
+        if(!confirm('এই প্ল্যান রিচার্জ আবেদন বাতিল করবেন?')) return;
+        btn.disabled = true;
+        try{
+          await api('/api/admin/recharges/'+encodeURIComponent(btn.dataset.planReject)+'/reject',{
+            method:'POST',
+            body:JSON.stringify({})
+          });
+          note('আবেদন বাতিল হয়েছে।');
+          await loadPlanRecharges();
+        }catch(e){
+          note('বাতিল ব্যর্থ: '+e.message);
+          btn.disabled = false;
+        }
+      };
+    });
+  }catch(e){
+    box.innerHTML = '<p class="muted">আবেদন লোড হয়নি: '+escapeHtml(e.message)+'</p>';
+  }finally{
+    if(loadBtn){
+      loadBtn.disabled = false;
+      loadBtn.textContent = 'প্ল্যান রিচার্জের আবেদন দেখুন';
+    }
+  }
+                                                                   }
+               
 document.getElementById('loadBalanceRecharges')?.addEventListener('click', loadBalanceRecharges);
 
 async function shareReferral(refId){
