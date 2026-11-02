@@ -2075,7 +2075,8 @@ app.post(
         .from("profiles")
         .update({
   active_plan: plan,
-  plan_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+  plan_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+  has_purchased_plan: true
 })
         .eq("telegram_id", telegramId)
 .select("telegram_id, username, active_plan, plan_expires_at")
