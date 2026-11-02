@@ -1813,6 +1813,225 @@ app.delete(
     }
   }
 );
+/* User API: Submit YouTube task for review */
+app.post(
+  "/api/tasks/youtube/submit",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      const telegramId = String(req.telegramUser.id);
+      const taskId = Number(req.body?.task_id);
+
+      if (!Number.isSafeInteger(taskId) || taskId <= 0) {
+        return res.status(400).json({
+          success: false,
+          error: "invalid_task_id"
+        });
+      }
+
+      const { data: task, error: taskError } = await supabase
+        .from("tasks")
+        .select("id, task_type")
+        .eq("id", taskId)
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (taskError || !task) {
+        return res.status(404).json({
+          success: false,
+          error: "task_not_found"
+        });
+      }
+
+      if (!["youtube_video", "youtube_subscribe"].includes(task.task_type)) {
+        return res.status(400).json({
+          success: false,
+          error: "not_youtube_task"
+        });
+      }
+
+      const { data: submission, error } = await supabase
+        .from("youtube_task_submissions")
+        .insert({
+          telegram_id: telegramId,
+          task_id: taskId
+        })
+        .select("id, status")
+        .single();
+
+      if (error) {
+        if (error.code === "23505") {
+          return res.status(409).json({
+            success: false,
+            error: "already_submitted"
+          });
+        }
+
+        console.error("YouTube submission error:", error.message);
+        return res.status(500).json({
+          success: false,
+          error: "submission_failed"
+        });
+      }
+
+      return res.status(201).json({
+        success: true,
+        submission
+      });
+    } catch (error) {
+      console.error("YouTube submit API error:", error.message);
+      return res.status(500).json({
+        success: false,
+        error: "server_error"
+      });
+    }
+  }
+);
+/* Admin API: List YouTube task submissions */
+app.get(
+  "/api/admin/youtube-submissions",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      const adminId = String(req.telegramUser.id);
+
+      const { data: admin } = await supabase
+        .from("takapay_admins")
+        .select("telegram_id")
+        .eq("telegram_id", adminId)
+        .maybeSingle();
+
+      if (!admin) {
+        return res.status(403).json({
+          success: false,
+          error: "not_admin"
+        });
+      }
+
+      const { data: submissions, error } = await supabase
+        .from("youtube_task_submissions")
+        .select("id, telegram_id, task_id, status, created_at")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      const taskIds = [...new Set((submissions || []).map(s => s.task_id))];
+
+      let tasks = [];
+      if (taskIds.length) {
+        const result = await supabase
+          .from("tasks")
+          .select("id, title, reward, task_type, url")
+          .in("id", taskIds);
+
+        if (result.error) throw result.error;
+        tasks = result.data || [];
+      }
+
+      const taskMap = Object.fromEntries(tasks.map(t => [t.id, t]));
+
+      return res.json({
+        success: true,
+        submissions: (submissions || []).map(s => ({
+          ...s,
+          task: taskMap[s.task_id] || null
+        }))
+      });
+    } catch (error) {
+      console.error("YouTube submissions list error:", error.message);
+      return res.status(500).json({
+        success: false,
+        error: "server_error"
+      });
+    }
+  }
+);
+
+/* Admin API: Approve or reject YouTube submission */
+app.post(
+  "/api/admin/youtube-submissions/:id/review",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      const adminId = String(req.telegramUser.id);
+      const submissionId = Number(req.params.id);
+      const action = String(req.body?.action || "").trim();
+
+      if (!Number.isSafeInteger(submissionId) || submissionId <= 0 ||
+          !["approve", "reject"].includes(action)) {
+        return res.status(400).json({
+          success: false,
+          error: "invalid_request"
+        });
+      }
+
+      const { data: admin } = await supabase
+        .from("takapay_admins")
+        .select("telegram_id")
+        .eq("telegram_id", adminId)
+        .maybeSingle();
+
+      if (!admin) {
+        return res.status(403).json({
+          success: false,
+          error: "not_admin"
+        });
+      }
+
+      if (action === "approve") {
+        const { data, error } = await supabase.rpc(
+          "approve_youtube_task_submission",
+          {
+            p_submission_id: submissionId,
+            p_admin_telegram_id: adminId
+          }
+        );
+
+        if (error) throw error;
+
+        if (!data?.success) {
+          return res.status(400).json(data);
+        }
+
+        return res.json(data);
+      }
+
+      const { data, error } = await supabase
+        .from("youtube_task_submissions")
+        .update({
+          status: "rejected",
+          reviewed_at: new Date().toISOString()
+        })
+        .eq("id", submissionId)
+        .eq("status", "pending")
+        .select("id, status")
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (!data) {
+        return res.status(409).json({
+          success: false,
+          error: "already_reviewed_or_not_found"
+        });
+      }
+
+      return res.json({
+        success: true,
+        submission: data
+      });
+    } catch (error) {
+      console.error("YouTube review error:", error.message);
+      return res.status(500).json({
+        success: false,
+        error: "server_error"
+      });
+    }
+  }
+);
 // Admin API: Activate a user's plan
 app.post(
   "/api/admin/activate-plan",
