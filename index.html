@@ -1415,14 +1415,22 @@ document.getElementById('loadPlanRecharges')?.addEventListener('click', loadPlan
 document.getElementById('rechargeForm')?.addEventListener('submit', async function(e) {
   e.preventDefault();
 
+
   const amount = Number(document.getElementById('rechargeAmount').value);
-  const payment_method = document.getElementById('rechargeMethod').value;
+  const payment_method = document.getElementById('rechargeMethod').value.trim().toLowerCase();
   const payer_number = document.getElementById('rechargePayer').value.trim();
   const transaction_id = document.getElementById('rechargeTrx').value.trim();
   const btn = this.querySelector('button[type="submit"]');
 
-  if (!Number.isInteger(amount) || amount < 199 || amount > 1999) {
-    note('রিচার্জ ১৯৯ থেকে ১৯৯৯ টাকার মধ্যে হতে হবে।');
+  if (
+    !Number.isInteger(amount) ||
+    amount < 199 ||
+    amount > 1999 ||
+    !['bkash', 'nagad'].includes(payment_method) ||
+    !/^01[3-9]\d{8}$/.test(payer_number) ||
+    !/^[A-Za-z0-9]{5,30}$/.test(transaction_id)
+  ) {
+    note('❌ Invalid Recharge: পেমেন্টের তথ্য সঠিক নয়।');
     return;
   }
 
@@ -1443,13 +1451,23 @@ document.getElementById('rechargeForm')?.addEventListener('submit', async functi
     note(result.message || 'রিচার্জ অনুরোধ জমা হয়েছে।');
     this.reset();
   } catch (error) {
-    note(error.message || 'অনুরোধ জমা হয়নি। আবার চেষ্টা করো।');
+    const message = String(error.message || '');
+
+    if (
+      message.includes('invalid_payment_details') ||
+      message.includes('invalid_amount_or_payment_method') ||
+      message.includes('transaction_already_submitted')
+    ) {
+      note('❌ Invalid Recharge: ভুল অথবা আগে ব্যবহার করা পেমেন্ট তথ্য।');
+    } else {
+      note('রিচার্জ অনুরোধ জমা হয়নি: ' + message);
+    }
   } finally {
     btn.disabled = false;
     btn.textContent = 'রিচার্জ অনুরোধ জমা দিন';
   }
 });
-  
+
 document.getElementById('adminAddRechargeBalance')?.addEventListener('click', async function() {
   const telegram_id = document.getElementById('rechargeUserTelegramId').value.trim();
   const amount = Number(document.getElementById('rechargeCreditAmount').value);
