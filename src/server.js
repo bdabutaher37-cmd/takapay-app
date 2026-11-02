@@ -1254,17 +1254,7 @@ app.post(
 
       const { data: admin, error: adminError } = await supabase
         .from("takapay_admins")
-        .select(`
-  id,
-  telegram_id,
-  amount,
-  fee_amount,
-  payout_amount,
-  method,
-  account_number,
-  status,
-  created_at
-`)
+        .select("id, telegram_id")
         .eq("telegram_id", req.telegramUser.id)
         .maybeSingle();
 
