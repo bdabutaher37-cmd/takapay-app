@@ -366,6 +366,20 @@
       <p class="muted">তালিকা দেখতে উপরের বাটনে চাপ দিন।</p>
     </div>
   </div>
+    <div class="card">
+    <h3>▶️ YouTube টাস্ক আবেদন</h3>
+    <button
+      class="btn orange"
+      id="loadYoutubeSubmissions"
+      type="button"
+      style="width:100%"
+    >
+      YouTube আবেদন দেখুন
+    </button>
+    <div id="youtubeSubmissionList" style="margin-top:12px">
+      <p class="muted">আবেদন দেখতে উপরের বাটনে চাপ দিন।</p>
+    </div>
+    </div>
   
 <div class="card">
   <h3>💳 ইউজারের রিচার্জ ব্যালেন্স যোগ করুন</h3>
@@ -543,19 +557,61 @@ function ratesForPlan(plan){return {free:1,starter:1,premium:2,diamond:4,gold:7,
    const taskType=b.dataset.taskType||'telegram';
 if(category==='admin' && taskType!=='telegram'){
   const taskUrl=b.dataset.url||'';
+  const taskId=b.dataset.taskId||'';
 
   if(!taskUrl.startsWith('https://')){
     note('সঠিক YouTube লিংক পাওয়া যায়নি।');
     return;
   }
 
-  if(window.Telegram?.WebApp?.openLink){
-    window.Telegram.WebApp.openLink(taskUrl);
-  }else{
-    window.open(taskUrl,'_blank','noopener,noreferrer');
+  if(!taskId){
+    note('টাস্কের ID পাওয়া যায়নি। পেজ রিফ্রেশ করুন।');
+    return;
   }
 
-  note('YouTube টাস্কটি খুলেছে। কাজটি সম্পন্ন করে অ্যাডমিনের যাচাইয়ের জন্য অপেক্ষা করুন।');
+  if(!b.dataset.opened){
+    b.dataset.opened='1';
+
+    if(window.Telegram?.WebApp?.openLink){
+      window.Telegram.WebApp.openLink(taskUrl);
+    }else{
+      window.open(taskUrl,'_blank','noopener,noreferrer');
+    }
+
+    note('YouTube কাজটি শেষ করে আবার এই বাটনে চাপ দিন।');
+    b.textContent='আবেদন জমা দিন';
+    return;
+  }
+
+  b.disabled=true;
+  b.textContent='আবেদন জমা হচ্ছে...';
+
+  try{
+    const result=await api('/api/tasks/youtube/submit',{
+      method:'POST',
+      body:JSON.stringify({task_id:Number(taskId)})
+    });
+
+    if(!result.success){
+      throw new Error(result.error||'submit_failed');
+    }
+
+    note('আবেদন জমা হয়েছে। অ্যাডমিন যাচাইয়ের অপেক্ষায় থাকুন।');
+    b.textContent='আবেদন জমা হয়েছে';
+
+  }catch(error){
+    console.error('YouTube task submission:',error);
+
+    if(error.message==='already_submitted'){
+      note('এই টাস্কের আবেদন আগেই জমা দিয়েছেন।');
+      b.textContent='আগেই জমা হয়েছে';
+    }else{
+      note('আবেদন জমা হয়নি। আবার চেষ্টা করুন।');
+      b.disabled=false;
+      b.textContent='আবার আবেদন দিন';
+    }
+  }
+
   return;
 }
 
@@ -1439,7 +1495,107 @@ document.getElementById('more').onclick = async () => {
 };
 
 document.getElementById('loadPlanRecharges')?.addEventListener('click', loadPlanRecharges);  
-  
+
+async function loadYoutubeSubmissions() {
+  const box = document.getElementById('youtubeSubmissionList');
+  const btn = document.getElementById('loadYoutubeSubmissions');
+
+  box.innerHTML = '<p class="muted">আবেদন লোড হচ্ছে...</p>';
+  btn.disabled = true;
+
+  try {
+    const result = await api('/api/admin/youtube-submissions');
+
+    if (!result.success) {
+      throw new Error(result.error || 'load_failed');
+    }
+
+    const submissions = result.submissions || [];
+
+    if (!submissions.length) {
+      box.innerHTML = '<p class="muted">এখনো কোনো YouTube আবেদন নেই।</p>';
+      return;
+    }
+
+    box.innerHTML = submissions.map(s => {
+      const task = s.task || {};
+      const pending = s.status === 'pending';
+
+      return `
+        <div class="card" style="margin-top:10px">
+          <strong>${escapeHtml(task.title || 'YouTube Task')}</strong>
+          <p>ইউজার ID: ${escapeHtml(s.telegram_id)}</p>
+          <p>রিওয়ার্ড: ৳${Number(task.reward || 0)}</p>
+          <p>ধরন: ${task.task_type === 'youtube_video' ? 'ভিডিও দেখা' : 'চ্যানেল সাবস্ক্রাইব'}</p>
+          <p>স্ট্যাটাস: ${escapeHtml(s.status)}</p>
+          <a href="${escapeHtml(task.url || '#')}" target="_blank" rel="noopener noreferrer">YouTube লিংক দেখুন</a>
+
+          ${pending ? `
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button class="btn orange" type="button"
+                data-youtube-review="approve"
+                data-id="${s.id}">Approve</button>
+              <button class="btn" type="button"
+                data-youtube-review="reject"
+                data-id="${s.id}">Reject</button>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }).join('');
+
+  } catch (error) {
+    console.error('YouTube submissions:', error);
+    box.innerHTML = '<p class="muted">আবেদন লোড হয়নি। আবার চেষ্টা করুন।</p>';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+document.getElementById('loadYoutubeSubmissions')
+  ?.addEventListener('click', loadYoutubeSubmissions);
+
+document.getElementById('youtubeSubmissionList')
+  ?.addEventListener('click', async function(e) {
+    const btn = e.target.closest('[data-youtube-review]');
+    if (!btn) return;
+
+    const action = btn.dataset.youtubeReview;
+    const id = btn.dataset.id;
+
+    const message = action === 'approve'
+      ? 'এই আবেদন অনুমোদন করে রিওয়ার্ড দিতে চান?'
+      : 'এই আবেদন Reject করতে চান?';
+
+    if (!confirm(message)) return;
+
+    btn.disabled = true;
+
+    try {
+      const result = await api(
+        `/api/admin/youtube-submissions/${encodeURIComponent(id)}/review`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ action })
+        }
+      );
+
+      if (!result.success) {
+        throw new Error(result.error || 'review_failed');
+      }
+
+      note(action === 'approve'
+        ? `আবেদন অনুমোদিত। ৳${result.reward} যোগ হয়েছে।`
+        : 'আবেদন Reject করা হয়েছে।');
+
+      await loadYoutubeSubmissions();
+
+    } catch (error) {
+      console.error('YouTube review:', error);
+      note('আবেদন যাচাই করা যায়নি। আবার চেষ্টা করুন।');
+      btn.disabled = false;
+    }
+  });  
 document.getElementById('rechargeForm')?.addEventListener('submit', async function(e) {
   e.preventDefault();
 
