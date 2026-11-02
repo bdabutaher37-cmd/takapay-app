@@ -1566,6 +1566,7 @@ async function loadBalanceRecharges(){
   }
 }
 
+
 async function loadPlanRecharges(){
   const box = document.getElementById('planRechargeList');
   const loadBtn = document.getElementById('loadPlanRecharges');
@@ -1595,22 +1596,46 @@ async function loadPlanRecharges(){
         <p>Transaction ID: ${escapeHtml(r.transaction_id)}</p>
         <p>অবস্থা: ${escapeHtml(r.status)}</p>
         ${r.status === 'pending' ? `
-          <button class="btn orange" type="button" data-plan-approve="${escapeHtml(r.id)}">অনুমোদন</button>
+          ${r.payment_verified ? `
+            <p style="color:#22c55e">✓ পেমেন্ট যাচাই করা হয়েছে</p>
+            <button class="btn orange" type="button" data-plan-approve="${escapeHtml(r.id)}">অনুমোদন</button>
+          ` : `
+            <button class="btn" type="button" data-plan-verify="${escapeHtml(r.id)}">পেমেন্ট যাচাই নিশ্চিত</button>
+          `}
           <button class="btn" type="button" data-plan-reject="${escapeHtml(r.id)}">বাতিল</button>
         ` : ''}
       </div>
     `).join('');
 
+    box.querySelectorAll('[data-plan-verify]').forEach(btn=>{
+      btn.onclick = async ()=>{
+        if(!confirm('নিজের bKash/Nagad অ্যাকাউন্টে কি এই Transaction ID, প্রেরকের নম্বর ও টাকার পরিমাণ মিলিয়ে দেখেছেন? শুধু সত্যি টাকা পেলে নিশ্চিত করুন।')) return;
+
+        btn.disabled = true;
+        try{
+          await api('/api/admin/recharges/'+encodeURIComponent(btn.dataset.planVerify)+'/verify',{
+            method:'POST',
+            body:JSON.stringify({})
+          });
+          note('পেমেন্ট যাচাই চিহ্নিত হয়েছে। এখন অনুমোদন করতে পারবে।');
+          await loadPlanRecharges();
+        }catch(e){
+          note('যাচাই ব্যর্থ: '+e.message);
+          btn.disabled = false;
+        }
+      };
+    });
+
     box.querySelectorAll('[data-plan-approve]').forEach(btn=>{
       btn.onclick = async ()=>{
-        if(!confirm('পেমেন্ট যাচাই করেছেন? আবেদনটি অনুমোদন করবেন?')) return;
+        if(!confirm('যাচাই করা পেমেন্টের আবেদন অনুমোদন করবেন?')) return;
         btn.disabled = true;
         try{
           await api('/api/admin/recharges/'+encodeURIComponent(btn.dataset.planApprove)+'/approve',{
             method:'POST',
             body:JSON.stringify({})
           });
-          note('প্ল্যান রিচার্জ অনুমোদনের অনুরোধ সফল হয়েছে।');
+          note('প্ল্যান রিচার্জ অনুমোদন সফল হয়েছে।');
           await loadPlanRecharges();
         }catch(e){
           note('অনুমোদন ব্যর্থ: '+e.message);
@@ -1644,8 +1669,9 @@ async function loadPlanRecharges(){
       loadBtn.textContent = 'প্ল্যান রিচার্জের আবেদন দেখুন';
     }
   }
-                                                                   }
-               
+}
+
+                                              
 document.getElementById('loadBalanceRecharges')?.addEventListener('click', loadBalanceRecharges);
 
 async function shareReferral(refId){
