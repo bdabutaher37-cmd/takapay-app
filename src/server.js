@@ -1428,6 +1428,7 @@ app.get(
   }
 );
 
+
 /* Admin API: Save a new task */
 app.post(
   "/api/admin/tasks",
@@ -1439,48 +1440,68 @@ app.post(
       const title = String(req.body?.title || "").trim();
       const reward = Number(req.body?.reward);
       const url = String(req.body?.url || "").trim();
+      const taskType = String(req.body?.task_type || "telegram").trim();
 
-      
-let channelUsername = "";
+      if (
+        !title ||
+        title.length > 200 ||
+        !Number.isFinite(reward) ||
+        reward <= 0 ||
+        reward > 100000
+      ) {
+        return res.status(400).json({
+          success: false,
+          error: "invalid_task"
+        });
+      }
 
-try {
-  const parsedUrl = new URL(url);
+      if (!["telegram", "youtube_video", "youtube_subscribe"].includes(taskType)) {
+        return res.status(400).json({
+          success: false,
+          error: "invalid_task_type"
+        });
+      }
 
-  if (
-    parsedUrl.protocol !== "https:" ||
-    parsedUrl.hostname !== "t.me" ||
-    parsedUrl.pathname.split("/").filter(Boolean).length !== 1
-  ) {
-    throw new Error("invalid_channel_url");
-  }
+      try {
+        const parsedUrl = new URL(url);
 
-  channelUsername = parsedUrl.pathname
-    .split("/")
-    .filter(Boolean)[0];
+        if (parsedUrl.protocol !== "https:") {
+          throw new Error("invalid_url");
+        }
 
-  if (!/^[A-Za-z0-9_]{5,32}$/.test(channelUsername)) {
-    throw new Error("invalid_channel_username");
-  }
-} catch {
-  return res.status(400).json({
-    success: false,
-    error: "invalid_telegram_channel_url"
-  });
-}
+        if (taskType === "telegram") {
+          const parts = parsedUrl.pathname.split("/").filter(Boolean);
 
-if (
-  !title ||
-  title.length > 200 ||
-  !Number.isFinite(reward) ||
-  reward <= 0 ||
-  reward > 100000
-) {
-  return res.status(400).json({
-    success: false,
-    error: "invalid_task"
-  });
-}
+          if (
+            parsedUrl.hostname !== "t.me" ||
+            parts.length !== 1 ||
+            !/^[A-Za-z0-9_]{5,32}$/.test(parts[0])
+          ) {
+            throw new Error("invalid_telegram_url");
+          }
+        } else if (taskType === "youtube_video") {
+          const validVideo =
+            (parsedUrl.hostname === "youtu.be" &&
+              /^[A-Za-z0-9_-]{11}$/.test(parsedUrl.pathname.slice(1))) ||
+            (["youtube.com", "www.youtube.com"].includes(parsedUrl.hostname) &&
+              parsedUrl.pathname === "/watch" &&
+              /^[A-Za-z0-9_-]{11}$/.test(parsedUrl.searchParams.get("v") || ""));
 
+          if (!validVideo) throw new Error("invalid_youtube_video_url");
+        } else if (taskType === "youtube_subscribe") {
+          if (
+            !["youtube.com", "www.youtube.com"].includes(parsedUrl.hostname) ||
+            !/^\/@[\w.-]+\/?$/.test(parsedUrl.pathname)
+          ) {
+            throw new Error("invalid_youtube_channel_url");
+          }
+        }
+      } catch {
+        return res.status(400).json({
+          success: false,
+          error: "invalid_task_url"
+        });
+      }
 
       const { data: admin, error: adminError } = await supabase
         .from("takapay_admins")
@@ -1496,14 +1517,15 @@ if (
       }
 
       const { data: task, error } = await supabase
-.from("tasks")
-.insert({
-  title,
-  reward,
-  url,
-  is_active: true
-})
-        .select("id, title, reward, is_active, created_at")
+        .from("tasks")
+        .insert({
+          title,
+          reward,
+          url,
+          task_type: taskType,
+          is_active: true
+        })
+        .select("id, title, reward, url, task_type, is_active, created_at")
         .single();
 
       if (error) {
@@ -1527,6 +1549,7 @@ if (
     }
   }
 );
+
 
 /* Verify channel membership and reward an admin task */
 app.post(
@@ -1702,8 +1725,7 @@ app.get(
     try {
       const { data: tasks, error } = await supabase
         .from("tasks")
-        .select("id, title, reward, url, created_at")
-        .eq("is_active", true)
+        .select("id, title, reward, url, task_type, created_at")  .eq("is_active", true)
         .order("created_at", { ascending: false });
 
       if (error) {
