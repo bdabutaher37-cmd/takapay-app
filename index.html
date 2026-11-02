@@ -1371,7 +1371,9 @@ document.getElementById('loadWithdrawals').onclick = async function () {
       details.textContent =
         'নাম: ' + (item.full_name || 'নাম পাওয়া যায়নি') +
         '\nTelegram ID: ' + item.telegram_id +
-        '\nপরিমাণ: ৳' + Number(item.amount).toFixed(2) +
+'\nমোট উইথড্র: ৳' + Number(item.amount).toFixed(2) +
+'\nউইথড্র ফি (৫%): ৳' + Number(item.fee_amount).toFixed(2) +
+'\nব্যবহারকারীকে পাঠাতে হবে: ৳' + Number(item.payout_amount).toFixed(2) + 
         '\nপদ্ধতি: ' + (item.method || 'দেওয়া নেই') +
         '\nঅ্যাকাউন্ট: ' + (item.account_number || 'দেওয়া নেই') +
         '\nস্ট্যাটাস: ' + (item.status || 'অজানা');
