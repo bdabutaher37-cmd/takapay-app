@@ -2005,6 +2005,54 @@ app.get(
 );
 
 app.post(
+  "/api/admin/recharges/:id/verify",
+  requireConfig,
+  requireTelegram,
+  async (req, res) => {
+    try {
+      if (!(await verifyRechargeAdmin(req, res))) return;
+
+      const requestId = Number(req.params.id);
+
+      if (!Number.isSafeInteger(requestId) || requestId < 1) {
+        return res.status(400).json({
+          success: false,
+          error: "invalid_request_id"
+        });
+      }
+
+      const { data, error } = await supabase
+        .from("plan_recharge_requests")
+        .update({ payment_verified: true })
+        .eq("id", requestId)
+        .eq("status", "pending")
+        .select("id")
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (!data) {
+        return res.status(409).json({
+          success: false,
+          error: "request_not_pending"
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: "payment_verified"
+      });
+    } catch (error) {
+      console.error("Recharge verification failed:", error.message);
+      return res.status(500).json({
+        success: false,
+        error: "verification_failed"
+      });
+    }
+  }
+);
+
+app.post(
   "/api/admin/recharges/:id/approve",
   requireConfig,
   requireTelegram,
