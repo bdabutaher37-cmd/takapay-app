@@ -353,7 +353,7 @@ app.get(
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("telegram_id, username, balance, recharge_balance, created_at, active_plan")
+        .select("telegram_id, username, balance, recharge_balance, plan_bonus_balance, created_at, active_plan")
         .eq("telegram_id", req.telegramUser.id)
         .maybeSingle();
 
