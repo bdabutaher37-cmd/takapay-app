@@ -1248,6 +1248,15 @@ document.querySelectorAll('[data-plan]').forEach(b => {
       const me = await api('/api/me');
       window.currentActivePlan = me.profile?.active_plan || 'free';
       updatePlanButtons(window.currentActivePlan);
+      const totalBalance = Number(me.profile?.balance || 0);
+const rechargeBalance = Number(me.profile?.recharge_balance || 0);
+const planBonusBalance = Number(me.profile?.plan_bonus_balance || 0);
+
+document.getElementById('combinedBalance').textContent =
+  '৳ ' + (totalBalance + rechargeBalance).toFixed(2);
+
+document.getElementById('planBonusBalance').textContent =
+  '৳ ' + planBonusBalance.toFixed(2);
       renderTasks();
 
       note('প্ল্যান সফলভাবে কেনা হয়েছে! ৳' + price + ' কাটা হয়েছে।');
