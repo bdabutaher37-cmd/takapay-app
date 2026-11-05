@@ -2590,11 +2590,16 @@ app.post(
       }
 
       return res.json({
-        success: true,
-        message: "plan_purchase_success",
-        plan: data.plan,
-        price: data.price
-      });
+  success: true,
+  message: "plan_purchase_success",
+  plan: data.plan,
+  price: data.price,
+  recharge_used: data.recharge_used,
+  bonus_used: data.bonus_used,
+  bonus_awarded: data.bonus_awarded,
+  bonus_balance: data.bonus_balance,
+  plan_expires_at: data.plan_expires_at
+});
     } catch (error) {
       console.error("Plan purchase error:", error.message);
       return res.status(500).json({
