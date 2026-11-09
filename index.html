@@ -1172,7 +1172,7 @@ const result=await api('/api/withdraw',{method:'POST',body:JSON.stringify({amoun
   const me=await api('/api/me');setBalance(me.profile?.balance||0);
   const tx=await api('/api/transactions');renderHistory(tx.transactions||[]);
 
-}catch(err){note('দুঃখিত ভাই ❤️ আপনার উইথড্র অনুরোধটি সম্পন্ন করা যায়নি। অনুগ্রহ করে আপনার ব্যালেন্স ও তথ্য যাচাই করে আবার চেষ্টা করুন।')}
+}catch(err){note('দুঃখিত ভাই ❤️ আপনার উইথড্র অনুরোধটি সম্পন্ন করা হয় নি। অনুগ্রহ করে রিচার্জ করে প্লান নিন ।')}
 
 };
 
